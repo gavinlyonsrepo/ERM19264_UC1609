@@ -1,4 +1,4 @@
-![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/master/extras/image/colour.jpg)
+![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/master/extras/image/color.jpg)
 
 Table of contents
 ---------------------------
@@ -46,7 +46,9 @@ Output Screenshots, From left to right top to bottom.
 3. Different size and type of fonts 
 4. Available font printed out (this can be expanded by mod see features)
 
-![op](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/master/extras/image/output.jpg)
+![op](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/output.jpg)
+
+https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/connect.jpg
 
 Installation
 ------------------------------
@@ -74,14 +76,14 @@ There are 3 different colours in range, Parts used purchased from [ebay](https:/
 The UC1609 controller chip is a 3.3 device but the ERM LCD module has a "662k" 3.3V regulator at back.
 So the ERM LCD module will  run at 5V as well if this is present. I always run it at 3.3V during testing. The Backlight should always be connected to 3.3V according to datasheets.  
 
-![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/master/extras/image/connect.jpg)
+![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/connect.jpg)
 
 Features
 -------------------------
 
 *SPI*
 
-Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is much faster but Software SPI allows for more flexible GPIO.
+Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is much faster but Software SPI allows for more flexible GPIO
 selection and easy to port to other MCU's. When running Software SPI it may be necessary on very high frequency MCU to change the UC1609_HIGHFREQ_DELAY define, It is a microsecond delay by default it is at 0.
 
 *buffers*
@@ -93,22 +95,23 @@ selection and easy to port to other MCU's. When running Software SPI it may be n
 3. NO_BUFFER , Text only no buffer , relatively light weight. A "hello world" Sketch uses 2320 bytes (7%) of and 42 bytes (2%) of dynamic memory. Turns LCD into simple character LCD(216 characters)
 
 To switch between user must make a change to the USER BUFFER OPTION SECTION  at top of 
-ERM19264_UC1609.h file.  Pick one option and one option only. The example files at top say which option to pick. If wrong option is picked, example files will not work or even compile.
+ERM19264_UC1609.h file.  Pick one option and one option only. The example files at top, say which option to pick. If wrong option is picked, example files will not work or even compile.
 Bitmaps can still be written directly to screen in NO_BUFFER mode but no graphics possible.
 
 *fonts*
 
-The font(custom_font in the custom_graphics_font.h file)  is truncated by a define ( UC_FONT_MOD_TWO) after first 127 characters (see output pic) to save memory space(640 bytes), if you wish to use rest of font, simply comment this define out. The font is a standard 5 by 7 ASCII font with two  columns  of padding added. So 7 by 8 in effect. In standard text size and No buffer mode this means 192/7 * 64/8 = 27 * 8 = 216 characters.
+The font(custom_font in the custom_graphics_font.h file)  is truncated by a define ( UC_FONT_MOD_TWO) after first 127 characters (see output pic) to save memory space(640 bytes), if you wish to use rest of font, simply comment this define out. The font is a standard 5 by 7 ASCII font with two  columns  of padding added. So 7 by 8 in effect. In standard text size and "no buffer" mode, this means: 192/7 * 64/8 = 27 * 8 = 216 characters.
 
 *User adjustments*
 
-When the user calls LCDbegin() to start LCD they can specify a contrast setting form 0x00 to 0xFF.
+When the user calls LCDbegin() to start LCD they can specify a contrast setting from 0x00 to 0xFF.
 Datasheet says 0x49 is default. (VbiasPOT)
 
-It is also possible for user to change LCD bias ,  Temperature coefficient, frame rate and power control but this must be done by changing defines in header file. Choose lower frame rate for lower power, and choose higher frame rate to improve LCD contrast and minimize flicker.
+It is also possible for user to change LCD bias ,  Temperature coefficient, frame rate and power control but this must be done by changing defines in header file. Choose lower frame rate for lower power, and choose higher frame rate to improve LCD contrast and minimize flicker. See Data sheet for range of values
+here. Defaults where found to be fine during all testing of this library.
 
 
-| Parameter | Value |  Define | Register |
+| Parameter | default Values |  Define | Register |
 | ------ | ------ |  ------ | ------ |
 | LCD bias |  9 | BIAS_RATIO_SET | BR 1:0 |
 | Temp coefficient | -0.00%/ C |  TEMP_COMP_SET | TC 1:0  |
@@ -118,13 +121,11 @@ It is also possible for user to change LCD bias ,  Temperature coefficient, fram
 
 *Functions*
 
-Functions: Detailed information on the functions can be found in comments in the library.h header file and a list of them in keywords.txt. The graphic functions can be found in the custom_graphic.h
+Functions: Detailed information on the functions can be found in comments in the ERM19264_UC1609.h header file and a list of them in keywords.txt. The graphic functions can be found in the custom_graphic.h
 file. 
 
 Files
 -------------------
-
-Src files
 
 | Src Files| Desc |
 | ------ | ------ |
@@ -136,11 +137,11 @@ Src files
 
 | Examples files ino  | Desc |
 | ------ | ------ |
-| _BITMAP | Shows use of bitmaps  |
-| _GRAPHICS |  Shows use of graphics   |
-| _MISC | Shows misc functions, rotate invert etc |
-| _MULTIBUFFER | Shows use of multi buffer mode |
-| _NOBUFFER | Shows use of text only mode |
-| _TEXT | Shows use of text IN buffer mode   |
-| _SINGLEBUFFER| Shows use of single bufer mode |
-| _SWSPI | Shows use of software SPI |
+|  BITMAP | Shows use of bitmaps  |
+| GRAPHICS |  Shows use of graphics   |
+| MISC | Shows misc functions, rotate invert etc |
+| MULTIBUFFER | Shows use of multi buffer mode |
+| NOBUFFER | Shows use of no buffer text only mode |
+| TEXT | Shows use of text IN buffer mode   |
+| SINGLEBUFFER| Shows use of single bufer mode |
+| SWSPI | Shows use of software SPI |
