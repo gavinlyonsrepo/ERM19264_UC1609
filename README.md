@@ -1,4 +1,4 @@
-![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/master/extras/image/color.jpg)
+![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/color.jpg)
 
 Table of contents
 ---------------------------
@@ -48,7 +48,6 @@ Output Screenshots, From left to right top to bottom.
 
 ![op](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/output.jpg)
 
-https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/connect.jpg
 
 Installation
 ------------------------------
