@@ -1,0 +1,60 @@
+# -----------------------------------------
+# Syntax colouring for ERM19264_UC1609 library
+# -----------------------------------------
+
+# Datatypes (such as objects)
+ERM19264_UC1609	KEYWORD1
+MultiBuffer	KEYWORD1
+ActiveBuffer	KEYWORD1
+
+#Methods / functions
+
+drawPixel	KEYWORD2
+LCDupdate	KEYWORD2
+LCDclearBuffer	KEYWORD2
+LCDBuffer	KEYWORD2
+
+LCDNoBufferGotoXY	KEYWORD2
+LCDNoBufferChar	KEYWORD2
+LCDNoBufferString	KEYWORD2
+
+LCDbegin	KEYWORD2
+LCDinit	KEYWORD2
+LCDEnable	KEYWORD2
+LCDFillScreen	KEYWORD2
+LCDFillPage	KEYWORD2
+LCDrotate	KEYWORD2
+invertDisplay	KEYWORD2
+LCD_allpixelsOn	KEYWORD2
+LCDscroll	KEYWORD2
+LCDReset	KEYWORD2
+LCDBitmap	KEYWORD2
+
+drawLine	KEYWORD2
+drawFastVLine	KEYWORD2
+drawFastHLine	KEYWORD2
+drawRect	KEYWORD2
+fillRect	KEYWORD2
+drawCircle	KEYWORD2
+drawCircleHelper	KEYWORD2
+fillCircle	KEYWORD2
+fillCircleHelperKEYWORD2
+drawTriangle	KEYWORD2
+fillTriangle	KEYWORD2
+drawRoundRect	KEYWORD2
+fillRoundRect	KEYWORD2
+drawChar	KEYWORD2
+setCursor	KEYWORD2
+setTextColor	KEYWORD2
+setTextColor	KEYWORD2
+setTextSize	KEYWORD2
+setTextWrap	wKEYWORD2
+
+# Constants
+
+FOREGROUND	LITERAL1
+BACKGROUND	LITERAL1
+UC1609_ROTATION_FLIP_TWO	LITERAL1
+UC1609_ROTATION_NORMAL	LITERAL1
+UC1609_ROTATION_FLIP_ONE	LITERAL1
+UC1609_ROTATION_FLIP_THREE	LITERAL1

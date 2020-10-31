@@ -1,0 +1,26 @@
+SPI speed results test ERM19264_UC1609_SWSPI.ino.
+
+(1) UNO
+
+SW SPI 1000 counts 180 seconds UNO
+HW SPI 1000 counts 14 seconds  UNO
+Framerate 30
+(25 bytes saving. with SPI.h commented out UNO)
+
+(3) EPS8266 
+80MHZ 60 seconds for SW SPI.  to count 1000
+160 MHZ 30 seconds for SW SPI to count 1000
+80 MHZ HW SPI 7 seconds to count 1000 
+160 MHZ HW SPI 5 second  to count 1000
+Framerate 161 , 160 MHZ HW SPI 
+
+(4) ESP32
+SPI SW 240 MHZ 25 seconds to 1000
+SPI HW 240 MHZ 14 seconds to 1000 at 1,000,000
+SPI HW 240 MHZ 4 seconds to 1000 at 8,000,000
+Framerate 200 , 240MHZ HW SPI. 
+
+(5) ST32 
+SPI SW 72 MHZ 33 seconds to 1000 
+SPI HW 72 MHZ 5 seconds to 1000 clock divider set to  8 72/8 
+Framerate 102. 
