@@ -134,9 +134,9 @@ void ERM19264_UC1609::send_command (uint8_t command, uint8_t value)
 void ERM19264_UC1609::LCDReset () 
 {
   UC1609_RST_SetLow;
-  delay(UC1609_RESET_DELAY); // Datasheet says  3uS
+  delay(UC1609_RESET_DELAY); 
   UC1609_RST_SetHigh;
-  delay(UC1609_RESET_DELAY2); // DataSheet says 5mS
+  delay(UC1609_RESET_DELAY2);
 }
 
 // Desc: turns in display

@@ -1,0 +1,9 @@
+Next version (post 1.0.0)
+
+1. reset pin optional, possible?  just 4 wire SPI?
+2. status register ,  read it
+3. Rotate 90 degrees possible?
+4. Correct delay time for issue: software SPI on white by blue LCD. issue 1 readme.
+
+
+

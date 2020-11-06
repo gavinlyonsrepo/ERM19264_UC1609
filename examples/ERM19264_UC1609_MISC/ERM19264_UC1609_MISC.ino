@@ -34,7 +34,7 @@ ERM19264_UC1609  mylcd(CD , RST, CS);
 // ************* SETUP ***************
 void setup()
 {
-  mylcd.LCDbegin();             // initialize the LCD
+  mylcd.LCDbegin(VbiasPOT);             // initialize the LCD
   mylcd.LCDFillScreen(0x00, 0); // Clears screen
 }
 

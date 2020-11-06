@@ -86,10 +86,10 @@
 #define UC1609_ROTATION_FLIP_THREE 0x00
 
 // Delays
-#define UC1609_RESET_DELAY 150 // mS delay
-#define UC1609_RESET_DELAY2   1 // mS delay
+#define UC1609_RESET_DELAY 50 // mS delay . datasheet says 3uS
+#define UC1609_RESET_DELAY2   0 // mS delay . DataSheet says 5mS
 #define UC1609_INIT_DELAY 100   //  mS delay
-#define UC1609_INIT_DELAY2 3 // mS delay
+#define UC1609_INIT_DELAY2 3 // mS delay . DataSheet says 3mS
 
 // No buffer font
 #define UC1609_ASCII_OFFSET 0x20 //0x20, ASCII character for Space

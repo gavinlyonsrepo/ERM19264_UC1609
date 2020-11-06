@@ -1,7 +1,7 @@
 
-// Example file name : ERM19264_UC1609_Graphics.ino
+// Example file name : ERM19264_UC1609_BITMAP.ino
 // Description:
-// Test file for ERM19264_UC1609 library, showing use of graphic functions from included graphics library.
+// Test file for ERM19264_UC1609 library, showing how to display bitmaps.
 // URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
 // *****************************
 // NOTES :

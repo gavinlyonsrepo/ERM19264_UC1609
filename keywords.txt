@@ -48,7 +48,7 @@ setCursor	KEYWORD2
 setTextColor	KEYWORD2
 setTextColor	KEYWORD2
 setTextSize	KEYWORD2
-setTextWrap	wKEYWORD2
+setTextWrap	KEYWORD2
 
 # Constants
 

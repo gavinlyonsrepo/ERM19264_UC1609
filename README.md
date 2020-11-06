@@ -9,8 +9,9 @@ Table of contents
   * [Hardware](#hardware)
   * [Features](#features)
   * [Files](#files)
-
-
+  * [Issues](#issues)
+  * [Ports](#ports)
+  
 Overview
 --------------------
 * Name : ERM19264_UC1609
@@ -52,7 +53,7 @@ Output Screenshots, From left to right top to bottom.
 Installation
 ------------------------------
 
-The library is included(PENDING approval) in the official Arduino library manger and the optimum way to install it is using the library manager which can be opened by the *manage libraries* option in Arduino IDE. Search "ERM19264" in search bar of library manager to find it.
+The library is included in the official Arduino library manger and the optimum way to install it is using the library manager which can be opened by the *manage libraries* option in Arduino IDE. 
 
 See link below for instruction for this and for the other methods too.
 
@@ -61,8 +62,8 @@ See link below for instruction for this and for the other methods too.
 Hardware
 ----------------------------
 
-9 pins , Vcc and GND, anode and cathode for the backlight LED and a 5-wire SPI interface.
-This is a Diagram from the manufacturer showing hardware setup connected to an MCU. The example files are setup for an UNO for the pin connections used by for other MCU tested see extras folder GPIO_MCU_used.txt file. The backlight control is left up to user.
+9 pins , Vcc and GND, anode and cathode for the backlight LED and an SPI interface.
+The example files are setup for an UNO for the pin connections used by for other MCU tested see extras folder GPIO_MCU_used.txt file. The backlight control is left up to user.
 If  using Hardware SPI two of  pins will be tied to the SPI CLK and MOSI lines if using software SPI you should be able use any GPIO you want for all five pins.
 Datasheets are in the extras folder. 
 
@@ -72,8 +73,14 @@ There are 3 different colours in range, Parts used purchased from [ebay](https:/
 2. ERM19264FS-5 V3 LCD Display  UC1609C controller , black on white
 3. ERM19264DNS-5 V3 LCD Display  UC1609C controller white on black
 
-The UC1609 controller chip is a 3.3 device but the ERM LCD module has a "662k" 3.3V regulator at back.
-So the ERM LCD module will  run at 5V as well if this is present. I always run it at 3.3V during testing. The Backlight should always be connected to 3.3V according to datasheets.  
+The library was tested on 1 and 2. 
+The UC1609 controller chip is a 3.3V device but the ERM LCD module has a "662k" 3.3V regulator at back.
+So the ERM LCD module will run at 5V as well if this is present.
+It was always run it at 3.3V during testing. 
+The Backlight should always be connected to 3.3V according to datasheets.  
+
+This wiring Diagram from the manufacturer showing hardware setup connected to an ~8051 MCU.
+Showing both 5 and 3.3 volt systems.
 
 ![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/connect.jpg)
 
@@ -82,8 +89,7 @@ Features
 
 *SPI*
 
-Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is much faster but Software SPI allows for more flexible GPIO
-selection and easy to port to other MCU's. When running Software SPI it may be necessary on very high frequency MCU to change the UC1609_HIGHFREQ_DELAY define, It is a microsecond delay by default it is at 0.
+Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is recommended, far faster and more reliable but Software SPI allows for more flexible GPIO selection and easier to port to other MCU' s. When running Software SPI it may be necessary on very high frequency MCU's to change the UC1609_HIGHFREQ_DELAY define, It is a microsecond delay by default it is at 0.
 
 *buffers*
 
@@ -93,7 +99,7 @@ selection and easy to port to other MCU's. When running Software SPI it may be n
 2. SINGLE_BUFFER 
 3. NO_BUFFER , Text only no buffer , relatively light weight. A "hello world" Sketch uses 2320 bytes (7%) of and 42 bytes (2%) of dynamic memory. Turns LCD into simple character LCD(216 characters)
 
-To switch between user must make a change to the USER BUFFER OPTION SECTION  at top of 
+To switch between modes, user must make a change to the USER BUFFER OPTION SECTION  at top of 
 ERM19264_UC1609.h file.  Pick one option and one option only. The example files at top, say which option to pick. If wrong option is picked, example files will not work or even compile.
 Bitmaps can still be written directly to screen in NO_BUFFER mode but no graphics possible.
 
@@ -120,8 +126,7 @@ here. Defaults where found to be fine during all testing of this library.
 
 *Functions*
 
-Functions: Detailed information on the functions can be found in comments in the ERM19264_UC1609.h header file and a list of them in keywords.txt. The graphic functions can be found in the custom_graphic.h
-file. 
+Functions: Detailed information on the functions can be found in comments in the ERM19264_UC1609.cpp  file and a list of them in keywords.txt. The graphic functions can be found in the custom_graphic.h file. 
 
 Files
 -------------------
@@ -129,10 +134,10 @@ Files
 | Src Files| Desc |
 | ------ | ------ |
 | ERM19264_UC1609.h | library header file  |
-| ERM19264_UC1609.cpp |  library header source   |
+| ERM19264_UC1609.cpp |  library  source file  |
 | custom_graphics.h | Custom graphics header file |
-| custom_graphics.cpp | Custom graphics header source|
-| custom_graphics_font.h | Custom graphics header file  font |
+| custom_graphics.cpp | Custom graphics source file |
+| custom_graphics_font.h | Custom graphics  font  file |
 
 | Examples files ino  | Desc |
 | ------ | ------ |
@@ -142,5 +147,28 @@ Files
 | MULTIBUFFER | Shows use of multi buffer mode |
 | NOBUFFER | Shows use of no buffer text only mode |
 | TEXT | Shows use of text IN buffer mode   |
-| SINGLEBUFFER| Shows use of single bufer mode |
+| SINGLEBUFFER| Shows use of single buffer mode |
 | SWSPI | Shows use of software SPI |
+
+Issues 
+--------------------
+
+Issues with version 1.0.0.
+
+1. Version 1.0.0 was tested on the ERM19264FS (black on white) LCD after release it was tested
+on ERM19264SBS (white on blue) LCD and it was found that although hardware SPI was fine 
+there was a issue with the software SPI.The LCD was not initialising, after debug it was found that it was being caused by a delay in the reset routine which is defined in the ERM_UC1609.h header file.
+UC1609_RESET_DELAY2 , The datasheet says this should be  5mS but the LCD(white on blue)  would only initialise when this was reduced. This will be corrected in next version. So in summary 
+
+If you are using ERM19264SBS (white on blue) LCD with software SPI, Set UC1609_RESET_DELAY2  to 0 in 
+the ERM_UC1609.h header file.
+ 
+2. Example file  MISC , VbiasPot define missing from LCDbegin(), if missing defaults to 0x49 , datasheet default, so not a big deal.
+3. Typo in Keywords.txt file for setTextWrap line, will just effect the IDE highlight effect. 
+
+
+Ports
+------------------------------------------
+
+* ERM19264_UC1609_T (T for text). Light weight Text only version for arduino ecosystem [here at link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_T)
+

@@ -33,14 +33,11 @@ long elapsedTime ;                  // elapsed time for stop watch
 // ************* SETUP ***************
 void setup() {
   delay(50);
-  Serial.begin(9600);
-  Serial.println("up");
   mylcd.LCDbegin(VbiasPOT); // initialize the LCD
   mylcd.LCDFillScreen(0x00, 0); // Clear the screen
   startTime = millis();
 
 }
-
 
 // ************** MAIN LOOP ***********
 void loop() {
