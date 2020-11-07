@@ -172,3 +172,5 @@ Ports
 
 * ERM19264_UC1609_T (T for text). Light weight Text only version for arduino ecosystem [here at link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_T)
 
+* PIC Xc8 ports [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
+
