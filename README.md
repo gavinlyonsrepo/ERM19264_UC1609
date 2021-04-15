@@ -9,7 +9,6 @@ Table of contents
   * [Hardware](#hardware)
   * [Features](#features)
   * [Files](#files)
-  * [Issues](#issues)
   * [Ports](#ports)
   
 Overview
@@ -45,7 +44,7 @@ Output Screenshots, From left to right top to bottom.
 1. Full screen bitmap displayed
 2. Multi buffer mode screen divided into two buffers
 3. Different size and type of fonts 
-4. Available font printed out (this can be expanded by mod see features)
+4. Available ASCII font printed out, this can be expanded to [extended ASCII font](https://www.extended-ascii.com/) by minor modification to file see features.
 
 ![op](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/output.jpg)
 
@@ -80,7 +79,7 @@ It was always run it at 3.3V during testing.
 The Backlight should always be connected to 3.3V according to datasheets.  
 
 This wiring Diagram from the manufacturer showing hardware setup connected to an ~8051 MCU.
-Showing both 5 and 3.3 volt systems.
+Showing both 5 volt and 3.3 volt systems.
 
 ![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/connect.jpg)
 
@@ -89,7 +88,7 @@ Features
 
 *SPI*
 
-Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is recommended, far faster and more reliable but Software SPI allows for more flexible GPIO selection and easier to port to other MCU' s. When running Software SPI it may be necessary on very high frequency MCU's to change the UC1609_HIGHFREQ_DELAY define, It is a microsecond delay by default it is at 0.
+Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is recommended, far faster and more reliable but Software SPI allows for more flexible GPIO selection and easier to port to other MCU' s. When running Software SPI it may be necessary on very high frequency MCU's to change the UC1609_HIGHFREQ_DELAY define, It is a microsecond delay by default it is at 0. All the hardware SPI settings are defined in the header file and can be changed if necessary. 
 
 *buffers*
 
@@ -100,12 +99,12 @@ Hardware and software SPI. Two different class constructors. User can pick the r
 3. NO_BUFFER , Text only no buffer , relatively light weight. A "hello world" Sketch uses 2320 bytes (7%) of and 42 bytes (2%) of dynamic memory. Turns LCD into simple character LCD(216 characters)
 
 To switch between modes, user must make a change to the USER BUFFER OPTION SECTION  at top of 
-ERM19264_UC1609.h file.  Pick one option and one option only. The example files at top, say which option to pick. If wrong option is picked, example files will not work or even compile.
+ERM19264_UC1609.h file.  Pick ONE option and one option ONLY. The example files at top, say which option to pick. If wrong option is picked, example files will not work or maybe even compile.
 Bitmaps can still be written directly to screen in NO_BUFFER mode but no graphics possible.
 
 *fonts*
 
-The font(custom_font in the custom_graphics_font.h file)  is truncated by a define ( UC_FONT_MOD_TWO) after first 127 characters (see output pic) to save memory space(640 bytes), if you wish to use rest of font, simply comment this define out. The font is a standard 5 by 7 ASCII font with two  columns  of padding added. So 7 by 8 in effect. In standard text size and "no buffer" mode, this means: 192/7 * 64/8 = 27 * 8 = 216 characters.
+The ASCII font(custom_font in the custom_graphics_font.h file) is truncated by a define ( UC_FONT_MOD_TWO) after first 127 characters (see output pic) to save memory space(640 bytes), if you wish to use rest of the [extended ASCII font](https://www.extended-ascii.com/), simply comment this define out. The font is a standard 5 by 7 ASCII font with two  columns  of padding added. So 7 by 8 in effect. In standard text size and "no buffer" mode, this means: 192/7 * 64/8 = 27 * 8 = 216 characters. 
 
 *User adjustments*
 
@@ -141,7 +140,7 @@ Files
 
 | Examples files ino  | Desc |
 | ------ | ------ |
-|  BITMAP | Shows use of bitmaps  |
+| BITMAP | Shows use of bitmaps  |
 | GRAPHICS |  Shows use of graphics   |
 | MISC | Shows misc functions, rotate invert etc |
 | MULTIBUFFER | Shows use of multi buffer mode |
@@ -149,23 +148,6 @@ Files
 | TEXT | Shows use of text IN buffer mode   |
 | SINGLEBUFFER| Shows use of single buffer mode |
 | SWSPI | Shows use of software SPI |
-
-Issues 
---------------------
-
-Issues with version 1.0.0.
-
-1. Version 1.0.0 was tested on the ERM19264FS (black on white) LCD after release it was tested
-on ERM19264SBS (white on blue) LCD and it was found that although hardware SPI was fine 
-there was a issue with the software SPI.The LCD was not initialising, after debug it was found that it was being caused by a delay in the reset routine which is defined in the ERM_UC1609.h header file.
-UC1609_RESET_DELAY2 , The datasheet says this should be  5mS but the LCD(white on blue)  would only initialise when this was reduced. This will be corrected in next version. So in summary 
-
-If you are using ERM19264SBS (white on blue) LCD with software SPI, Set UC1609_RESET_DELAY2  to 0 in 
-the ERM_UC1609.h header file.
- 
-2. Example file  MISC , VbiasPot define missing from LCDbegin(), if missing defaults to 0x49 , datasheet default, so not a big deal.
-3. Typo in Keywords.txt file for setTextWrap line, will just effect the IDE highlight effect. 
-
 
 Ports
 ------------------------------------------

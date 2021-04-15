@@ -32,6 +32,7 @@ ERM19264_UC1609  :: ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs, int8_t scl
   _LCD_CS = cs;
   _LCD_DIN = din;  
   _LCD_SCLK = sclk;
+  
 }
 
 #else
@@ -73,12 +74,12 @@ void ERM19264_UC1609::LCDbegin (uint8_t VbiasPOT)
    //There is a pre-defined macro SPI_HAS_TRANSACTION in SPI library for checking whether the firmware //of the Arduino board supports SPI.beginTransaction().
 #ifdef SPI_HAS_TRANSACTION
     {
-    SPI.beginTransaction(SPISettings(SPI_FREQ, MSBFIRST, SPI_MODE0));
+    SPI.beginTransaction(SPISettings(SPI_FREQ, SPI_DIRECTION, SPI_UC1609_MODE));
    }
 #else
     {
         //STM32 blue pill uses this 
-        SPI.setClockDivider(SPI_CLOCK_DIV8); // 72/8 = 9Mhz
+        SPI.setClockDivider(SPI_UC1609_CLOCK_DIV); // 72/8 = 9Mhz
       }
 #endif
 
@@ -92,7 +93,9 @@ void ERM19264_UC1609::LCDbegin (uint8_t VbiasPOT)
   LCDinit();
 }
 
+
 // Desc: Called from LCDbegin carries out Power on sequence and register init
+// Can be used to reset LCD to default values.
 void ERM19264_UC1609::LCDinit()
  {
   delay(UC1609_INIT_DELAY2); //3mS delay, datasheet
@@ -129,7 +132,7 @@ void ERM19264_UC1609::send_command (uint8_t command, uint8_t value)
   UC1609_CD_SetHigh;
 }
 
-// Desc: Resets LCD in a five wire setup called at start 
+// Desc: Resets LCD in a four wire setup called at start 
 // and  should also be called in a controlled power down setting
 void ERM19264_UC1609::LCDReset () 
 {
@@ -175,7 +178,7 @@ void ERM19264_UC1609::LCDrotate(uint8_t rotatevalue)
       case 0x02: rotatevalue = UC1609_ROTATION_FLIP_ONE; break;
       case 0x04: rotatevalue = UC1609_ROTATION_NORMAL; break;
       case 0x06: rotatevalue = UC1609_ROTATION_FLIP_TWO; break;
-      default:  rotatevalue = UC1609_ROTATION_NORMAL; break;
+      default: rotatevalue = UC1609_ROTATION_NORMAL; break;
   }
   send_command(UC1609_LCD_CONTROL, rotatevalue);
  UC1609_CS_SetHigh;
@@ -300,6 +303,33 @@ void ERM19264_UC1609::send_data(uint8_t byte)
   }
 } 
 
+// Function to read "Get Status" registers 
+// NOTE not working as of v 1.1.0 (returning 0x00)
+uint16_t  ERM19264_UC1609::LCDreadStatus()
+ {
+	uint8_t resultbyte1 =0;
+	uint8_t resultbyte2  = 0; 
+	uint16_t ReturnResult = 0;  
+	
+	UC1609_CS_SetLow;
+	send_command(UC1609_GET_STATUS,0);
+	if (isHardwareSPI()) // Hardware SPI
+	{
+		resultbyte1 = SPI.transfer(0x00);
+		resultbyte2 = SPI.transfer(0x00);
+	}else 
+	{
+		resultbyte1 = shiftIn(_LCD_DIN, _LCD_SCLK, MSBFIRST);
+		resultbyte2 = shiftIn(_LCD_DIN, _LCD_SCLK, MSBFIRST);
+	}
+	
+	UC1609_CS_SetHigh;
+	
+	 resultbyte1 = resultbyte1<< 8;
+	 ReturnResult = resultbyte1| resultbyte2;
+	 return ReturnResult;
+ }
+ 
 // ******************************************************
 // Functions below not & needed for no_buffer mode 
 #ifndef NO_BUFFER

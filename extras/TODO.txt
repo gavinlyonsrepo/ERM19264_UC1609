@@ -1,9 +1,5 @@
-Next version (post 1.0.0)
+Next version (post 1.1.0)
 
-1. reset pin optional, possible?  just 4 wire SPI?
-2. status register ,  read it
-3. Rotate 90 degrees possible?
-4. Correct delay time for issue: software SPI on white by blue LCD. issue 1 readme.
-
-
-
+1. Status register ,  read it , Function not working LCDreadStatus() reads back 0x00 always.
+2. Rotate 90 degrees possible?
+3. Investigate SPI end transaction method 

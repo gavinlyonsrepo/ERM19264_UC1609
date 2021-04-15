@@ -18,10 +18,10 @@
 
 //***********************************************
 // ** USER BUFFER OPTION SECTION **********
-// Pick one buffer option and ONE  option only 
+// Pick one buffer option and ONE option ONLY 
 #define MULTI_BUFFER // (1) Note default
 //#define SINGLE_BUFFER // (2) 
-//#define NO_BUFFER   // (3) 
+//#define NO_BUFFER   // (3) No graphics, text + bitmap only
 // **********************************************
 // **********************************************
 
@@ -46,10 +46,10 @@
 #define INVERSE 2
 
 // UC1909 Read registers
-#define UC1609_GET_STATUS 0x01 // Not used v1.0
+#define UC1609_GET_STATUS 0xFE
 
 // UC1909 Write registers
-#define UC1609_SYSTEM_RESET 0xE2 // Not used v1.0
+#define UC1609_SYSTEM_RESET 0xE2 // Not used v1.x
 
 #define UC1609_POWER_CONTROL 0x2F 
 #define UC1609_PC_SET 0x06 // PC[2:0] 110 Internal V LCD (7x charge pump) + 10b: 1.4mA
@@ -86,12 +86,12 @@
 #define UC1609_ROTATION_FLIP_THREE 0x00
 
 // Delays
-#define UC1609_RESET_DELAY 50 // mS delay . datasheet says 3uS
-#define UC1609_RESET_DELAY2   0 // mS delay . DataSheet says 5mS
+#define UC1609_RESET_DELAY 50 // mS delay
+#define UC1609_RESET_DELAY2   0 // mS delay
 #define UC1609_INIT_DELAY 100   //  mS delay
-#define UC1609_INIT_DELAY2 3 // mS delay . DataSheet says 3mS
+#define UC1609_INIT_DELAY2 3 // mS delay
 
-// No buffer font
+// No buffer mode font
 #define UC1609_ASCII_OFFSET 0x20 //0x20, ASCII character for Space
 #define UC1609_FONTPADDING  send_data(0x00)
 #define UC1609_FONTWIDTH 5
@@ -105,8 +105,10 @@
 #define UC1609_RST_SetLow digitalWrite(_LCD_RST, LOW)
 
 // SPI
-#define SPI_FREQ 8000000 // Mhz
-//#define SPI_FREQ 1000000 // Mhz, can be used on fast devices
+#define SPI_FREQ 8000000 // Mhz (1000000 can be used on high freq MCU)
+#define SPI_DIRECTION  MSBFIRST 
+#define SPI_UC1609_MODE SPI_MODE0
+#define SPI_UC1609_CLOCK_DIV SPI_CLOCK_DIV8 //STM32 uses this 
 #define UC1609_HIGHFREQ_DELAY 0 // Can be used in software SPI for high freq MCU
 
 // Display  Size
@@ -173,6 +175,7 @@ class ERM19264_UC1609 : public custom_graphics {
     void LCDscroll(uint8_t bits);
     void LCDReset(void);
     void LCDBitmap(int16_t x, int16_t y, uint8_t w, uint8_t h, const uint8_t* data);
+    uint16_t LCDreadStatus();
            
   private:
 

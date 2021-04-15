@@ -17,7 +17,9 @@
 #endif
  
 // ************ USER OPTION **************
-// This is set to reduce font size, to reduce program size.
+// This is set to reduce font size, to reduce program size(635 bytes)
+// Default use ASCII set 0-127
+// Define commented out use all Extended ASCII set 0-255 https://www.extended-ascii.com/
 // to use entire font after ~ character, user can comment out the define
 #define UC_FONT_MOD_TWO
 //*****************************************
@@ -151,7 +153,7 @@ static const unsigned char custom_font[] PROGMEM = {
 	0x00, 0x00, 0x77, 0x00, 0x00, // |
 	0x00, 0x41, 0x36, 0x08, 0x00  // }
 #ifndef UC_FONT_MOD_TWO
-	,0x02, 0x01, 0x02, 0x04, 0x02, 
+	,0x02, 0x01, 0x02, 0x04, 0x02, // capital letter c with cedilla
 	0x3C, 0x26, 0x23, 0x26, 0x3C, 
 	0x1E, 0xA1, 0xA1, 0x61, 0x12, 
 	0x3A, 0x40, 0x40, 0x20, 0x7A, 

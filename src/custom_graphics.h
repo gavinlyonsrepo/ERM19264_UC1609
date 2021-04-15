@@ -38,7 +38,7 @@ class custom_graphics : public Print {
     fillScreen(uint16_t color),
     invertDisplay(boolean i);
 
-  // These exist only with Adafruit_GFX (no subclass overrides)
+  // no subclass overrides
   void
     drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color),
     drawCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername,
