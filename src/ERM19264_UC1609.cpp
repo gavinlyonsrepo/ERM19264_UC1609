@@ -449,7 +449,7 @@ void ERM19264_UC1609::LCDNoBufferGotoXY(uint8_t column , uint8_t page)
 
 // Desc: draws passed character.
 // Param1: character 'A' or number in  the ASCII table 1-127(default)
-void ERM19264_UC1609::LCDNoBufferChar(char character)
+void ERM19264_UC1609::LCDNoBufferChar(unsigned char character)
 {
    UC1609_CS_SetLow;
    UC1609_FONTPADDING;
@@ -463,7 +463,7 @@ void ERM19264_UC1609::LCDNoBufferChar(char character)
 
 // Desc: draws passed  character array
 // Param1: pointer to start of character array
-void ERM19264_UC1609::LCDNoBufferString(const char *characters)
+void ERM19264_UC1609::LCDNoBufferString(const unsigned char *characters)
 {
     while (*characters)
     LCDNoBufferChar(*characters++);

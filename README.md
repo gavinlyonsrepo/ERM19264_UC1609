@@ -104,7 +104,9 @@ Bitmaps can still be written directly to screen in NO_BUFFER mode but no graphic
 
 *fonts*
 
-The ASCII font(custom_font in the custom_graphics_font.h file) is truncated by a define ( UC_FONT_MOD_TWO) after first 127 characters (see output pic) to save memory space(640 bytes), if you wish to use rest of the [extended ASCII font](https://www.extended-ascii.com/), simply comment this define out. The font is a standard 5 by 7 ASCII font with two  columns  of padding added. So 7 by 8 in effect. In standard text size and "no buffer" mode, this means: 192/7 * 64/8 = 27 * 8 = 216 characters. 
+The ASCII font(custom_font in the custom_graphics_font.h file) is truncated by a define ( UC_FONT_MOD_TWO) after first 127 characters (see output pic) to save memory space(640 bytes), if you wish to use rest of the [extended ASCII font](https://www.extended-ascii.com/), simply comment this define out. Extended ASCII will not work in no buffer mode (text only) for v1.1.0 see TODO_ISSUES.TXT
+file in extras for solutions. 
+The font is a standard 5 by 7 ASCII font with two  columns  of padding added. So 7 by 8 in effect. In standard text size and "no buffer" mode, this means: 192/7 * 64/8 = 27 * 8 = 216 characters. 
 
 *User adjustments*
 
@@ -154,5 +156,5 @@ Ports
 
 * ERM19264_UC1609_T (T for text). Light weight Text only version for arduino ecosystem [here at link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_T)
 
-* PIC Xc8 ports [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
+* PIC xc8 ports [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
 

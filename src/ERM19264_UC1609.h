@@ -160,8 +160,8 @@ class ERM19264_UC1609 : public custom_graphics {
      void LCDBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t* data);
 #else  // Functions only needed for one of  buffer mode's
      void  LCDNoBufferGotoXY(uint8_t column , uint8_t page);
-     void  LCDNoBufferChar(char character);
-     void  LCDNoBufferString(const char *characters);
+     void  LCDNoBufferChar(unsigned char character);
+     void  LCDNoBufferString(const unsigned char *characters);
 #endif
     
     void LCDbegin(uint8_t VbiasPot = UC1609_DEFAULT_GN_PM );
