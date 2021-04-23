@@ -24,7 +24,8 @@ Overview
 5. Sleep mode.
 6. 3 different modes: Multi-buffer , single buffer , light weight text only
 7. custom bitmaps supported.
- 
+8. Hardware & software SPI options
+
 * Author: Gavin Lyons
 * Arduino IDE: 1.8.10
 
@@ -88,7 +89,7 @@ Features
 
 *SPI*
 
-Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is recommended, far faster and more reliable but Software SPI allows for more flexible GPIO selection and easier to port to other MCU' s. When running Software SPI it may be necessary on very high frequency MCU's to change the UC1609_HIGHFREQ_DELAY define, It is a microsecond delay by default it is at 0. All the hardware SPI settings are defined in the header file and can be changed if necessary. 
+Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is recommended, far faster and more reliable but Software SPI allows for more flexible GPIO selection and easier to port to other MCU' s. When running Software SPI it may be necessary on very high frequency MCU's to change the UC1609_HIGHFREQ_DELAY define, It is a microsecond delay by default it is at 0. All the hardware SPI settings are defined in the header file and can be easily changed if necessary. 
 
 *buffers*
 
@@ -107,6 +108,11 @@ Bitmaps can still be written directly to screen in NO_BUFFER mode but no graphic
 The ASCII font(custom_font in the custom_graphics_font.h file) is truncated by a define ( UC_FONT_MOD_TWO) after first 127 characters (see output pic) to save memory space(640 bytes), if you wish to use rest of the [extended ASCII font](https://www.extended-ascii.com/), simply comment this define out. Extended ASCII will not work in no buffer mode (text only) for v1.1.0 see TODO_ISSUES.TXT
 file in extras for solutions. 
 The font is a standard 5 by 7 ASCII font with two  columns  of padding added. So 7 by 8 in effect. In standard text size and "no buffer" mode, this means: 192/7 * 64/8 = 27 * 8 = 216 characters. 
+
+*bitmaps*
+
+Bitmaps can still be written directly to screen.
+Bitmaps can be turned to data [here at link]( https://javl.github.io/image2cpp/) use vertical addressing draw mode. 
 
 *User adjustments*
 
@@ -156,5 +162,7 @@ Ports
 
 * ERM19264_UC1609_T (T for text). Light weight Text only version for arduino ecosystem [here at link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_T)
 
-* PIC xc8 ports [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
+* PIC xc8  [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
+
+* Stm32cubeIDE STM32F070RBT6  C++ [Link](https://github.com/gavinlyonsrepo/STM32_projects) 
 
