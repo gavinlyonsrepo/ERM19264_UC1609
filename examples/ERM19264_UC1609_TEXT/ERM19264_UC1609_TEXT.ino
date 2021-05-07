@@ -9,14 +9,23 @@
 // (2) In the <ERM19264_UC1609.h> USER BUFFER OPTION SECTION, at top of file
 // option MULTI_BUFFER must be selected and only this option.
 // (3) This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino example.
-// (4) In order to use extended ASCII font (127 '}') comment out #define UC_FONT_MOD_TWO in the file <custom_graphics_font.h>
+// (4) In order to use extended ASCII font (127 '}') comment out #define UC_FONT_MOD_TWO in the file <custom_graphics_font.h> TEST 6
 // ******************************
 
+// A series of tests to display the text mode
+// Test 1 Font size 3 string
+// Test 2 font size 2 string
+// Test 3 font size 1 string inverted
+// Test 4 draw a single character font size 4
+// Test 5 print ASCII  font 0-127
+// Test 6 print ASCII font 128-255, see notes 4 at top of file
+
 #include <ERM19264_UC1609.h>
+#include <ERM19264_graphics_font.h> // include just to see font mod. UC_FONT_MOD_TWO for test 6
 
 #define mylcdheight 64
 #define mylcdwidth  192
-#define VbiasPOT 0x50 // contrast 00 to FF , default 0x49 , user adjust
+#define VbiasPOT 0x49 // contrast 00 to FF , default 0x49 , user adjust
 
 #define DisplayDelay1 5000 
 #define DisplayDelay2 0
@@ -27,7 +36,6 @@
 #define CS 8  // GPIO pin number pick any you want
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
-
 
 ERM19264_UC1609  mylcd(CD, RST, CS); // instantiate object
 
@@ -54,13 +62,6 @@ void loop()
 }
 // ************** END OF MAIN ***********
 
-// A series of tests to display the text mode
-// Test 1 Font size 3 string
-// Test 2 font size 2 string
-// Test 3 font size 1 string inverted
-// Test 4 draw a single character font size 4
-// Test 5 print ASCII  font 0-127
-// Test 6 print ASCII font 128-255, commented out as not setup by default, see note 4 at top of file.
 
 void DisplayText(MultiBuffer* targetBuffer)
 {
@@ -111,9 +112,7 @@ void DisplayText(MultiBuffer* targetBuffer)
     delay(DisplayDelay1);
     mylcd.LCDclearBuffer();
 
-    // Test 6, commented out as not setup by default, see note 4 at top of file.
-    
-    /*
+#ifndef UC_FONT_MOD_TWO
     mylcd.setCursor(0, 0);
     mylcd.setTextColor(FOREGROUND);
     mylcd.setTextSize(1);
@@ -138,6 +137,6 @@ void DisplayText(MultiBuffer* targetBuffer)
     mylcd.LCDupdate();  // Write to the buffer
     delay(DisplayDelay1);
     mylcd.LCDclearBuffer();
-    */
+#endif
   } // while
 } // end

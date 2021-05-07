@@ -9,6 +9,7 @@ Table of contents
   * [Hardware](#hardware)
   * [Features](#features)
   * [Files](#files)
+  * [Tested](#tested)
   * [Ports](#ports)
   
 Overview
@@ -17,25 +18,19 @@ Overview
 * Title : Library for ERM19264-5 v3 LCD  (UC1609C controller) for the Arduino eco-system
 * Description : 
 
-1. Arduino library.      
-2. Inverse, rotate and contrast control. 
-3. ASCII text strings and character text display.
-4. Graphics library included based on the Adafruit GFX library.
+1. Arduino eco-system library.      
+2. Inverse, Scroll, rotate and contrast control. 
+3. Extended  scale-able ASCII font.
+4. Graphics class included.
 5. Sleep mode.
 6. 3 different modes: Multi-buffer , single buffer , light weight text only
-7. custom bitmaps supported.
+7. Bitmaps supported.
 8. Hardware & software SPI options
 
 * Author: Gavin Lyons
 * Arduino IDE: 1.8.10
-
-* Tested on following MCUs both software and hardware SPI,
-The example files are setup for an UNO for the pin connections used 
-by for other MCU testing see extras folder GPIO_MCU_used.txt file.
-1. Arduino  UNO & NANO v3
-2. ESP8266 
-3. ESP32 
-4. STM32 "blue pill"
+* History: See Changelog in extras/doc folder
+* Copyright: GNU GPL v3
 
 Output
 ---------------------------------
@@ -45,7 +40,7 @@ Output Screenshots, From left to right top to bottom.
 1. Full screen bitmap displayed
 2. Multi buffer mode screen divided into two buffers
 3. Different size and type of fonts 
-4. Available ASCII font printed out, this can be expanded to [extended ASCII font](https://www.extended-ascii.com/) by minor modification to file see features.
+4. Available ASCII font printed out, this can be expanded to [extended ASCII font](https://www.extended-ascii.com/) by minor modification to font file see features.
 
 ![op](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/output.jpg)
 
@@ -80,7 +75,7 @@ It was always run it at 3.3V during testing.
 The Backlight should always be connected to 3.3V according to datasheets.  
 
 This wiring Diagram from the manufacturer showing hardware setup connected to an ~8051 MCU.
-Showing both 5 volt and 3.3 volt systems.
+Showing both 5 volt and 3.3 volt systems. NOTE the J1 position. 
 
 ![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/connect.jpg)
 
@@ -89,7 +84,7 @@ Features
 
 *SPI*
 
-Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is recommended, far faster and more reliable but Software SPI allows for more flexible GPIO selection and easier to port to other MCU' s. When running Software SPI it may be necessary on very high frequency MCU's to change the UC1609_HIGHFREQ_DELAY define, It is a microsecond delay by default it is at 0. All the hardware SPI settings are defined in the header file and can be easily changed if necessary. 
+Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is recommended, far faster and more reliable but Software SPI allows for more flexible GPIO selection and easier to port to other MCU' s. When running Software SPI it may be necessary on very high frequency MCU's to change the UC1609_HIGHFREQ_DELAY define, It is a microsecond delay by default it is at 0. All the hardware SPI settings are defined in the header file and can be easily changed if necessary.  It should be able to share SPI bus with other SPI devices on different SPI settings.
 
 *buffers*
 
@@ -98,26 +93,27 @@ Hardware and software SPI. Two different class constructors. User can pick the r
 1. MULTI_BUFFER (default)
 2. SINGLE_BUFFER 
 3. NO_BUFFER , Text only no buffer , relatively light weight. A "hello world" Sketch uses 2320 bytes (7%) of and 42 bytes (2%) of dynamic memory. Turns LCD into simple character LCD(216 characters)
+Bitmaps can still be written directly to screen but no graphics possible.
 
 To switch between modes, user must make a change to the USER BUFFER OPTION SECTION  at top of 
 ERM19264_UC1609.h file.  Pick ONE option and one option ONLY. The example files at top, say which option to pick. If wrong option is picked, example files will not work or maybe even compile.
-Bitmaps can still be written directly to screen in NO_BUFFER mode but no graphics possible.
+
 
 *fonts*
 
-The ASCII font(custom_font in the custom_graphics_font.h file) is truncated by a define ( UC_FONT_MOD_TWO) after first 127 characters (see output pic) to save memory space(640 bytes), if you wish to use rest of the [extended ASCII font](https://www.extended-ascii.com/), simply comment this define out. Extended ASCII will not work in no buffer mode (text only) for v1.1.0 see TODO_ISSUES.TXT
-file in extras for solutions. 
+The ASCII font(in the custom_graphics_font.h file) is truncated by a define ( UC_FONT_MOD_TWO) after first 127 characters (see output pic) to save memory space(640 bytes), if you wish to use rest of the [extended ASCII font](https://www.extended-ascii.com/), simply comment this define out.
 The font is a standard 5 by 7 ASCII font with two  columns  of padding added. So 7 by 8 in effect. In standard text size and "no buffer" mode, this means: 192/7 * 64/8 = 27 * 8 = 216 characters. 
 
 *bitmaps*
 
-Bitmaps can still be written directly to screen.
+Bitmaps are written directly to screen unless Bitmap set to a buffer.
+Best to use multi-buffer to share screen between bitmaps and text + graphics.
 Bitmaps can be turned to data [here at link]( https://javl.github.io/image2cpp/) use vertical addressing draw mode. 
 
 *User adjustments*
 
 When the user calls LCDbegin() to start LCD they can specify a contrast setting from 0x00 to 0xFF.
-Datasheet says 0x49 is default. (VbiasPOT)
+Datasheet says 0x49 is default. (VbiasPOT). Lower contrast works better on the blue version.
 
 It is also possible for user to change LCD bias ,  Temperature coefficient, frame rate and power control but this must be done by changing defines in header file. Choose lower frame rate for lower power, and choose higher frame rate to improve LCD contrast and minimize flicker. See Data sheet for range of values
 here. Defaults where found to be fine during all testing of this library.
@@ -133,7 +129,7 @@ here. Defaults where found to be fine during all testing of this library.
 
 *Functions*
 
-Functions: Detailed information on the functions can be found in comments in the ERM19264_UC1609.cpp  file and a list of them in keywords.txt. The graphic functions can be found in the custom_graphic.h file. 
+Functions: Detailed information on the functions can be found in comments in the ERM19264_UC1609.cpp  file and a list of them in keywords.txt. The graphic functions can be found in the ERM19264_graphic.h file. 
 
 Files
 -------------------
@@ -142,20 +138,31 @@ Files
 | ------ | ------ |
 | ERM19264_UC1609.h | library header file  |
 | ERM19264_UC1609.cpp |  library  source file  |
-| custom_graphics.h | Custom graphics header file |
-| custom_graphics.cpp | Custom graphics source file |
-| custom_graphics_font.h | Custom graphics  font  file |
+| ERM19264_graphics.h | Custom graphics header file |
+| ERM19264_graphics.cpp | Custom graphics source file |
+| ERM19264_graphics_font.h | Custom graphics  font  file |
 
-| Examples files ino  | Desc |
-| ------ | ------ |
-| BITMAP | Shows use of bitmaps  |
-| GRAPHICS |  Shows use of graphics   |
-| MISC | Shows misc functions, rotate invert etc |
-| MULTIBUFFER | Shows use of multi buffer mode |
-| NOBUFFER | Shows use of no buffer text only mode |
-| TEXT | Shows use of text IN buffer mode   |
-| SINGLEBUFFER| Shows use of single buffer mode |
-| SWSPI | Shows use of software SPI |
+| Examples files ino  | Desc | Buffer mode |
+| ------ | ------ | ------ |
+| BITMAP | Shows use of bitmaps  | Several see notes | 
+| GRAPHICS |  Shows use of graphics   | Multi_buffer |
+| MISC | Shows misc functions, rotate invert etc | Multi_buffer |
+| MULTIBUFFER | Shows use of multi buffer mode | Multi_buffer |
+| NOBUFFER | Shows use of no buffer text only mode | No_buffer |
+| TEXT | Shows use of text IN buffer mode   | Multi_buffer |
+| SINGLEBUFFER| Shows use of single buffer mode | Single_buffer |
+| SWSPI | Shows use of software SPI | Multi_buffer |
+
+Tested
+-----------------------------
+
+Tested on following MCUs both software and hardware SPI,
+The example files are setup for an UNO for the pin connections used 
+by for other MCU testing see extras/doc folder GPIO_MCU_used.txt file.
+1. Arduino  UNO & NANO v3
+2. ESP8266 
+3. ESP32 
+4. STM32 "blue pill"
 
 Ports
 ------------------------------------------

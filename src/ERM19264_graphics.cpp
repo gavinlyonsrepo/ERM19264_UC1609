@@ -13,26 +13,27 @@ modification, are permitted provided that the following conditions are met:
 
 /*
 * Project Name: ERM19264_UC1609
-* File:custom_graphics.cpp
-* Description: ERM19264 LCD driven by UC1609C controller header file for the custom graphics functions based on Adafruit graphics library( see above)
+* File:ERM19264_graphics.cpp
+* Description: ERM19264 LCD driven by UC1609C controller header file for the ERM19264 graphics functions based on Adafruit graphics library( see above)
 * Author: Gavin Lyons.
 * URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
 */
 
-#include "custom_graphics.h"
-#include "custom_graphics_font.h"
+#include "ERM19264_graphics.h"
+#include "ERM19264_graphics_font.h"
 #ifdef __AVR__
  #include <avr/pgmspace.h>
 #else
+#ifndef  ESP8266
  #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
+ #endif
 #endif
 
-custom_graphics::custom_graphics(int16_t w, int16_t h):
+ERM19264_graphics::ERM19264_graphics(int16_t w, int16_t h):
   WIDTH(w), HEIGHT(h)
 {
   _width    = WIDTH;
   _height   = HEIGHT;
-  rotation  = 0;
   cursor_y  = cursor_x    = 0;
   textsize  = 1;
   textcolor = textbgcolor = 0xFFFF;
@@ -40,7 +41,7 @@ custom_graphics::custom_graphics(int16_t w, int16_t h):
 }
 
 // Draw a circle outline
-void custom_graphics::drawCircle(int16_t x0, int16_t y0, int16_t r,
+void ERM19264_graphics::drawCircle(int16_t x0, int16_t y0, int16_t r,
     uint16_t color) {
   int16_t f = 1 - r;
   int16_t ddF_x = 1;
@@ -74,7 +75,7 @@ void custom_graphics::drawCircle(int16_t x0, int16_t y0, int16_t r,
   }
 }
 
-void custom_graphics::drawCircleHelper( int16_t x0, int16_t y0,
+void ERM19264_graphics::drawCircleHelper( int16_t x0, int16_t y0,
                int16_t r, uint8_t cornername, uint16_t color) {
   int16_t f     = 1 - r;
   int16_t ddF_x = 1;
@@ -110,14 +111,14 @@ void custom_graphics::drawCircleHelper( int16_t x0, int16_t y0,
   }
 }
 
-void custom_graphics::fillCircle(int16_t x0, int16_t y0, int16_t r,
+void ERM19264_graphics::fillCircle(int16_t x0, int16_t y0, int16_t r,
 			      uint16_t color) {
   drawFastVLine(x0, y0-r, 2*r+1, color);
   fillCircleHelper(x0, y0, r, 3, 0, color);
 }
 
 // Used to do circles and roundrects
-void custom_graphics::fillCircleHelper(int16_t x0, int16_t y0, int16_t r,
+void ERM19264_graphics::fillCircleHelper(int16_t x0, int16_t y0, int16_t r,
     uint8_t cornername, int16_t delta, uint16_t color) {
 
   int16_t f     = 1 - r;
@@ -147,8 +148,8 @@ void custom_graphics::fillCircleHelper(int16_t x0, int16_t y0, int16_t r,
   }
 }
 
-// Bresenham's algorithm - thx wikpedia
-void custom_graphics::drawLine(int16_t x0, int16_t y0,
+// Bresenham's algorithm  
+void ERM19264_graphics::drawLine(int16_t x0, int16_t y0,
 			    int16_t x1, int16_t y1,
 			    uint16_t color) {
   int16_t steep = abs(y1 - y0) > abs(x1 - x0);
@@ -190,7 +191,7 @@ void custom_graphics::drawLine(int16_t x0, int16_t y0,
 }
 
 // Draw a rectangle
-void custom_graphics::drawRect(int16_t x, int16_t y,
+void ERM19264_graphics::drawRect(int16_t x, int16_t y,
 			    int16_t w, int16_t h,
 			    uint16_t color) {
   drawFastHLine(x, y, w, color);
@@ -199,19 +200,19 @@ void custom_graphics::drawRect(int16_t x, int16_t y,
   drawFastVLine(x+w-1, y, h, color);
 }
 
-void custom_graphics::drawFastVLine(int16_t x, int16_t y,
+void ERM19264_graphics::drawFastVLine(int16_t x, int16_t y,
 				 int16_t h, uint16_t color) {
   // Update in subclasses if desired!
   drawLine(x, y, x, y+h-1, color);
 }
 
-void custom_graphics::drawFastHLine(int16_t x, int16_t y,
+void ERM19264_graphics::drawFastHLine(int16_t x, int16_t y,
 				 int16_t w, uint16_t color) {
   // Update in subclasses if desired!
   drawLine(x, y, x+w-1, y, color);
 }
 
-void custom_graphics::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
+void ERM19264_graphics::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
 			    uint16_t color) {
   // Update in subclasses if desired!
   for (int16_t i=x; i<x+w; i++) {
@@ -219,12 +220,12 @@ void custom_graphics::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
   }
 }
 
-void custom_graphics::fillScreen(uint16_t color) {
+void ERM19264_graphics::fillScreen(uint16_t color) {
   fillRect(0, 0, _width, _height, color);
 }
 
 // Draw a rounded rectangle
-void custom_graphics::drawRoundRect(int16_t x, int16_t y, int16_t w,
+void ERM19264_graphics::drawRoundRect(int16_t x, int16_t y, int16_t w,
   int16_t h, int16_t r, uint16_t color) {
   // smarter version
   drawFastHLine(x+r  , y    , w-2*r, color); // Top
@@ -239,7 +240,7 @@ void custom_graphics::drawRoundRect(int16_t x, int16_t y, int16_t w,
 }
 
 // Fill a rounded rectangle
-void custom_graphics::fillRoundRect(int16_t x, int16_t y, int16_t w,
+void ERM19264_graphics::fillRoundRect(int16_t x, int16_t y, int16_t w,
 				 int16_t h, int16_t r, uint16_t color) {
   // smarter version
   fillRect(x+r, y, w-2*r, h, color);
@@ -250,7 +251,7 @@ void custom_graphics::fillRoundRect(int16_t x, int16_t y, int16_t w,
 }
 
 // Draw a triangle
-void custom_graphics::drawTriangle(int16_t x0, int16_t y0,
+void ERM19264_graphics::drawTriangle(int16_t x0, int16_t y0,
 				int16_t x1, int16_t y1,
 				int16_t x2, int16_t y2, uint16_t color) {
   drawLine(x0, y0, x1, y1, color);
@@ -259,7 +260,7 @@ void custom_graphics::drawTriangle(int16_t x0, int16_t y0,
 }
 
 // Fill a triangle
-void custom_graphics::fillTriangle ( int16_t x0, int16_t y0,
+void ERM19264_graphics::fillTriangle ( int16_t x0, int16_t y0,
 				  int16_t x1, int16_t y1,
 				  int16_t x2, int16_t y2, uint16_t color) {
 
@@ -276,7 +277,7 @@ void custom_graphics::fillTriangle ( int16_t x0, int16_t y0,
     swap(y0, y1); swap(x0, x1);
   }
 
-  if(y0 == y2) { // Handle awkward all-on-same-line case as its own thing
+  if(y0 == y2) {
     a = b = x0;
     if(x1 < a)      a = x1;
     else if(x1 > b) b = x1;
@@ -337,7 +338,7 @@ void custom_graphics::fillTriangle ( int16_t x0, int16_t y0,
   }
 }
 
-void custom_graphics::drawBitmap(int16_t x, int16_t y,
+void ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
 			      const uint8_t *bitmap, int16_t w, int16_t h,
 			      uint16_t color) {
 
@@ -355,7 +356,7 @@ void custom_graphics::drawBitmap(int16_t x, int16_t y,
 // Draw a 1-bit color bitmap at the specified x, y position from the
 // provided bitmap buffer (must be PROGMEM memory) using color as the
 // foreground color and bg as the background color.
-void custom_graphics::drawBitmap(int16_t x, int16_t y,
+void ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
             const uint8_t *bitmap, int16_t w, int16_t h,
             uint16_t color, uint16_t bg) {
 
@@ -376,7 +377,7 @@ void custom_graphics::drawBitmap(int16_t x, int16_t y,
 //Draw XBitMap Files (*.xbm), exported from GIMP,
 //Usage: Export from GIMP to *.xbm, rename *.xbm to *.c and open in editor.
 //C Array can be directly used with this function
-void custom_graphics::drawXBitmap(int16_t x, int16_t y,
+void ERM19264_graphics::drawXBitmap(int16_t x, int16_t y,
                               const uint8_t *bitmap, int16_t w, int16_t h,
                               uint16_t color) {
   
@@ -392,9 +393,9 @@ void custom_graphics::drawXBitmap(int16_t x, int16_t y,
 }
 
 #if ARDUINO >= 100
-size_t custom_graphics::write(uint8_t c) {
+size_t ERM19264_graphics::write(uint8_t c) {
 #else
-void custom_graphics::write(uint8_t c) {
+void ERM19264_graphics::write(uint8_t c) {
 #endif
   if (c == '\n') {
     cursor_y += textsize*8;
@@ -415,7 +416,7 @@ void custom_graphics::write(uint8_t c) {
 }
 
 // Draw a character
-void custom_graphics::drawChar(int16_t x, int16_t y, unsigned char c,
+void ERM19264_graphics::drawChar(int16_t x, int16_t y, unsigned char c,
 			    uint16_t color, uint16_t bg, uint8_t size) {
 
   if((x >= _width)            || // Clip right
@@ -432,7 +433,7 @@ void custom_graphics::drawChar(int16_t x, int16_t y, unsigned char c,
     }
     else 
     {
-           line = pgm_read_byte(custom_font+(c*5)+i);
+           line = pgm_read_byte(UC_custom_font+(c*5)+i);
     }
     for (int8_t j = 0; j<8; j++) {
       if (line & 0x1) {
@@ -453,60 +454,35 @@ void custom_graphics::drawChar(int16_t x, int16_t y, unsigned char c,
   }
 }
 
-void custom_graphics::setCursor(int16_t x, int16_t y) {
+void ERM19264_graphics::setCursor(int16_t x, int16_t y) {
   cursor_x = x;
   cursor_y = y;
 }
 
-void custom_graphics::setTextSize(uint8_t s) {
+void ERM19264_graphics::setTextSize(uint8_t s) {
   textsize = (s > 0) ? s : 1;
 }
 
-void custom_graphics::setTextColor(uint16_t c) {
+void ERM19264_graphics::setTextColor(uint16_t c) {
   // For 'transparent' background, we'll set the bg 
   // to the same as fg instead of using a flag
   textcolor = textbgcolor = c;
 }
 
-void custom_graphics::setTextColor(uint16_t c, uint16_t b) {
+void ERM19264_graphics::setTextColor(uint16_t c, uint16_t b) {
   textcolor   = c;
   textbgcolor = b; 
 }
 
-void custom_graphics::setTextWrap(boolean w) {
+void ERM19264_graphics::setTextWrap(boolean w) {
   wrap = w;
 }
 
-uint8_t custom_graphics::getRotation(void) const {
-  return rotation;
-}
-
-void custom_graphics::setRotation(uint8_t x) {
-  rotation = (x & 3);
-  switch(rotation) {
-   case 0:
-   case 2:
-    _width  = WIDTH;
-    _height = HEIGHT;
-    break;
-   case 1:
-   case 3:
-    _width  = HEIGHT;
-    _height = WIDTH;
-    break;
-  }
-}
-
-// Return the size of the display (per current rotation)
-int16_t custom_graphics::width(void) const {
+// Return the size of the display
+int16_t ERM19264_graphics::width(void) const {
   return _width;
 }
  
-int16_t custom_graphics::height(void) const {
+int16_t ERM19264_graphics::height(void) const {
   return _height;
 }
-
-void custom_graphics::invertDisplay(boolean i) {
-  // Do nothing, must be subclassed if supported
-}
-

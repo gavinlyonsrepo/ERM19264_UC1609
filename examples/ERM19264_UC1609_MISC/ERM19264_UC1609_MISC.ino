@@ -7,6 +7,7 @@
 //  (3) Rotate screen
 //  (4) Scroll Screen
 //  (5) Enable and disable Screen 
+//  (6) Power down (LCD OFF)
 //
 // URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
 // *****************************
@@ -124,10 +125,15 @@ void loop()
   delay(5000);
   mylcd.LCDEnable(1);
   mylcd.LCDclearBuffer();
-  mylcd.setCursor(20, 30);
-  mylcd.print("End");
+
+  // Test 6 Powerdown
+  mylcd.setCursor(5, 10);
+  mylcd.print("End Tests");
+  mylcd.setCursor(5, 35);
+  mylcd.print("Power down in 5");
   mylcd.LCDupdate();
-  
+  delay(5000);
+  mylcd.LCDPowerDown();
   while (1)
   {
     delay(1); // tests over, loop here forever

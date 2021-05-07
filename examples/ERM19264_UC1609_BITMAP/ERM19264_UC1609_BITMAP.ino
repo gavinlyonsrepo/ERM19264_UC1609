@@ -7,15 +7,21 @@
 // NOTES :
 // (1) GPIO is for arduino UNO for other tested MCU see readme.
 
-// (2) In the <ERM19264_UC1609.h> USER BUFFER OPTION SECTION, setting will change depending on which method you use,
-// method 2 3 & 4 are commented out currently.
-// Method (1) Lcd bitmap method, ANY setting on , buffer must BE in PROGMEM
-// Method (2) Lcd buffer method , MULTI_BUFFER or SINGLE_BUFFER setting on , buffer must NOT be in PROGMEM
-// Method (3)  multibuffer method , MULTI_BUFFER setting on.  buffer must NOT be in PROGMEM
-// Method (4) singlebuffer method, SINGLE_BUFFER  setting on. buffer must NOT be in PROGMEM
+// (2) In the <ERM19264_UC1609.h> USER BUFFER OPTION SECTION, setting will change depending on which test you use,
+// test 2 3 & 4 are commented out currently.
+// test (1) Lcd bitmap test, ANY setting on , buffer must BE in PROGMEM
+// test (2) Lcd buffer test , MULTI_BUFFER or SINGLE_BUFFER setting on , buffer must NOT be in PROGMEM
+// test (3)  multibuffer test , MULTI_BUFFER setting on.  buffer must NOT be in PROGMEM
+// test (4) singlebuffer test, SINGLE_BUFFER  setting on. buffer must NOT be in PROGMEM
 
 // (3) This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino example.
 // ******************************
+
+// Pick ONE test and ONE test only
+#define test1
+//#define test2
+// #define test3
+// #define test4
 
 #include <ERM19264_UC1609.h>
 
@@ -28,9 +34,12 @@
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
+
 ERM19264_UC1609  mylcd(CD , RST, CS);
 
 // 192x64px 192 * 64/8 = 1536+1 fullscreen bitmap.
+
+//const uint8_t fullscreenBitmap[1537] = {
 const   PROGMEM  uint8_t fullscreenBitmap[1537] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x80, 0xc0, 0xe0, 0x60, 0x30, 0x30, 0x38, 0x18, 0x18, 0x18, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c,
@@ -149,45 +158,52 @@ void loop()
 
   while (1)
   {
-    // Method (1) Lcd bitmap method, Any buffer  setting on , buffer must BE in PROGMEM
+
+    // test (1) Lcd bitmap test, Any buffer  setting on , buffer must BE in PROGMEM
     //  x ,y,w,h, bitmap
-    
-    
+#ifdef test1
     mylcd.LCDBitmap(0, 0 , 192, 64, fullscreenBitmap);
-    while(1){delay(5000);};
-    
-    
-    // Method (2) Lcd buffer method , MULTI_BUFFER or SINGLE BUFFER setting, on , buffer must NOT BE in PROGMEM
-    //  x ,y,w,h, bitmap
-    
-    /*
+    while (1) {
+      delay(5000);
+    };
+#endif
+
+
+    // test (2) Lcd buffer test , MULTI_BUFFER or SINGLE BUFFER setting, on , buffer must NOT BE in PROGMEM
+    // x ,y,w,h, bitmap
+#ifdef test2
     mylcd.LCDBuffer(50, 10, 20, 20, (uint8_t*)smallImage);
     mylcd.LCDBuffer(112, 10, 20, 20, (uint8_t*)smallImage);
-    while(1){delay(5000);};
-    */
+    while (1) {
+      delay(5000);
+    };
+#endif
 
-    //   Method (3) mutlibuffer mode  , MULTI_BUFFER setting on, NOTE  buffer must not be in PROGMEM
+    //   test (3) mutlibuffer mode  , MULTI_BUFFER setting on, NOTE  buffer must not be in PROGMEM
+#ifdef test3
+    MultiBuffer Whole_screen;
+    Whole_screen.screenbitmap = (uint8_t*) &fullscreenBitmap;
+    Whole_screen.width = 192;
+    Whole_screen.height = 64;
+    Whole_screen.xoffset = 0; // offset on display
+    Whole_screen.yoffset = 0 ;
+    mylcd.ActiveBuffer = &Whole_screen;
+    mylcd.LCDupdate();
+    while (1) {
+      delay(5000);
+    };
+#endif
 
-    /*
-      MultiBuffer Whole_screen;
-      Whole_screen.screenbitmap = (uint8_t*) &fullscreenBitmap;
-      Whole_screen.width = 192;
-      Whole_screen.height = 64;
-      Whole_screen.xoffset = 0; // offset on display
-      Whole_screen.yoffset = 0 ;
-      mylcd.ActiveBuffer = &Whole_screen;
-      mylcd.LCDupdate();
-      while(1){delay(5000);};
-      */
-    
 
-    //   Method  (4) singlebuffer method, SINGLE_BUFFER  setting on, NOTE  buffer must not be in PROGMEM
-    /*
-      mylcd.buffer = (uint8_t*) &fullscreenBitmap;
-      mylcd.LCDupdate();
-      while(1){delay(5000);};
-     */
-    
+    //   test  (4) singlebuffer test, SINGLE_BUFFER  setting on, NOTE  buffer must not be in PROGMEM
+#ifdef test4
+    mylcd.buffer = (uint8_t*) &fullscreenBitmap;
+    mylcd.LCDupdate();
+    while (1) {
+      delay(5000);
+    };
+#endif
+
 
   }
 }

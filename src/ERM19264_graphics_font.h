@@ -1,6 +1,6 @@
 /*
 * Project Name: ERM19264_UC1609
-* File: custom_graphics_font.h
+* File: ERM19264_graphics_font.h
 * Description: ERM19264 LCD driven by UC1609C controller font file 
 * Author: Gavin Lyons.
 * URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
@@ -13,19 +13,21 @@
  #include <avr/io.h>
  #include <avr/pgmspace.h>
 #else
+#ifndef ESP8266
  #define PROGMEM
+#endif
 #endif
  
 // ************ USER OPTION **************
-// This is set to reduce font size, to reduce program size(635 bytes)
-// Default use ASCII set 0-127
-// Define commented out use all Extended ASCII set 0-255 https://www.extended-ascii.com/
-// to use entire font after ~ character, user can comment out the define
+// This is defined to reduce font size, to reduce program size (635 bytes saving)
+// Mode
+// (1) Default:  ASCII set 0-127 ,   commented in , defined ,
+// (2) Extended ASCII set 0-255, Commented out, not defined
 #define UC_FONT_MOD_TWO
 //*****************************************
 
 // Standard ASCII 5x7 font , Column padding added by software
-static const unsigned char custom_font[] PROGMEM = {
+static const unsigned char UC_custom_font[] PROGMEM = {
     0x00, 0x00, 0x00, 0x00, 0x00,   
 	0x3E, 0x5B, 0x4F, 0x5B, 0x3E,  // :)
 	0x3E, 0x6B, 0x4F, 0x6B, 0x3E, 

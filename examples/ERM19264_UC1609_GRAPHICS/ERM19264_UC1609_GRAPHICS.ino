@@ -17,7 +17,7 @@
 
 #define mylcdheight 64
 #define mylcdwidth  192
-#define VbiasPOT 0x54 // Contrast 0x00 to 0xFF , 49h default , User adjust
+#define VbiasPOT 0x49 // Contrast 0x00 to 0xFF , 49h default , User adjust
 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 

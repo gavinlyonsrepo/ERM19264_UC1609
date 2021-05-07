@@ -32,12 +32,11 @@ ERM19264_UC1609  :: ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs, int8_t scl
   _LCD_CS = cs;
   _LCD_DIN = din;  
   _LCD_SCLK = sclk;
-  
 }
 
 #else
 
-ERM19264_UC1609  :: ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs) :custom_graphics(LCD_WIDTH, LCD_HEIGHT) 
+ERM19264_UC1609  :: ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs) :ERM19264_graphics(LCD_WIDTH, LCD_HEIGHT) 
 {
   _LCD_CD = cd;
   _LCD_RST= rst;
@@ -47,7 +46,7 @@ ERM19264_UC1609  :: ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs) :custom_gr
 }
 
 // Software SPI
-ERM19264_UC1609  :: ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs, int8_t sclk, int8_t din) : custom_graphics(LCD_WIDTH, LCD_HEIGHT) 
+ERM19264_UC1609  :: ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs, int8_t sclk, int8_t din) : ERM19264_graphics(LCD_WIDTH, LCD_HEIGHT) 
 
 {
   _LCD_CD = cd;
@@ -68,21 +67,10 @@ void ERM19264_UC1609::LCDbegin (uint8_t VbiasPOT)
   pinMode(_LCD_CS, OUTPUT);
   
   _VbiasPOT  = VbiasPOT;
+  
   if (isHardwareSPI()) 
   {
    SPI.begin();
-   //There is a pre-defined macro SPI_HAS_TRANSACTION in SPI library for checking whether the firmware //of the Arduino board supports SPI.beginTransaction().
-#ifdef SPI_HAS_TRANSACTION
-    {
-    SPI.beginTransaction(SPISettings(SPI_FREQ, SPI_DIRECTION, SPI_UC1609_MODE));
-   }
-#else
-    {
-        //STM32 blue pill uses this 
-        SPI.setClockDivider(SPI_UC1609_CLOCK_DIV); // 72/8 = 9Mhz
-      }
-#endif
-
   }else
   {
      // Set software SPI specific pin outputs.
@@ -98,9 +86,11 @@ void ERM19264_UC1609::LCDbegin (uint8_t VbiasPOT)
 // Can be used to reset LCD to default values.
 void ERM19264_UC1609::LCDinit()
  {
-  delay(UC1609_INIT_DELAY2); //3mS delay, datasheet
+  if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
   UC1609_CD_SetHigh;
   UC1609_CS_SetHigh;
+  delay(UC1609_INIT_DELAY2);
+
   LCDReset();
 
   UC1609_CS_SetLow;
@@ -119,6 +109,7 @@ void ERM19264_UC1609::LCDinit()
   send_command(UC1609_LCD_CONTROL, UC1609_ROTATION_NORMAL); // rotate to normal 
   
   UC1609_CS_SetHigh;
+  if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }
 
 
@@ -139,16 +130,26 @@ void ERM19264_UC1609::LCDReset ()
   UC1609_RST_SetLow;
   delay(UC1609_RESET_DELAY); 
   UC1609_RST_SetHigh;
-  delay(UC1609_RESET_DELAY2);
+  delay(UC1609_RESET_DELAY2); 
 }
 
-// Desc: turns in display
+// Desc: Powerdown procedure for LCD see datasheet P40
+void ERM19264_UC1609::LCDPowerDown(void)
+{
+  LCDReset ();
+  LCDEnable(0);
+}
+
+
+// Desc: turns on display
 // Param1: bits 1  on , 0 off
 void ERM19264_UC1609::LCDEnable (uint8_t bits) 
 {
+ if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
  UC1609_CS_SetLow;
   send_command(UC1609_DISPLAY_ON, bits);
  UC1609_CS_SetHigh;
+  if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }
 
 
@@ -160,9 +161,11 @@ void ERM19264_UC1609::LCDEnable (uint8_t bits)
 // Param1: bits 0-64 line number y-axis
 void ERM19264_UC1609::LCDscroll (uint8_t bits) 
 {
+    if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
  UC1609_CS_SetLow;
   send_command(UC1609_SCROLL, bits);
  UC1609_CS_SetHigh;
+    if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }
 
 // Desc: Rotates the display 
@@ -171,6 +174,7 @@ void ERM19264_UC1609::LCDscroll (uint8_t bits)
 // If Mx is changed the buffer must BE updated
 void ERM19264_UC1609::LCDrotate(uint8_t rotatevalue) 
 {
+    if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
  UC1609_CS_SetLow;
   switch (rotatevalue)
   {
@@ -182,15 +186,18 @@ void ERM19264_UC1609::LCDrotate(uint8_t rotatevalue)
   }
   send_command(UC1609_LCD_CONTROL, rotatevalue);
  UC1609_CS_SetHigh;
+  if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }
 
 // Desc: invert the display
 // Param1: bits, 1 invert , 0 normal
 void ERM19264_UC1609::invertDisplay (uint8_t bits) 
 {
+  if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
  UC1609_CS_SetLow;
   send_command(UC1609_INVERSE_DISPLAY, bits);
  UC1609_CS_SetHigh;
+  if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }
 
 // Desc: turns on all Pixels
@@ -198,9 +205,11 @@ void ERM19264_UC1609::invertDisplay (uint8_t bits)
 // 1 all on ,  0 all off
 void ERM19264_UC1609::LCD_allpixelsOn(uint8_t bits) 
 {
+ if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
  UC1609_CS_SetLow;
   send_command(UC1609_ALL_PIXEL_ON, bits);
  UC1609_CS_SetHigh;
+ if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }
 
 // Desc: Fill the screen NOT the buffer with a datapattern 
@@ -208,6 +217,7 @@ void ERM19264_UC1609::LCD_allpixelsOn(uint8_t bits)
 // Param2: optional delay in microseconds can be set to zero normally.
 void ERM19264_UC1609::LCDFillScreen(uint8_t dataPattern=0, uint8_t delay=0) 
 {
+ if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
  UC1609_CS_SetLow;
   uint16_t numofbytes = LCD_WIDTH * (LCD_HEIGHT /8); // width * height
   for (uint16_t i = 0; i < numofbytes; i++) 
@@ -216,12 +226,14 @@ void ERM19264_UC1609::LCDFillScreen(uint8_t dataPattern=0, uint8_t delay=0)
     delayMicroseconds(delay);
   }
 UC1609_CS_SetHigh;
+if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }
 
 // Desc: Fill the chosen page(1-8)  with a datapattern 
 // Param1: datapattern can be set to 0 to FF (not buffer)
 void ERM19264_UC1609::LCDFillPage(uint8_t dataPattern=0) 
 {
+ if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
  UC1609_CS_SetLow;
   uint16_t numofbytes = ((LCD_WIDTH * (LCD_HEIGHT /8))/8); // (width * height/8)/8 = 192 bytes
   for (uint16_t i = 0; i < numofbytes; i++) 
@@ -229,6 +241,7 @@ void ERM19264_UC1609::LCDFillPage(uint8_t dataPattern=0)
       send_data(dataPattern);
   }
  UC1609_CS_SetHigh;
+ if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }
 
 //Desc: Draw a bitmap in PROGMEM to the screen
@@ -239,6 +252,11 @@ void ERM19264_UC1609::LCDFillPage(uint8_t dataPattern=0)
 //Param5 the bitmap
 void ERM19264_UC1609::LCDBitmap(int16_t x, int16_t y, uint8_t w, uint8_t h, const uint8_t* data) 
 {
+#if defined(ESP8266)
+  // ESP8266 needs a periodic yield() call to avoid watchdog reset.
+  yield();
+#endif
+ if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
  UC1609_CS_SetLow;
 
   uint8_t tx, ty; 
@@ -261,6 +279,10 @@ void ERM19264_UC1609::LCDBitmap(int16_t x, int16_t y, uint8_t w, uint8_t h, cons
         }
   }
 UC1609_CS_SetHigh;
+#if defined(ESP8266)
+  yield();
+#endif
+ if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }
 
 // Desc: Checks if software SPI is on
@@ -275,17 +297,16 @@ bool ERM19264_UC1609::isHardwareSPI() {
 // Other if using high freq MCU the delay define can be increased. 
 void ERM19264_UC1609::CustomshiftOut(uint8_t bitOrder, uint8_t value)
 {
-    uint8_t i;
-
-    for (i = 0; i < 8; i++)  {
+    for (uint8_t i = 0; i < 8; i++)  
+    {
         if (bitOrder == LSBFIRST)
-            digitalWrite(_LCD_DIN, !!(value & (1 << i)));
+            !!(value & (1 << i)) ?  UC1609_SDA_SetHigh :  UC1609_SDA_SetLow;
         else    
-            digitalWrite(_LCD_DIN, !!(value & (1 << (7 - i))));
+            !!(value & (1 << (7 - i))) ?  UC1609_SDA_SetHigh :  UC1609_SDA_SetLow;
             
-        digitalWrite(_LCD_SCLK, HIGH);
+        UC1609_SCLK_SetHigh ;
         delayMicroseconds(UC1609_HIGHFREQ_DELAY);
-        digitalWrite(_LCD_SCLK, LOW);
+        UC1609_SCLK_SetLow;
         delayMicroseconds(UC1609_HIGHFREQ_DELAY);
     }
 }
@@ -303,32 +324,6 @@ void ERM19264_UC1609::send_data(uint8_t byte)
   }
 } 
 
-// Function to read "Get Status" registers 
-// NOTE not working as of v 1.1.0 (returning 0x00)
-uint16_t  ERM19264_UC1609::LCDreadStatus()
- {
-	uint8_t resultbyte1 =0;
-	uint8_t resultbyte2  = 0; 
-	uint16_t ReturnResult = 0;  
-	
-	UC1609_CS_SetLow;
-	send_command(UC1609_GET_STATUS,0);
-	if (isHardwareSPI()) // Hardware SPI
-	{
-		resultbyte1 = SPI.transfer(0x00);
-		resultbyte2 = SPI.transfer(0x00);
-	}else 
-	{
-		resultbyte1 = shiftIn(_LCD_DIN, _LCD_SCLK, MSBFIRST);
-		resultbyte2 = shiftIn(_LCD_DIN, _LCD_SCLK, MSBFIRST);
-	}
-	
-	UC1609_CS_SetHigh;
-	
-	 resultbyte1 = resultbyte1<< 8;
-	 ReturnResult = resultbyte1| resultbyte2;
-	 return ReturnResult;
- }
  
 // ******************************************************
 // Functions below not & needed for no_buffer mode 
@@ -370,6 +365,10 @@ void ERM19264_UC1609::LCDclearBuffer()
 //Param5 the bitmap
 void ERM19264_UC1609::LCDBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t* data) 
 {
+ #if defined(ESP8266)
+  yield();
+#endif
+ if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
  UC1609_CS_SetLow;
 
   uint8_t tx, ty; 
@@ -394,6 +393,10 @@ void ERM19264_UC1609::LCDBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, uint
   }
   
 UC1609_CS_SetHigh;
+ if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
+#if defined(ESP8266)
+  yield();
+#endif
 }
 
 // Desc: Draws a Pixel to the screen overides the custom graphics library
@@ -440,25 +443,29 @@ void ERM19264_UC1609::drawPixel(int16_t x, int16_t y, uint16_t colour)
 // Param2  : page 0-7
 void ERM19264_UC1609::LCDNoBufferGotoXY(uint8_t column , uint8_t page)
 {
+         if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
         UC1609_CS_SetLow;
         send_command(UC1609_SET_COLADD_LSB, (column & 0x0F)); 
         send_command(UC1609_SET_COLADD_MSB, (column & 0xF0) >> 4);
         send_command(UC1609_SET_PAGEADD, page++); 
         UC1609_CS_SetHigh;
+         if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }
 
 // Desc: draws passed character.
 // Param1: character 'A' or number in  the ASCII table 1-127(default)
 void ERM19264_UC1609::LCDNoBufferChar(unsigned char character)
 {
+    if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
    UC1609_CS_SetLow;
    UC1609_FONTPADDING;
     for (uint8_t  column = 0 ; column <  UC1609_FONTWIDTH ; column++)
     {
-        send_data((pgm_read_byte(custom_font + (character*UC1609_FONTWIDTH) + column)));
+        send_data((pgm_read_byte(UC_custom_font + (character*UC1609_FONTWIDTH) + column)));
     }
     UC1609_FONTPADDING;
     UC1609_CS_SetHigh;
+     if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }
 
 // Desc: draws passed  character array

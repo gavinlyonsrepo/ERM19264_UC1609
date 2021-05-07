@@ -23,7 +23,6 @@
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
 ERM19264_UC1609  mylcd(CD, RST, CS); 
- 
 
 int count = 0;
 

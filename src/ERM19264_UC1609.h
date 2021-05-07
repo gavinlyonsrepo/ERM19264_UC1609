@@ -27,9 +27,9 @@
 
 
 #ifdef NO_BUFFER
-   #include "custom_graphics_font.h"
+   #include "ERM19264_graphics_font.h"
 #else
-   #include "custom_graphics.h"
+   #include "ERM19264_graphics.h"
 #endif
 
 #include <SPI.h>
@@ -45,11 +45,8 @@
 #define BACKGROUND 1
 #define INVERSE 2
 
-// UC1909 Read registers
-#define UC1609_GET_STATUS 0xFE
-
 // UC1909 Write registers
-#define UC1609_SYSTEM_RESET 0xE2 // Not used v1.x
+#define UC1609_SYSTEM_RESET 0xE2 
 
 #define UC1609_POWER_CONTROL 0x2F 
 #define UC1609_PC_SET 0x06 // PC[2:0] 110 Internal V LCD (7x charge pump) + 10b: 1.4mA
@@ -86,10 +83,10 @@
 #define UC1609_ROTATION_FLIP_THREE 0x00
 
 // Delays
-#define UC1609_RESET_DELAY 50 // mS delay
-#define UC1609_RESET_DELAY2   0 // mS delay
-#define UC1609_INIT_DELAY 100   //  mS delay
-#define UC1609_INIT_DELAY2 3 // mS delay
+#define UC1609_RESET_DELAY 3 // ms Delay
+#define UC1609_RESET_DELAY2   0 // mS delay datasheet says 5mS, does not work
+#define UC1609_INIT_DELAY 100   //  mS delay ,after init 
+#define UC1609_INIT_DELAY2 3 // mS delay,  before reset called
 
 // No buffer mode font
 #define UC1609_ASCII_OFFSET 0x20 //0x20, ASCII character for Space
@@ -103,13 +100,27 @@
 #define UC1609_CD_SetLow digitalWrite(_LCD_CD, LOW)
 #define UC1609_RST_SetHigh digitalWrite(_LCD_RST, HIGH)
 #define UC1609_RST_SetLow digitalWrite(_LCD_RST, LOW)
+#define UC1609_SCLK_SetHigh digitalWrite(_LCD_SCLK, HIGH)
+#define  UC1609_SCLK_SetLow digitalWrite(_LCD_SCLK, LOW)
+#define  UC1609_SDA_SetHigh digitalWrite(_LCD_DIN, HIGH)
+#define  UC1609_SDA_SetLow digitalWrite(_LCD_DIN, LOW)
 
 // SPI
-#define SPI_FREQ 8000000 // Mhz (1000000 can be used on high freq MCU)
-#define SPI_DIRECTION  MSBFIRST 
-#define SPI_UC1609_MODE SPI_MODE0
-#define SPI_UC1609_CLOCK_DIV SPI_CLOCK_DIV8 //STM32 uses this 
+#define UC_SPI_FREQ 8000000 // Mhz (1000000 can be used on high freq MCU)
+#define UC_SPI_DIRECTION  MSBFIRST 
+#define UC_SPI_UC1609_MODE SPI_MODE0
+#define UC_SPI_CLOCK_DIV SPI_CLOCK_DIV8 //STM32 uses this 
 #define UC1609_HIGHFREQ_DELAY 0 // Can be used in software SPI for high freq MCU
+
+//There is a pre-defined macro SPI_HAS_TRANSACTION in SPI library for checking 
+ //whether the firmware of the Arduino board supports SPI.beginTransaction().
+#ifdef SPI_HAS_TRANSACTION
+	#define UC_SPI_TRANSACTION_START SPI.beginTransaction(SPISettings(UC_SPI_FREQ, UC_SPI_DIRECTION, UC_SPI_UC1609_MODE)); 
+	#define UC_SPI_TRANSACTION_END SPI.endTransaction();                
+#else // SPI transactions likewise not present in MCU or lib
+	#define UC_SPI_TRANSACTION_START SPI.setClockDivider(UC_SPI_CLOCK_DIV); // 72/8 = 9Mhz
+	#define UC_SPI_TRANSACTION_END  // Blank
+#endif
 
 // Display  Size
 const uint8_t LCD_WIDTH = 192;
@@ -132,7 +143,7 @@ struct MultiBuffer
 #ifdef NO_BUFFER
 class ERM19264_UC1609 {
 #else
-class ERM19264_UC1609 : public custom_graphics {
+class ERM19264_UC1609 : public ERM19264_graphics {
 #endif
   public:
      // Contructor 1 Software SPI with explicit SCLK and SDIN
@@ -175,7 +186,7 @@ class ERM19264_UC1609 : public custom_graphics {
     void LCDscroll(uint8_t bits);
     void LCDReset(void);
     void LCDBitmap(int16_t x, int16_t y, uint8_t w, uint8_t h, const uint8_t* data);
-    uint16_t LCDreadStatus();
+    void LCDPowerDown(void);
            
   private:
 

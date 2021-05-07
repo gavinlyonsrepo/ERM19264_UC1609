@@ -17,7 +17,7 @@
 
 #define mylcdheight 64
 #define mylcdwidth  192
-#define VbiasPOT 0x49 //Constrast 00 to FE , 0x49 is default. USER adjust.
+#define VbiasPOT 0x50 //Constrast 00 to FE , 0x49 is default. USER adjust.
 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
@@ -27,10 +27,12 @@
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
 ERM19264_UC1609  mylcd(CD, RST, CS); // instate object , CD, RST, CS
- 
+
 // vars for the test
 static long previousMillis  = 0;
 uint16_t count  = 0;
+uint16_t seconds  = 0;
+bool colour = false;
 
 // ************* SETUP ***************
 void setup() {
@@ -83,7 +85,7 @@ void display_Left(MultiBuffer* targetbuffer, long currentFramerate, int count)
   mylcd.print(F("96 * 64/8 = 768"));
 
   mylcd.setCursor(0, 20);
-  mylcd.print(F("x * y/8 = 768"));
+  mylcd.print(seconds);
 
   mylcd.setCursor(0, 30);
   mylcd.print(count);
@@ -96,13 +98,15 @@ void display_Left(MultiBuffer* targetbuffer, long currentFramerate, int count)
     fps = currentFramerate - lastFramerate;
     lastFramerate = currentFramerate ;
     previousMillis  = currentMillis;
+    colour =  !colour;
+    seconds++;
   }
 
   mylcd.setCursor(0, 40);
   mylcd.print(fps);
 
   mylcd.setCursor(0, 50);
-  mylcd.print("V 1.1.0");
+  mylcd.print("V 1.2.0");
   mylcd.drawFastVLine(92, 0, 63, FOREGROUND);
   mylcd.LCDupdate();
 }
@@ -115,9 +119,9 @@ void display_Right(MultiBuffer* targetbuffer)
   mylcd.setCursor(0, 0);
   mylcd.print(F("Right buffer:"));
 
-  mylcd.fillRect(0, 10, 20, 20, FOREGROUND);
+  mylcd.fillRect(0, 10, 20, 20, colour);
   mylcd.fillCircle(40, 20, 10, FOREGROUND);
-  mylcd.fillTriangle(60, 30, 70, 10, 80, 30, FOREGROUND);
+  mylcd.fillTriangle(60, 30, 70, 10, 80, 30, !colour);
   mylcd.drawRoundRect(10, 40, 60, 20, 10, FOREGROUND);
 
   mylcd.LCDupdate();

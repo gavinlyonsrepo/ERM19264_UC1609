@@ -1,13 +1,13 @@
 /*
 * Project Name: ERM19264_UC1609
-* File: custom_graphics.h
-* Description: ERM19264 LCD driven by UC1609C controller header file for the custom graphics functions based on Adafruit graphics library
+* File: ERM19264_graphics.h
+* Description: ERM19264 LCD driven by UC1609C controller header file for thegraphics functions based on Adafruit graphics library
 * Author: Gavin Lyons.
 * URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
 */
 
-#ifndef _CUSTOM_GRAPHICS_H
-#define _CUSTOM_GRAPHICS_H
+#ifndef _ERM19264_GRAPHICS_H
+#define _ERM19264_GRAPHICS_H
 
 #if ARDUINO >= 100
  #include "Arduino.h"
@@ -18,11 +18,11 @@
 
 #define swap(a, b) { int16_t t = a; a = b; b = t; }
 
-class custom_graphics : public Print {
+class ERM19264_graphics : public Print {
 
  public:
 
-  custom_graphics(int16_t w, int16_t h); // Constructor
+  ERM19264_graphics(int16_t w, int16_t h); // Constructor
 
   // This MUST be defined by the subclass:
   virtual void drawPixel(int16_t x, int16_t y, uint16_t color) = 0;
@@ -35,8 +35,7 @@ class custom_graphics : public Print {
     drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color),
     drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color),
     fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color),
-    fillScreen(uint16_t color),
-    invertDisplay(boolean i);
+    fillScreen(uint16_t color);
 
   // no subclass overrides
   void
@@ -66,8 +65,7 @@ class custom_graphics : public Print {
     setTextColor(uint16_t c),
     setTextColor(uint16_t c, uint16_t bg),
     setTextSize(uint8_t s),
-    setTextWrap(boolean w),
-    setRotation(uint8_t r);
+    setTextWrap(boolean w);
 
 #if ARDUINO >= 100
   virtual size_t write(uint8_t);
@@ -78,21 +76,17 @@ class custom_graphics : public Print {
   int16_t height(void) const;
   int16_t width(void) const;
 
-  uint8_t getRotation(void) const;
-
  protected:
   const int16_t
-    WIDTH, HEIGHT;   // This is the 'raw' display w/h - never changes
+    WIDTH, HEIGHT;  
   int16_t
-    _width, _height, // Display w/h as modified by current rotation
+    _width, _height, 
     cursor_x, cursor_y;
   uint16_t
     textcolor, textbgcolor;
-  uint8_t
-    textsize,
-    rotation;
-  boolean
-    wrap; // If set, 'wrap' text at right edge of display
+  uint8_t   textsize;
+  
+  boolean wrap; // If set, 'wrap' text at right edge of display
 };
 
 #endif 
