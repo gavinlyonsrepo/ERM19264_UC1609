@@ -9,7 +9,7 @@ Table of contents
   * [Hardware](#hardware)
   * [Features](#features)
   * [Files](#files)
-  * [Tested](#tested)
+  * [Tested_MCU](#tested_mcu)
   * [Ports](#ports)
   
 Overview
@@ -103,6 +103,7 @@ ERM19264_UC1609.h file.  Pick ONE option and one option ONLY. The example files 
 
 The ASCII font(in the custom_graphics_font.h file) is truncated by a define ( UC_FONT_MOD_TWO) after first 127 characters (see output pic) to save memory space(640 bytes), if you wish to use rest of the [extended ASCII font](https://www.extended-ascii.com/), simply comment this define out.
 The font is a standard 5 by 7 ASCII font with two  columns  of padding added. So 7 by 8 in effect. In standard text size and "no buffer" mode, this means: 192/7 * 64/8 = 27 * 8 = 216 characters. 
+There is also a light weight Text only version of library available [here at link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_T)
 
 *bitmaps*
 
@@ -153,7 +154,7 @@ Files
 | SINGLEBUFFER| Shows use of single buffer mode | Single_buffer |
 | SWSPI | Shows use of software SPI | Multi_buffer |
 
-Tested
+Tested_MCU
 -----------------------------
 
 Tested on following MCUs both software and hardware SPI,
@@ -167,9 +168,9 @@ by for other MCU testing see extras/doc folder GPIO_MCU_used.txt file.
 Ports
 ------------------------------------------
 
-* ERM19264_UC1609_T (T for text). Light weight Text only version for arduino ecosystem [here at link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_T)
+* Raspberry Pi SBC C++ [Link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_RPI)
 
-* PIC xc8  [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
+* PIC C XC8  [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
 
 * Stm32cubeIDE STM32F070RBT6  C++ [Link](https://github.com/gavinlyonsrepo/STM32_projects) 
 
