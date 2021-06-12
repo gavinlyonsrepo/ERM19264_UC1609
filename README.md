@@ -41,8 +41,8 @@ Output Screenshots, From left to right top to bottom.
 2. Multi buffer mode screen divided into two buffers
 3. Different size and inverted  default font 
 4. ASCII font 1-127 printed out with default font size 1 
-5. Fonts 1-4
-6. Fonts 5-6 
+5. Fonts 5-6
+6. Fonts 1-4
 
 ![op](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/output.jpg)
 
@@ -105,7 +105,7 @@ ERM19264_UC1609.h file.  Pick ONE option and one option ONLY. The example files 
 There are six fonts.
 A print class is available to print out most passed data types.
 The fonts 1-4 are a byte high(at text size 1) scale-able fonts.
-Font 5-6 is a special large font but it is numbers only and cannot be scaled(just one size).  
+Font 5-6 are specials large fonts but are numbers only and cannot be scaled(just one size).  
 Font 5-6 will print just numbers + semi-colons ,  if you print a float using print command
 it will place a space and use a circle for a decimal point.
 
