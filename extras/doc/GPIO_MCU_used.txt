@@ -1,3 +1,5 @@
+# GPIO used in testing 
+
 ESP8266 SOFTWARE SPI
 ERM19264_UC1609 mylcd(D2, D1, D6, D7, D5);
 

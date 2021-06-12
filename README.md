@@ -9,7 +9,7 @@ Table of contents
   * [Hardware](#hardware)
   * [Features](#features)
   * [Files](#files)
-  * [Tested_MCU](#tested_mcu)
+  * [Tested](#tested)
   * [Ports](#ports)
   
 Overview
@@ -20,7 +20,7 @@ Overview
 
 1. Arduino eco-system library.      
 2. Inverse, Scroll, rotate and contrast control. 
-3. Extended  scale-able ASCII font.
+3. 6 ASCII fonts included.
 4. Graphics class included.
 5. Sleep mode.
 6. 3 different modes: Multi-buffer , single buffer , light weight text only
@@ -39,11 +39,14 @@ Output Screenshots, From left to right top to bottom.
 
 1. Full screen bitmap displayed
 2. Multi buffer mode screen divided into two buffers
-3. Different size and type of fonts 
-4. Available ASCII font printed out, this can be expanded to [extended ASCII font](https://www.extended-ascii.com/) by minor modification to font file see features.
+3. Different size and inverted  default font 
+4. ASCII font 1-127 printed out with default font size 1 
+5. Fonts 1-4
+6. Fonts 5-6 
 
 ![op](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/output.jpg)
 
+![op2](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/output2.jpg)
 
 Installation
 ------------------------------
@@ -92,18 +95,49 @@ Hardware and software SPI. Two different class constructors. User can pick the r
 
 1. MULTI_BUFFER (default)
 2. SINGLE_BUFFER 
-3. NO_BUFFER , Text only no buffer , relatively light weight. A "hello world" Sketch uses 2320 bytes (7%) of and 42 bytes (2%) of dynamic memory. Turns LCD into simple character LCD(216 characters)
-Bitmaps can still be written directly to screen but no graphics possible.
+3. NO_BUFFER , Text only no buffer , relatively light weight. Turns LCD into simple character LCD(216 characters). Default font only. Bitmaps can still be written directly to screen but no graphics possible.
 
 To switch between modes, user must make a change to the USER BUFFER OPTION SECTION  at top of 
 ERM19264_UC1609.h file.  Pick ONE option and one option ONLY. The example files at top, say which option to pick. If wrong option is picked, example files will not work or maybe even compile.
 
-
 *fonts*
 
-The ASCII font(in the custom_graphics_font.h file) is truncated by a define ( UC_FONT_MOD_TWO) after first 127 characters (see output pic) to save memory space(640 bytes), if you wish to use rest of the [extended ASCII font](https://www.extended-ascii.com/), simply comment this define out.
-The font is a standard 5 by 7 ASCII font with two  columns  of padding added. So 7 by 8 in effect. In standard text size and "no buffer" mode, this means: 192/7 * 64/8 = 27 * 8 = 216 characters. 
-There is also a light weight Text only version of library available [here at link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_T)
+There are six fonts.
+A print class is available to print out most passed data types.
+The fonts 1-4 are a byte high(at text size 1) scale-able fonts.
+Font 5-6 is a special large font but it is numbers only and cannot be scaled(just one size).  
+Font 5-6 will print just numbers + semi-colons ,  if you print a float using print command
+it will place a space and use a circle for a decimal point.
+
+Font data table: 
+
+| Font num | Font name | Font size xbyy |  ASCII range | Size in bytes |
+| ------ | ------ | ------ | ------ |  ------ | 
+| 1 | Default | 5x8 | Full Extended ASCII 0 - 0xFF | 1275 |
+| 2 | Thick   | 7x8 | no lowercase letters , ASCII  0x20 - 0x5A | 406 | 
+| 3 | Seven segment | 4x8 | ASCII  0x20 - 0x7A | 360 |
+| 4 | Wide | 8x8 | no lowercase letters, ASCII 0x20 - 0x5A | 464 |
+| 5 | Big Nums | 16x32 | ASCII 0x30-0x3A ,Numbers + : only | 704 |
+| 6 | Med Nums | 16x16 | ASCII 0x30-0x3A ,Numbers + : only | 352 |
+
+By default only Font 1 is commented in and ready to go to save memory.
+So to use a non-default Font (2-6), two steps.
+
+1. Comment in the respective define at top of library header file ERM19264_UC1609_graphics_font.h in the USER FONT OPTION ONE section
+2. Call SetFontNum function and pass it number of respective font.  eg SetFontNum(2)
+
+*font mods*
+
+The default ASCII font (font one) is an [extended ASCII font](https://www.extended-ascii.com/) 0-255 characters.
+If you do not need characters 127-255 and wish to save memory space:
+In library header file ERM19264_UC1609_graphics_font.h  in the USER FONT OPTION TWO section
+Simply comment this define out. 
+
+1. UC_FONT_MOD_TWO (save 640 bytes) extended ASCII 127-255
+
+You can also remove the first 30 characters if not needed but user will need to change 
+ERM19264_ASCII_OFFSET  from 0x00 to 0x20. This will save a further 150 bytes.
+
 
 *bitmaps*
 
@@ -146,15 +180,16 @@ Files
 | Examples files ino  | Desc | Buffer mode |
 | ------ | ------ | ------ |
 | BITMAP | Shows use of bitmaps  | Several see notes | 
-| GRAPHICS |  Shows use of graphics   | Multi_buffer |
-| MISC | Shows misc functions, rotate invert etc | Multi_buffer |
+| GRAPHICS |  Tests use of graphics   | Multi_buffer |
+| MISC | Shows misc functions, rotate, invert etc | Multi_buffer |
 | MULTIBUFFER | Shows use of multi buffer mode | Multi_buffer |
 | NOBUFFER | Shows use of no buffer text only mode | No_buffer |
-| TEXT | Shows use of text IN buffer mode   | Multi_buffer |
-| SINGLEBUFFER| Shows use of single buffer mode | Single_buffer |
+| TEXT | Shows use of text and fonts, Fonts must be enabled  | Multi_buffer |
+| SINGLEBUFFER | Shows use of single buffer mode | Single_buffer |
 | SWSPI | Shows use of software SPI | Multi_buffer |
+| HELLO | Hello world basic use case | Multi_buffer |
 
-Tested_MCU
+Tested
 -----------------------------
 
 Tested on following MCUs both software and hardware SPI,
@@ -168,9 +203,9 @@ by for other MCU testing see extras/doc folder GPIO_MCU_used.txt file.
 Ports
 ------------------------------------------
 
-* Raspberry Pi SBC C++ [Link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_RPI)
+* ERM19264_UC1609_T (T for text). Light weight Text only version for arduino ecosystem [here at link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_T)
 
-* PIC C XC8  [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
+* PIC xc8  [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
 
 * Stm32cubeIDE STM32F070RBT6  C++ [Link](https://github.com/gavinlyonsrepo/STM32_projects) 
 

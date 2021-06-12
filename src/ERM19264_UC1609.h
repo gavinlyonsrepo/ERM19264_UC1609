@@ -35,9 +35,9 @@
 #include <SPI.h>
 
 // Display Pixel colours   definition
-// (1): white on blue,  FG = white BG = blue
+// (1): white on blue,  FG = white, BG = blue
 // ERM19264SBS-4 LCD Display White on Blue
-// (2): black on white, FG = black BG = white
+// (2): black on white, FG = black, BG = white
 // ERM19264FS-4 LCD Display Black on White
 // (3):white on black,  FG = white, BG = black
 // ERM19264DNS-4LCD Display White on Black
@@ -89,9 +89,8 @@
 #define UC1609_INIT_DELAY2 3 // mS delay,  before reset called
 
 // No buffer mode font
-#define UC1609_ASCII_OFFSET 0x20 //0x20, ASCII character for Space
-#define UC1609_FONTPADDING  send_data(0x00)
-#define UC1609_FONTWIDTH 5
+#define UC_NB_FONTPADDING  send_data(0x00)
+#define UC_NB_FONTWIDTH 5
 
 // GPIO
 #define UC1609_CS_SetHigh digitalWrite(_LCD_CS, HIGH)
@@ -165,7 +164,7 @@ class ERM19264_UC1609 : public ERM19264_graphics {
 
 // Functions not needed for no_buffer mode 
 #ifndef NO_BUFFER
-    virtual void drawPixel(int16_t x, int16_t y, uint16_t colour) override;
+    virtual void drawPixel(int16_t x, int16_t y, uint8_t colour) override;
      void LCDupdate(void);
      void LCDclearBuffer(void);
      void LCDBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t* data);

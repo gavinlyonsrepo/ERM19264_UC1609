@@ -13,3 +13,6 @@
 	* "Yield()" statements added to prevent potential  WDT issue's with ESP8266. ESP8266 needs a periodic yield() call to avoid watchdog reset.
 	* Added SPI_transactions so LCD can share the SPI bus with other SPI devices on different settings.
 	* Added LCDPowerDown function.
+
+* Version 1.3.0 June 2021
+	* Added five fonts.

@@ -15,7 +15,6 @@
 // ******************************
 
 #include <ERM19264_UC1609.h>
-#include <ERM19264_graphics_font.h> // include just to see font mod. UC_FONT_MOD_TWO for test 5
 
 #define VbiasPOT 0x49 //Constrast 00 to FE , 0x49 is default. user adjust
 
@@ -102,7 +101,7 @@ void Tests()
     {
       if (i % 27 == 0) mylcd.LCDNoBufferGotoXY(0, row++);
       mylcd.LCDNoBufferChar(i); 
-      delay(50);
+      delay(25);
     }
     delay(7000);
      mylcd.LCDFillScreen(0x00, 0); // Clear the screen
@@ -110,7 +109,6 @@ void Tests()
   // TEST 5 print ASCII font 128-255 with character function
   // For characters after 'z{|}' in ASCII table user can comment out UC_FONT_MOD_TWO in font file
   // (NOTE: this will increase program size 635 bytes
-#ifndef UC_FONT_MOD_TWO
   mylcd.LCDNoBufferGotoXY(0, 0);
   row = 1;
   unsigned char k = 1;
@@ -118,10 +116,9 @@ void Tests()
   {
     if (k % 27 == 0) mylcd.LCDNoBufferGotoXY(0, row++);
     mylcd.LCDNoBufferChar(k);
-    delay(50);
+    delay(25);
   }
   delay(5000);
   mylcd.LCDFillScreen(0x00, 0); // Clear the screen
-#endif
 
 }

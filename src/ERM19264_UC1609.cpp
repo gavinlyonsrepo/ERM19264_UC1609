@@ -401,7 +401,7 @@ UC1609_CS_SetHigh;
 
 // Desc: Draws a Pixel to the screen overides the custom graphics library
 // Passed x and y co-ords and colour of pixel.
-void ERM19264_UC1609::drawPixel(int16_t x, int16_t y, uint16_t colour) 
+void ERM19264_UC1609::drawPixel(int16_t x, int16_t y, uint8_t colour) 
 {
     
 #ifdef MULTI_BUFFER
@@ -458,12 +458,12 @@ void ERM19264_UC1609::LCDNoBufferChar(unsigned char character)
 {
     if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
    UC1609_CS_SetLow;
-   UC1609_FONTPADDING;
-    for (uint8_t  column = 0 ; column <  UC1609_FONTWIDTH ; column++)
+   UC_NB_FONTPADDING;
+    for (uint8_t  column = 0 ; column <  UC_NB_FONTWIDTH ; column++)
     {
-        send_data((pgm_read_byte(UC_custom_font + (character*UC1609_FONTWIDTH) + column)));
+        send_data((pgm_read_byte(UC_Font_One + (character*UC_NB_FONTWIDTH) + column)));
     }
-    UC1609_FONTPADDING;
+    UC_NB_FONTPADDING;
     UC1609_CS_SetHigh;
      if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
 }

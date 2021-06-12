@@ -22,8 +22,8 @@
 #define CD 10 // GPIO pin number pick any you want 
 #define RST 9 // GPIO pin number pick any you want
 #define CS 8  // GPIO pin number pick any you want
-#define SCLK 4 // GPIO pin number pick any you want
-#define DIN  5 // GPIO pin number pick any you want
+#define SCLK 13 // GPIO pin number pick any you want
+#define DIN  11 // GPIO pin number pick any you want
 
 ERM19264_UC1609  mylcd(CD, RST, CS, SCLK, DIN ); // instantiate object pick any GPIO you want
 

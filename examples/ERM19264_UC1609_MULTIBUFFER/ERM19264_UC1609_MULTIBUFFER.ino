@@ -17,7 +17,7 @@
 
 #define mylcdheight 64
 #define mylcdwidth  192
-#define VbiasPOT 0x50 //Constrast 00 to FE , 0x49 is default. USER adjust.
+#define VbiasPOT 0x49 //Constrast 00 to FE , 0x49 is default. USER adjust.
 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
@@ -63,13 +63,13 @@ void loop() {
   right_side.xoffset = (mylcdwidth / 2); //96
   right_side.yoffset = 0;
 
-  display_Left(&left_side, framerate, count);
-
-  display_Right(&right_side);
-  
-  framerate++;
-  count++;
-  delay(1);
+  while(1)
+  {
+    display_Left(&left_side, framerate, count);
+    display_Right(&right_side);
+    framerate++;
+    count++;
+  }
 }
 // *********** END OF MAIN ***********
 
