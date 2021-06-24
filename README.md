@@ -203,7 +203,10 @@ by for other MCU testing see extras/doc folder GPIO_MCU_used.txt file.
 Ports
 ------------------------------------------
 
-* ERM19264_UC1609_T (T for text). Light weight Text only version for arduino ecosystem [here at link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_T)
+* ERM19264_UC1609_RPI , Raspberry pi C++. 
+[Link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_RPI)
+
+* ERM19264_UC1609_T (T for text). Light weight Text only version for arduino ecosystem [Link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_T)
 
 * PIC xc8  [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
 
