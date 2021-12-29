@@ -72,13 +72,12 @@ There are 3 different colours in range, Parts used purchased from [ebay](https:/
 3. ERM19264DNS-5 V3 LCD Display  UC1609C controller white on black
 
 The library was tested on 1 and 2. 
-The UC1609 controller chip is a 3.3V device but the ERM LCD module has a "662k" 3.3V regulator at back.
-So the ERM LCD module will run at 5V as well if this is present.
-It was always run it at 3.3V during testing. 
-The Backlight should always be connected to 3.3V according to datasheets.  
+The Backlight should always be connected to 3.3V according to datasheets. 
 
-This wiring Diagram from the manufacturer showing hardware setup connected to an ~8051 MCU.
-Showing both 5 volt and 3.3 volt systems. NOTE the J1 position. 
+The ERM LCD module has a "662k" 3.3V regulator at back and by default setup is a 3.3V device. However if can also be run at 5V and connect to 5V device by 
+Modifying  jumper J1 on back. 
+This wiring Diagram from the manufacturer showing hardware setup connected to an ~8051 MCU, showing both 3.3 volt and 5 volt systems. NOTE the J1 position. 
+If J1 is shorted the LCD can connect to 5V , J1 bypasses the 3.3V regulator. 
 
 ![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/connect.jpg)
 
