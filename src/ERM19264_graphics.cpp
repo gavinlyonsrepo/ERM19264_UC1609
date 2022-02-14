@@ -7,6 +7,8 @@
 * URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
 */
 
+//#define VBITMAP 	// Affects drawBitmap() functions. For bitmaps with vertical arrangement of pixels in a byte. Horizontal arrangement is default.
+
 #include "ERM19264_graphics.h"
 #include "ERM19264_graphics_font.h"
 #ifdef __AVR__
@@ -306,7 +308,28 @@ void ERM19264_graphics::fillTriangle ( int16_t x0, int16_t y0,
 void ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
 						const uint8_t *bitmap, int16_t w, int16_t h,
 						uint8_t color) {
-
+#ifdef VBITMAP	
+// Vertical byte bitmaps mode 
+	uint8_t vline;
+	int8_t i, j, r = 0, yin = y;
+	
+	for (i=0; i<(w+1); i++ ) {
+		if (r == (h+7)/8 * w) break;
+		vline = pgm_read_byte( bitmap + r );
+		r++;
+		if (i == w) {
+			y = y+8;
+			i = 0;
+		}
+		
+		for (j=0; j<8; j++ ) {
+			if (y+j-yin == h) break;
+			if (vline & 0x1) drawPixel(x+i, y+j, color);
+			vline >>= 1;
+		}
+	}
+#else	
+// Horizontal byte bitmaps mode 
 	int16_t i, j, byteWidth = (w + 7) / 8;
 
 	for(j=0; j<h; j++) {
@@ -316,6 +339,7 @@ void ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
 			}
 		}
 	}
+#endif
 }
 
 // Draw a 1-bit color bitmap at the specified x, y position from the
@@ -324,7 +348,33 @@ void ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
 void ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
 						const uint8_t *bitmap, int16_t w, int16_t h,
 						uint8_t color, uint8_t bg) {
-
+#ifdef VBITMAP	
+// Vertical byte bitmaps mode 
+	uint8_t vline;
+	int8_t i, j, r = 0, yin = y;
+	
+	for (i=0; i<(w+1); i++ ) {
+		if (r == (h+7)/8 * w) break;
+		vline = pgm_read_byte( bitmap + r );
+		r++;
+		if (i == w) {
+			y = y+8;
+			i = 0;
+		}
+		
+		for (j=0; j<8; j++ ) {
+			if (y+j-yin == h) break;
+			if (vline & 0x1) {
+				drawPixel(x+i, y+j, color);
+			}
+			else {
+				drawPixel(x+i, y+j, bg);
+			}	
+			vline >>= 1;
+		}
+	}
+#else
+// Horizontal byte bitmaps mode 
 	int16_t i, j, byteWidth = (w + 7) / 8;
 	
 	for(j=0; j<h; j++) {
@@ -337,6 +387,7 @@ void ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
 			}
 		}
 	}
+#endif	
 }
 
 #if ARDUINO >= 100
