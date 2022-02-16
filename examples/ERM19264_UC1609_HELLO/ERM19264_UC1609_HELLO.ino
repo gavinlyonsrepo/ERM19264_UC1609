@@ -15,9 +15,10 @@
 #include "ERM19264_UC1609.h"
 
 // LCD setup defines 
-#define LCDcontrast 0x49 
-#define mylcdheight 64
-#define mylcdwidth  192
+#define LCDCONTRAST 0x49 
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
+
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
 #define RST 9 // GPIO pin number pick any you want
@@ -27,33 +28,23 @@
 
 ERM19264_UC1609  mylcd(CD, RST, CS); // instantiate object
 
+// define a buffer to cover whole screen 
+uint8_t  screenBuffer[MYLCDWIDTH * (MYLCDHEIGHT/8)]; // 1536 bytes
+  
 void setup() 
 {
-  mylcd.LCDbegin(LCDcontrast); // initialize the OLED
-  mylcd.LCDFillScreen(0x00, 0);
-  mylcd.setTextColor(FOREGROUND);
-  mylcd.setFontNum(1);
+  mylcd.LCDbegin(LCDCONTRAST); // initialize the OLED
+  mylcd.LCDFillScreen(0x00, 0); // clear screen 
+  mylcd.setTextColor(FOREGROUND); // set text color
+  mylcd.setFontNum(UC1609Font_Default); // set font type
 }
 
 void loop()
 {
 
-  // define a buffer to cover whole screen 
-  uint8_t  screenBuffer[mylcdwidth * (mylcdheight/8)]; //1536 bytes
-
-  // Declare a multi buffer struct
-  MultiBuffer mybuffer;
-
-  // Intialise struct 
-  mybuffer.screenbitmap = (uint8_t*) &screenBuffer; // point it to the buffer
-  mybuffer.width = mylcdwidth ;
-  mybuffer.height = mylcdheight;
-  mybuffer.xoffset = 0;
-  mybuffer.yoffset = 0;
-
-  // Assign address of struct to be the active buffer pointer 
-  mylcd.ActiveBuffer = &mybuffer;
-
+  MultiBuffer myStruct; // Declare a multi buffer struct
+  mylcd.LCDinitBufferStruct(&myStruct, screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);  // Intialise that struct (&struct,buffer,w,h,x,y)
+  mylcd.ActiveBuffer = &myStruct;   // Assign address of struct to be the "active buffer" pointer 
   mylcd.LCDclearBuffer();   // Clear active buffer 
   
   while (1)

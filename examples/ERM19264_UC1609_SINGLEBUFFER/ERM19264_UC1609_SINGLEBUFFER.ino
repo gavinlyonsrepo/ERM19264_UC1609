@@ -13,6 +13,8 @@
 
 #include <ERM19264_UC1609.h>
 
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
 #define VbiasPOT 0x49 //Constrast 00 to FE , 0x49 is default. USER adjust. 
 
 // GPIO 5-wire SPI interface
@@ -43,11 +45,13 @@ void loop()
 
 void DisplayText() 
 {
-   uint8_t  screenBuffer[1537];  // create a full screen buffer (192 * 64/8) + 1
+   uint8_t  screenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))+1];  // create a full screen buffer (192 * 64/8) + 1 =1537  bytes
    mylcd.buffer = (uint8_t*) &screenBuffer;  // Assign the pointer to the buffer
    mylcd.LCDclearBuffer(); // Clear the buffer
+   
    mylcd.setTextSize(2);
    mylcd.setTextColor(FOREGROUND);
+   
    while(1)
    {
     mylcd.setCursor(0, 24);

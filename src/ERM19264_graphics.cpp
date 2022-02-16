@@ -2,12 +2,11 @@
 /*
 * Project Name: ERM19264_UC1609
 * File:ERM19264_graphics.cpp
-* Description: ERM19264 LCD driven by UC1609C controller header file for the ERM19264 graphics functions originally based  on Adafruit graphics library but major modifications 
 * Author: Gavin Lyons.
 * URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
 */
 
-//#define VBITMAP 	// Affects drawBitmap() functions. For bitmaps with vertical arrangement of pixels in a byte. Horizontal arrangement is default.
+
 
 #include "ERM19264_graphics.h"
 #include "ERM19264_graphics_font.h"
@@ -26,8 +25,9 @@ ERM19264_graphics::ERM19264_graphics(int16_t w, int16_t h):
 	_height   = HEIGHT;
 	cursor_y  = cursor_x    = 0;
 	textsize  = 1;
-	textcolor = textbgcolor = 0xFFFF;
+	textcolor = textbgcolor = 0xFF;
 	wrap      = true;
+	drawBitmapAddr=true;
 }
 
 // Draw a circle outline
@@ -305,57 +305,22 @@ void ERM19264_graphics::fillTriangle ( int16_t x0, int16_t y0,
 	}
 }
 
-void ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
-						const uint8_t *bitmap, int16_t w, int16_t h,
-						uint8_t color) {
-#ifdef VBITMAP	
-// Vertical byte bitmaps mode 
-	uint8_t vline;
-	int8_t i, j, r = 0, yin = y;
-	
-	for (i=0; i<(w+1); i++ ) {
-		if (r == (h+7)/8 * w) break;
-		vline = pgm_read_byte( bitmap + r );
-		r++;
-		if (i == w) {
-			y = y+8;
-			i = 0;
-		}
-		
-		for (j=0; j<8; j++ ) {
-			if (y+j-yin == h) break;
-			if (vline & 0x1) drawPixel(x+i, y+j, color);
-			vline >>= 1;
-		}
-	}
-#else	
-// Horizontal byte bitmaps mode 
-	int16_t i, j, byteWidth = (w + 7) / 8;
-
-	for(j=0; j<h; j++) {
-		for(i=0; i<w; i++ ) {
-			if(pgm_read_byte(bitmap + j * byteWidth + i / 8) & (128 >> (i & 7))) {
-				drawPixel(x+i, y+j, color);
-			}
-		}
-	}
-#endif
-}
-
 // Draw a 1-bit color bitmap at the specified x, y position from the
 // provided bitmap buffer (must be PROGMEM memory) using color as the
 // foreground color and bg as the background color.
 void ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
 						const uint8_t *bitmap, int16_t w, int16_t h,
 						uint8_t color, uint8_t bg) {
-#ifdef VBITMAP	
+							
+if (drawBitmapAddr== true)
+{
 // Vertical byte bitmaps mode 
 	uint8_t vline;
-	int8_t i, j, r = 0, yin = y;
+	int16_t i, j, r = 0, yin = y;
 	
 	for (i=0; i<(w+1); i++ ) {
 		if (r == (h+7)/8 * w) break;
-		vline = pgm_read_byte( bitmap + r );
+		vline = pgm_read_byte(bitmap + r );
 		r++;
 		if (i == w) {
 			y = y+8;
@@ -373,21 +338,23 @@ void ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
 			vline >>= 1;
 		}
 	}
-#else
+} else if (drawBitmapAddr == false) {
 // Horizontal byte bitmaps mode 
-	int16_t i, j, byteWidth = (w + 7) / 8;
-	
-	for(j=0; j<h; j++) {
-		for(i=0; i<w; i++ ) {
-			if(pgm_read_byte(bitmap + j * byteWidth + i / 8) & (128 >> (i & 7))) {
-				drawPixel(x+i, y+j, color);
-			}
-			else {
-				drawPixel(x+i, y+j, bg);
-			}
+	int16_t byteWidth = (w + 7) / 8;
+	uint8_t byte = 0;
+	for (int16_t j = 0; j < h; j++, y++) 
+	{
+		for (int16_t i = 0; i < w; i++) 
+		{
+			if (i & 7)
+				byte <<= 1;
+			else
+				byte = pgm_read_byte(&bitmap[j * byteWidth + i / 8]);
+			drawPixel(x+i, y, (byte & 0x80) ? color : bg);
 		}
 	}
-#endif	
+
+} // end of elseif
 }
 
 #if ARDUINO >= 100
@@ -396,7 +363,7 @@ size_t ERM19264_graphics::write(uint8_t c) {
 void ERM19264_graphics::write(uint8_t c) {
 #endif
 
-if (_FontNumber < 5)
+if (_FontNumber < UC1609Font_Bignum )
 	{
 		if (c == '\n') 
 		{
@@ -416,10 +383,10 @@ if (_FontNumber < 5)
 			}
 		}
 		
-	}else if (_FontNumber == 5 || _FontNumber == 6)
+	}else if (_FontNumber == UC1609Font_Bignum  || _FontNumber ==  UC1609Font_Mednum )
 	{
-		uint8_t radius = 3;
-		if (_FontNumber == 6) radius = 2;
+		uint8_t radius = 3; // decimal point circle
+		if (_FontNumber == UC1609Font_Mednum ) radius = 2;
 		
 		if (c == '\n') 
 		{
@@ -477,16 +444,16 @@ void ERM19264_graphics::drawChar(int16_t x, int16_t y, unsigned char c,
 		{
 			 switch (_FontNumber) {
 #ifdef UC1609_Font_One
-				case 1: line = pgm_read_byte(UC_Font_One + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
+				case UC1609Font_Default: line = pgm_read_byte(UC_Font_One + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
 #endif 
 #ifdef UC1609_Font_Two
-				case 2: line = pgm_read_byte(UC_Font_Two + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
+				case UC1609Font_Thick: line = pgm_read_byte(UC_Font_Two + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
 #endif
 #ifdef UC1609_Font_Three
-				case 3: line = pgm_read_byte(UC_Font_Three + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
+				case UC1609Font_Seven_Seg: line = pgm_read_byte(UC_Font_Three + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
 #endif
 #ifdef UC1609_Font_Four
-				case 4: line = pgm_read_byte(UC_Font_Four + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
+				case UC1609Font_Wide: line = pgm_read_byte(UC_Font_Four + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
 #endif
 				default: // wrong font number
 						return;
@@ -535,6 +502,14 @@ void ERM19264_graphics::setTextWrap(boolean w) {
 	wrap = w;
 }
 
+//Func Desc : sets the data addressing mode in drawBitmap function.
+//Param 1 boolean mode  , true default
+// True =  bitmap data vertically addressed 
+// False = bitmap data horizontally addressed 
+void ERM19264_graphics::setDrawBitmapAddr(boolean mode) {
+	drawBitmapAddr = mode;
+}
+
 // Return the size of the display
 int16_t ERM19264_graphics::width(void) const {
 	return _width;
@@ -548,65 +523,50 @@ int16_t ERM19264_graphics::height(void) const {
 // Param1: fontnumber 1-5
 // 1=default 2=thick 3=seven segment 4=wide 5=bignums 6 = mednums
 
-void ERM19264_graphics::setFontNum(uint8_t FontNumber) 
+void ERM19264_graphics::setFontNum(LCD_FONT_TYPE_e FontNumber) 
 {
 	_FontNumber = FontNumber;
-	
-	enum LCD_Font_width
-	{
-		FONT_W_FIVE = 5, FONT_W_SEVEN = 7, FONT_W_FOUR = 4, FONT_W_EIGHT = 8,FONT_W_16= 16
-	}; // width of the font in bytes cols.
-	
-	enum LCD_Font_offset
-	{
-		FONT_O_EXTEND = ERM19264_ASCII_OFFSET, FONT_O_SP = ERM19264_ASCII_OFFSET_SP, FONT_N_SP = ERM19264_ASCII_OFFSET_NUM
-	}; // font offset in the ASCII table
-	
-	enum LCD_Font_height
-	{
-		FONT_H_8 = 8, FONT_H_16 = 16, FONT_H_32 = 32
-	}; // width of the font in bits
-	
-	enum LCD_Font_width setfontwidth;
-	enum LCD_Font_offset setoffset;
-	enum LCD_Font_height setfontheight;
+		
+	LCD_Font_width_e setfontwidth;
+	LCD_Font_offset_e setoffset;
+	LCD_Font_height_e setfontheight;
 	
 	switch (_FontNumber) {
-		case 1:  // Norm default 5 by 8
-			_CurrentFontWidth = (setfontwidth = FONT_W_FIVE);
+		case UC1609Font_Default:  // Norm default 5 by 8
+			_CurrentFontWidth = (setfontwidth = FONT_W_5);
 			_CurrentFontoffset =  (setoffset = FONT_O_EXTEND);
 			_CurrentFontheight = (setfontheight=FONT_H_8);
 		break; 
-		case 2: // Thick 7 by 8 (NO LOWERCASE LETTERS)
-			_CurrentFontWidth = (setfontwidth = FONT_W_SEVEN);
+		case UC1609Font_Thick: // Thick 7 by 8 (NO LOWERCASE LETTERS)
+			_CurrentFontWidth = (setfontwidth = FONT_W_7);
 			_CurrentFontoffset =  (setoffset = FONT_O_SP);
 			_CurrentFontheight = (setfontheight=FONT_H_8);
 		break; 
-		case 3:  // Seven segment 4 by 8
-			_CurrentFontWidth = (setfontwidth = FONT_W_FOUR);
+		case UC1609Font_Seven_Seg:  // Seven segment 4 by 8
+			_CurrentFontWidth = (setfontwidth = FONT_W_4);
 			_CurrentFontoffset =  (setoffset = FONT_O_SP);
 			_CurrentFontheight = (setfontheight=FONT_H_8);
 		break;
-		case 4: // Wide  8 by 8 (NO LOWERCASE LETTERS)
-			_CurrentFontWidth = (setfontwidth = FONT_W_EIGHT);
+		case UC1609Font_Wide : // Wide  8 by 8 (NO LOWERCASE LETTERS)
+			_CurrentFontWidth = (setfontwidth = FONT_W_8);
 			_CurrentFontoffset =  (setoffset = FONT_O_SP);
 			_CurrentFontheight = (setfontheight=FONT_H_8);
 		break; 
-		case 5: // big nums 16 by 32 (NUMBERS + : only)
+		case UC1609Font_Bignum : // big nums 16 by 32 (NUMBERS + : only)
 			_CurrentFontWidth = (setfontwidth = FONT_W_16);
-			_CurrentFontoffset =  (setoffset = FONT_N_SP);
+			_CurrentFontoffset =  (setoffset = FONT_O_NUM);
 			_CurrentFontheight = (setfontheight=FONT_H_32);
 		break; 
-		case 6: // med nums 16 by 16 (NUMBERS + : only)
+		case UC1609Font_Mednum: // med nums 16 by 16 (NUMBERS + : only)
 			_CurrentFontWidth = (setfontwidth = FONT_W_16);
-			_CurrentFontoffset =  (setoffset = FONT_N_SP);
+			_CurrentFontoffset =  (setoffset = FONT_O_NUM);
 			_CurrentFontheight = (setfontheight=FONT_H_16);
 		break; 
 		default: // if wrong font num passed in,  set to default
-			_CurrentFontWidth = (setfontwidth = FONT_W_FIVE);
+			_CurrentFontWidth = (setfontwidth = FONT_W_5);
 			_CurrentFontoffset =  (setoffset = FONT_O_EXTEND);
 			_CurrentFontheight = (setfontheight=FONT_H_8);
-			_FontNumber = 1;
+			_FontNumber = UC1609Font_Default;
 		break;
 	}
 	
@@ -626,16 +586,17 @@ void ERM19264_graphics::drawCharNumFont(uint8_t x, uint8_t y, uint8_t c, uint8_t
 
 	for (i = 0; i < (_CurrentFontheight*2); i++) 
 	{
-		if (_FontNumber == 5){
+		if (_FontNumber == UC1609Font_Bignum){
 		#ifdef UC1609_Font_Five
 			ctemp = pgm_read_byte(&UC_Font_Five[c - _CurrentFontoffset][i]);
 		#endif
 		}
-		else if (_FontNumber == 6){
+		else if (_FontNumber == UC1609Font_Mednum){
 		#ifdef UC1609_Font_Six
 			ctemp = pgm_read_byte(&UC_Font_Six[c - _CurrentFontoffset][i]);
 		#endif
 		}else{ 
+			c+=1; // get rid of unused variable compiler warning
 			return;
 		}
 		
@@ -668,7 +629,7 @@ void ERM19264_graphics::drawCharNumFont(uint8_t x, uint8_t y, uint8_t c, uint8_t
 void ERM19264_graphics::drawTextNumFont(uint8_t x, uint8_t y, char *pText, uint8_t color, uint8_t bg) 
 {
 
-	if (_FontNumber < 5)
+	if (_FontNumber < UC1609Font_Bignum)
 	{
 		return;
 	}

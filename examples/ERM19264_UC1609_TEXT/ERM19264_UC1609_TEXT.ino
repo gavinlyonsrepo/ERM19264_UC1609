@@ -11,7 +11,7 @@
 // (4) Test 6 In order to use extended ASCII font > (127 '}')  #define UC_FONT_MOD_TWO in the file <ERM19264_UC1609_graphics_font.h>
 // must be commented in. It is by default.
 // (5) In order for tests 9-13 to work fully: the respective font
-// must be enabled, see USER FONT OPTION ONE in file <ERM19264_UC1609_graphics_font.h>.
+// must be enabled, see USER FONT OPTION ONE in file <ERM19264_graphics_font.h>.
 // ******************************
 
 // A series of tests to display the text mode
@@ -31,8 +31,8 @@
 
 #include <ERM19264_UC1609.h>
 
-#define mylcdheight 64
-#define mylcdwidth  192
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
 #define VbiasPOT 0x49 // contrast 00 to FF , default 0x49 , user adjust
 
 #define DISPLAY_DELAY_ONE 5000
@@ -48,27 +48,27 @@
 
 ERM19264_UC1609  mylcd(CD, RST, CS); // instantiate object
 
+// define a buffer to cover whole screen 
+uint8_t  screenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))+1]; // 192 X (64/8) + 1 = 1537
+
 // ************* SETUP ***************
 void setup()
 {
   mylcd.LCDbegin(VbiasPOT); // initialize the LCD
   mylcd.LCDFillScreen(0x00, 0); // Clear the screen
-  Serial.begin(9600); //for debug only
 }
 
 // ************** MAIN LOOP ***********
 void loop()
 {
 
-  // Define a full screen buffer
-  uint8_t  textBuffer[(mylcdwidth * (mylcdheight / 8)) + 1]; // 192 X (64/8) + 1 = 1537
-  MultiBuffer window;
-  window.screenbitmap = (uint8_t*) &textBuffer;
+  MultiBuffer myStruct; // Declare a multi buffer struct
+  mylcd.LCDinitBufferStruct(&myStruct, screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);  // Intialise that struct (&struct,buffer,w,h,x,y)
 
   while (1)
   {
-    DisplayText(&window);   // Tests 1-8
-    DisplayFonts(&window);  // Tests 9-end
+    DisplayText(&myStruct);   // Tests 1-8
+    DisplayFonts(&myStruct);  // Tests 9-end
   }
 }
 // ************** END OF MAIN ***********
@@ -78,7 +78,7 @@ void DisplayText(MultiBuffer* targetBuffer)
 {
 
   mylcd.setTextWrap(true);
-  mylcd.setFontNum(1);
+  mylcd.setFontNum(UC1609Font_Default);
   mylcd.ActiveBuffer =  targetBuffer;
   mylcd.LCDclearBuffer(); // Clear the buffer
 
@@ -164,7 +164,7 @@ void DisplayFonts(MultiBuffer* targetBuffer)
   uint16_t  countUp = 0;
 
   mylcd.setTextWrap(true);
-  mylcd.setFontNum(1);
+  mylcd.setFontNum(UC1609Font_Default );
   mylcd.setTextColor(FOREGROUND);
   mylcd.ActiveBuffer =  targetBuffer;
   mylcd.LCDclearBuffer(); // Clear the buffer
@@ -172,7 +172,7 @@ void DisplayFonts(MultiBuffer* targetBuffer)
   // Test 9
   mylcd.setCursor(0, 0);
   mylcd.print(F("Thick Font:"));
-  mylcd.setFontNum(2);
+  mylcd.setFontNum(UC1609Font_Thick );
   mylcd.setCursor(0, 15);
   mylcd.print(F("THICK FONT 82362*!"));
   mylcd.drawChar(150, 25 , 'T', FOREGROUND, BACKGROUND, 4);
@@ -184,10 +184,10 @@ void DisplayFonts(MultiBuffer* targetBuffer)
 
   // Test 10
   mylcd.setCursor(0, 0);
-  mylcd.setFontNum(1);
+  mylcd.setFontNum(UC1609Font_Default );
   mylcd.setTextSize(1);
   mylcd.print(F("Seven Segment  Font:"));
-  mylcd.setFontNum(3);
+  mylcd.setFontNum(UC1609Font_Seven_Seg);
   mylcd.setCursor(0, 15);
   mylcd.print(F("Seven seg  45638299"));
   mylcd.drawChar(150, 25 , 'S', FOREGROUND, BACKGROUND, 4);
@@ -200,10 +200,10 @@ void DisplayFonts(MultiBuffer* targetBuffer)
 
   // Test 11
   mylcd.setCursor(0, 0);
-  mylcd.setFontNum(1);
+  mylcd.setFontNum(UC1609Font_Default );
   mylcd.setTextSize(1);
   mylcd.print(F("Wide Font:"));
-  mylcd.setFontNum(4);
+  mylcd.setFontNum(UC1609Font_Wide);
   mylcd.setCursor(0, 15);
   mylcd.print(F("WIDE FONT 3871*!"));
   mylcd.drawChar(150, 25 , 'W', FOREGROUND, BACKGROUND, 3);
@@ -215,10 +215,10 @@ void DisplayFonts(MultiBuffer* targetBuffer)
 
   // Test 12
   mylcd.setCursor(0, 0);
-  mylcd.setFontNum(1);
+  mylcd.setFontNum(UC1609Font_Default );
   mylcd.setTextSize(1);
   mylcd.print(F("big nums Font:"));
-  mylcd.setFontNum(5);
+  mylcd.setFontNum(UC1609Font_Bignum );
   mylcd.setCursor(0, 15);
   mylcd.setTextColor(FOREGROUND, BACKGROUND);
   mylcd.print(26.05); // Test 12a print a Float
@@ -240,10 +240,10 @@ void DisplayFonts(MultiBuffer* targetBuffer)
 
   //test 13
   mylcd.setCursor(0, 0);
-  mylcd.setFontNum(1);
+  mylcd.setFontNum(UC1609Font_Default );
   mylcd.setTextSize(1);
   mylcd.print(F("med nums Font:"));
-  mylcd.setFontNum(6);
+  mylcd.setFontNum(UC1609Font_Mednum);
   mylcd.setCursor(0, 15);
   mylcd.setTextColor(FOREGROUND, BACKGROUND);
   mylcd.print(26.43); // Test 13a print a Float

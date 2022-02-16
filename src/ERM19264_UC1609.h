@@ -126,16 +126,14 @@ const uint8_t LCD_WIDTH = 192;
 const uint8_t LCD_HEIGHT = 64;
 
 #ifdef MULTI_BUFFER
-
 struct MultiBuffer
 {
   uint8_t* screenbitmap; // pointer to buffer
   uint8_t width=LCD_WIDTH;  // bitmap x size
   uint8_t height=LCD_HEIGHT ; // bitmap y size
   int16_t xoffset = 0; // x offset
-  int16_t yoffset = 0; // y offset
-  int8_t data = 0;  
-};
+  int16_t yoffset = 0; // y offset 
+} ;
 #endif
 
 //class 
@@ -154,6 +152,8 @@ class ERM19264_UC1609 : public ERM19264_graphics {
 
 #ifdef MULTI_BUFFER
    MultiBuffer* ActiveBuffer;
+   
+   void LCDinitBufferStruct(MultiBuffer *p, uint8_t* mybuffer, uint8_t w,  uint8_t h, int16_t  x, int16_t y); 
 #endif
 
 #ifdef SINGLE_BUFFER

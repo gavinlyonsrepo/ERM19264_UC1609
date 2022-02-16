@@ -22,6 +22,8 @@
 #include <ERM19264_UC1609.h> // Include the library
 
 #define VbiasPOT 0x49 //Constrast 00 to FE , 0x49 is default. USER adjust
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
@@ -31,6 +33,9 @@
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
 ERM19264_UC1609  mylcd(CD , RST, CS);
+
+// define a buffer to cover whole screen 
+uint8_t  screenBuffer[MYLCDWIDTH * (MYLCDHEIGHT/8)+1]; // 1536+1 bytes
 
 // ************* SETUP ***************
 void setup()
@@ -42,18 +47,10 @@ void setup()
 // *********** MAIN LOOP ******************
 void loop()
 {
-  // Define a full screen buffer and struct
-  uint8_t  screenBuffer[1537];
-  
-  MultiBuffer whole_screen;
-  whole_screen.screenbitmap = (uint8_t*) &screenBuffer;
-  whole_screen.width = 192;
-  whole_screen.height = 64;
-  whole_screen.xoffset = 0;
-  whole_screen.yoffset = 0;
-  
-  mylcd.ActiveBuffer =  &whole_screen; // set buffer object
-  mylcd.LCDclearBuffer(); // clear the buffer
+  MultiBuffer myStruct; // Declare a multi buffer struct
+  mylcd.LCDinitBufferStruct(&myStruct, screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);  // Intialise that struct (&struct,buffer,w,h,x,y)
+  mylcd.ActiveBuffer = &myStruct;   // Assign address of struct to be the "active buffer" pointer 
+  mylcd.LCDclearBuffer();   // Clear active buffer 
 
   // Set text parameters
   mylcd.setTextColor(FOREGROUND);

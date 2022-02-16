@@ -7,7 +7,7 @@ Table of contents
   * [Output](#output)
   * [Installation](#installation)
   * [Hardware](#hardware)
-  * [Features](#features)
+  * [Software](#software)
   * [Files](#files)
   * [Tested](#tested)
   * [Ports](#ports)
@@ -81,7 +81,7 @@ If J1 is shorted the LCD can connect to 5V , J1 bypasses the 3.3V regulator.
 
 ![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/connect.jpg)
 
-Features
+Software
 -------------------------
 
 *SPI*
@@ -110,20 +110,20 @@ it will place a space and use a circle for a decimal point.
 
 Font data table: 
 
-| Font num | Font name | Font size xbyy |  ASCII range | Size in bytes |
+| Font num | Font enum name | Font size xbyy |  ASCII range | Size in bytes |
 | ------ | ------ | ------ | ------ |  ------ | 
-| 1 | Default | 5x8 | Full Extended ASCII 0 - 0xFF | 1275 |
-| 2 | Thick   | 7x8 | no lowercase letters , ASCII  0x20 - 0x5A | 406 | 
-| 3 | Seven segment | 4x8 | ASCII  0x20 - 0x7A | 360 |
-| 4 | Wide | 8x8 | no lowercase letters, ASCII 0x20 - 0x5A | 464 |
-| 5 | Big Nums | 16x32 | ASCII 0x30-0x3A ,Numbers + : only | 704 |
-| 6 | Med Nums | 16x16 | ASCII 0x30-0x3A ,Numbers + : only | 352 |
+| 1 | UC1609Font_Default  | 5x8 |  ASCII 0 - 0xFF, Full Extended | 1275 |
+| 2 | UC1609Font_Thick   | 7x8 | ASCII  0x20 - 0x5A , no lowercase letters , | 406 | 
+| 3 | UC1609Font_Seven_Seg | 4x8 | ASCII  0x20 - 0x7A | 360 |
+| 4 | UC1609Font_Wide | 8x8 | ASCII 0x20 - 0x5A,  no lowercase letters,| 464 |
+| 5 | UC1609Font_Bignum | 16x32 | ASCII 0x30-0x3A , Numbers + : only | 704 |
+| 6 | UC1609Font_Mednum | 16x16 | ASCII 0x30-0x3A , Numbers + : only | 352 |
 
 By default only Font 1 is commented in and ready to go to save memory.
 So to use a non-default Font (2-6), two steps.
 
 1. Comment in the respective define at top of library header file ERM19264_UC1609_graphics_font.h in the USER FONT OPTION ONE section
-2. Call SetFontNum function and pass it number of respective font.  eg SetFontNum(2)
+2. Call SetFontNum function and pass it name of respective font.  eg SetFontNum(UC1609Font_Wide)
 
 *font mods*
 
@@ -140,9 +140,18 @@ ERM19264_ASCII_OFFSET  from 0x00 to 0x20. This will save a further 150 bytes.
 
 *bitmaps*
 
-Bitmaps are written directly to screen unless Bitmap set to a buffer.
-Best to use multi-buffer to share screen between bitmaps and text + graphics.
-Bitmaps can be turned to data [here at link]( https://javl.github.io/image2cpp/) use vertical addressing draw mode. 
+There is a few different ways of displaying bitmaps, 
+
+| Num | Method | Buffer mode |   Data addressing | Note |
+| ------ | ------ | ------ | ------ |  ------ |  
+| 1 | LcdBitmap() | any  | Vertical |  Writes directly to screen , no buffer used. | 
+| 2 | LcdBuffer() | Multi or Single |  Vertical  |  For internal use mostly | 
+| 3 | Multi buffer init  | Multibuffer | Vertical  |  Can be used when initialising a MB | 
+| 4 | Single buffer init | Single | Vertical  |  Can be used when initialising SB | 
+| 5 | drawBitmap() | Multi or Single | Vertical | default,  setDrawBitmapAddr(true) | 
+| 6 | drawBitmap() | Multi or Single |  Horizontal | setDrawBitmapAddr(false) |
+
+See the bitmap example file for more details on each method. Bitmaps can be turned to data [here at link]( https://javl.github.io/image2cpp/) , Bitmaps  should be defined in the program memory and buffers in the data memory, for methods 3 & 4 buffers can be initialised with bitmap data.
 
 *User adjustments*
 
@@ -194,6 +203,7 @@ Tested
 Tested on following MCUs both software and hardware SPI,
 The example files are setup for an UNO for the pin connections used 
 by for other MCU testing see extras/doc folder GPIO_MCU_used.txt file.
+
 1. Arduino  UNO & NANO v3
 2. ESP8266 
 3. ESP32 
@@ -207,7 +217,7 @@ Ports
 
 * ERM19264_UC1609_T (T for text). Light weight Text only version for arduino ecosystem [Link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_T)
 
-* PIC xc8  [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
+* PIC xc8 C [Link](https://github.com/gavinlyonsrepo/pic_16F18346_projects)
 
 * Stm32cubeIDE STM32F070RBT6  C++ [Link](https://github.com/gavinlyonsrepo/STM32_projects) 
 

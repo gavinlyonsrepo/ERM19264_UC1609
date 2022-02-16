@@ -1,7 +1,7 @@
 /*
 * Project Name: ERM19264_UC1609
 * File: ERM19264_graphics_font.h
-* Description: ERM19264 LCD driven by UC1609C controller font file 
+* Description: ERM19264 LCD driven by UC1609C controller, font data file 6 fonts.
 * Author: Gavin Lyons.
 * URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
 */

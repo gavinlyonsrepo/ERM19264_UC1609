@@ -15,8 +15,8 @@
 
 #include <ERM19264_UC1609.h>
 
-#define mylcdheight 64
-#define mylcdwidth  192
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
 #define VbiasPOT 0x49 //Constrast 00 to FE , 0x49 is default. USER adjust.
 
 // GPIO 5-wire SPI interface
@@ -28,7 +28,10 @@
 
 ERM19264_UC1609  mylcd(CD, RST, CS); // instate object , CD, RST, CS
 
-// vars for the test
+// Define a half screen sized buffer
+uint8_t  screenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))/2]; // 1536/2 = 768 bytes
+
+// vars  the test control
 static long previousMillis  = 0;
 uint16_t count  = 0;
 uint16_t seconds  = 0;
@@ -46,23 +49,15 @@ void loop() {
 
   mylcd.setTextColor(FOREGROUND);
   mylcd.setTextSize(1);
-  uint8_t  screenBuffer[768];
 
-  MultiBuffer left_side;
-  left_side.screenbitmap = (uint8_t*) &screenBuffer;
-  left_side.width = (mylcdwidth / 2) ; //96
-  left_side.height = mylcdheight;
-  left_side.xoffset = 0;
-  left_side.yoffset = 0;
-
-
-  MultiBuffer right_side;
-  right_side.screenbitmap = (uint8_t*) &screenBuffer;
-  right_side.width = (mylcdwidth / 2); //96
-  right_side.height = mylcdheight;
-  right_side.xoffset = (mylcdwidth / 2); //96
-  right_side.yoffset = 0;
-
+  MultiBuffer left_side;  // Declare a multi buffer struct for left side of screen
+  // Intialise that struct (&struct, buffer, w, h, x_offset, y-offset)
+  mylcd.LCDinitBufferStruct(&left_side, screenBuffer, MYLCDWIDTH/2, MYLCDHEIGHT, 0, 0);  
+  
+  MultiBuffer right_side;  // Declare a multi buffer struct for right side of screen
+  // Intialise that struct (&struct, buffer, w, h, x_offset, y-offset)
+  mylcd.LCDinitBufferStruct(&right_side, screenBuffer, MYLCDWIDTH/2, MYLCDHEIGHT, MYLCDWIDTH/2, 0); 
+  
   while(1)
   {
     display_Left(&left_side, framerate, count);
@@ -106,7 +101,7 @@ void display_Left(MultiBuffer* targetbuffer, long currentFramerate, int count)
   mylcd.print(fps);
 
   mylcd.setCursor(0, 50);
-  mylcd.print("V 1.2.0");
+  mylcd.print("V 1.4.0");
   mylcd.drawFastVLine(92, 0, 63, FOREGROUND);
   mylcd.LCDupdate();
 }

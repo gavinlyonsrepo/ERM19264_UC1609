@@ -15,8 +15,8 @@
 
 #include <ERM19264_UC1609.h> // Include the library
 
-#define mylcdheight 64
-#define mylcdwidth  192
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
 #define VbiasPOT 0x49 // Contrast 0x00 to 0xFF , 49h default , User adjust
 
 // GPIO 5-wire SPI interface
@@ -27,6 +27,9 @@
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
 ERM19264_UC1609  mylcd(CD, RST, CS);
+
+// define a buffer to cover whole screen 
+uint8_t  screenBuffer[MYLCDWIDTH * (MYLCDHEIGHT/8)]; // 1536 bytes
 
 // ************* SETUP ***************
 void setup()
@@ -43,33 +46,22 @@ void loop()
 {
 
   // Define a full screen buffer
-  uint8_t  textBuffer[(mylcdwidth * (mylcdheight / 8)) + 1]; // 192 X (64/8) + 1 = 1537
-
-  // Declare a struct
-  MultiBuffer wholescreen;
-
-  // Define the struct varibles
-  wholescreen.screenbitmap = (uint8_t*) &textBuffer;
-  wholescreen.width = 192; // bitmap x size, default
-  wholescreen.height = 64; // bitmap y size, default
-  wholescreen.xoffset = 0; // x offset, default
-  wholescreen.yoffset = 0; // y offset, default
-
-  // Call a function to display graphics pass it the struct
-  DisplayGraphics(&wholescreen);
+  MultiBuffer myStruct; // Declare a multi buffer struct
+  mylcd.LCDinitBufferStruct(&myStruct, screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);  // Intialise that struct (&struct,buffer,w,h,x,y)
+  DisplayGraphics(&myStruct); // Call a function to display graphics pass it the &struct
 
 }
 // *********** END OF MAIN ***********
 
 // Function to display Graphics.
-void  DisplayGraphics(MultiBuffer* targetBuffer)
+void  DisplayGraphics(MultiBuffer* targetStruct)
 {
   //Q1 |Q2
   //-----
   //Q3 | Q4
   //
   bool colour = 1;
-  mylcd.ActiveBuffer =  targetBuffer;   // Set the buffer struct object
+  mylcd.ActiveBuffer =  targetStruct;   // Set the active buffer to the multistruct object
   mylcd.LCDclearBuffer(); // Clear the buffer
   while (1)
   {

@@ -14,8 +14,8 @@
 
 #include <ERM19264_UC1609.h>
 
-#define mylcdheight 64
-#define mylcdwidth  192
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
 #define VbiasPOT 0x49 // contrast range 0x00 to 0xFF, 0x49 is datasheet default, user adjust.
 
 // GPIO 5-wire SPI interface
@@ -26,6 +26,9 @@
 #define DIN  11 // GPIO pin number pick any you want
 
 ERM19264_UC1609  mylcd(CD, RST, CS, SCLK, DIN ); // instantiate object pick any GPIO you want
+
+// define a buffer to cover whole screen 
+uint8_t  screenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))+1]; // 1536 +1 bytes
 
 long startTime ;                    // start time for stop watch
 long elapsedTime ;                  // elapsed time for stop watch
@@ -41,26 +44,23 @@ void setup() {
 
 // ************** MAIN LOOP ***********
 void loop() {
-  // Define a full screen buffer
-  uint8_t  textBuffer[(mylcdwidth * (mylcdheight / 8)) + 1]; // 192 X (64/8) + 1 = 1537
 
-  MultiBuffer window;
-  window.screenbitmap = (uint8_t*) &textBuffer;
-  window.width = mylcdwidth;
-  window.height = mylcdheight;
+  MultiBuffer myStruct; // Declare a multi buffer struct
+  // Intialise that struct (&struct, buffer, w, h, x-offset, y-offset)
+  mylcd.LCDinitBufferStruct(&myStruct, screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0); 
 
   // Call a function to display text
-  DisplayText(&window);
+  DisplayText(&myStruct);
 }
 
 // ************** END OF MAIN ***********
 
-void DisplayText(MultiBuffer* screen)
+void DisplayText(MultiBuffer* targetBuffer)
 {
   int count = 0;
   mylcd.setTextColor(FOREGROUND);
   mylcd.setTextSize(1);
-  mylcd.ActiveBuffer =  screen;
+  mylcd.ActiveBuffer =  targetBuffer;
   mylcd.LCDclearBuffer(); // Clear the buffer
   while (1)
   {
