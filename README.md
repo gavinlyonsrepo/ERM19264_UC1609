@@ -31,6 +31,7 @@ Overview
 * Arduino IDE: 1.8.10
 * History: See Changelog in extras/doc folder
 * Copyright: GNU GPL v3
+* [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/whitelight976)
 
 Output
 ---------------------------------

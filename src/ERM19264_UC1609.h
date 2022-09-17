@@ -83,10 +83,10 @@
 #define UC1609_ROTATION_FLIP_THREE 0x00
 
 // Delays
-#define UC1609_RESET_DELAY 3 // ms Delay
-#define UC1609_RESET_DELAY2   0 // mS delay datasheet says 5mS, does not work
+#define UC1609_RESET_DELAY 3 // ms Delay ,datasheet >3uS
+#define UC1609_RESET_DELAY2   0 // mS delay datasheet says > 5mS, does not work
 #define UC1609_INIT_DELAY 100   //  mS delay ,after init 
-#define UC1609_INIT_DELAY2 3 // mS delay,  before reset called
+#define UC1609_INIT_DELAY2 3 // mS delay,  before reset called datasheet <3mS
 
 // No buffer mode font
 #define UC_NB_FONTPADDING  send_data(0x00)
