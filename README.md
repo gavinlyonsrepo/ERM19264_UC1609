@@ -1,3 +1,6 @@
+
+[![Website](https://img.shields.io/badge/Website-Link-blue.svg)](https://gavinlyonsrepo.github.io/)  [![Rss](https://img.shields.io/badge/Subscribe-RSS-yellow.svg)](https://gavinlyonsrepo.github.io//feed.xml)  [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/whitelight976)
+
 ![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/color.jpg)
 
 Table of contents
@@ -20,7 +23,7 @@ Overview
 
 1. Arduino eco-system library.      
 2. Inverse, Scroll, rotate and contrast control. 
-3. 6 ASCII fonts included.
+3. 8 ASCII fonts included.
 4. Graphics class included.
 5. Sleep mode.
 6. 3 different modes: Multi-buffer , single buffer , light weight text only
@@ -28,10 +31,7 @@ Overview
 8. Hardware & software SPI options
 
 * Author: Gavin Lyons
-* Arduino IDE: 1.8.10
-* History: See Changelog in extras/doc folder
-* Copyright: GNU GPL v3
-* [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/whitelight976)
+* Arduino IDE: 2.0
 
 Output
 ---------------------------------
@@ -42,7 +42,7 @@ Output Screenshots, From left to right top to bottom.
 2. Multi buffer mode screen divided into two buffers
 3. Different size and inverted  default font 
 4. ASCII font 1-127 printed out with default font size 1 
-5. Fonts 5-6
+5. Fonts 7-8
 6. Fonts 1-4
 
 ![op](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/output.jpg)
@@ -73,12 +73,9 @@ There are 3 different colours in range, Parts used purchased from [ebay](https:/
 3. ERM19264DNS-5 V3 LCD Display  UC1609C controller white on black
 
 The library was tested on 1 and 2. 
-The Backlight should always be connected to 3.3V according to datasheets. 
 
-The ERM LCD module has a "662k" 3.3V regulator at back and by default setup is a 3.3V device. However if can also be run at 5V and connect to 5V device by 
-Modifying  jumper J1 on back. 
-This wiring Diagram from the manufacturer showing hardware setup connected to an ~8051 MCU, showing both 3.3 volt and 5 volt systems. NOTE the J1 position. 
-If J1 is shorted the LCD can connect to 5V , J1 bypasses the 3.3V regulator. 
+
+This wiring Diagram from the manufacturer showing hardware setup connected to an ~8051 MCU, showing both 3.3 volt and 5 volt systems. 
 
 ![ ERM19264 ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/connect.jpg)
 
@@ -102,26 +99,29 @@ ERM19264_UC1609.h file.  Pick ONE option and one option ONLY. The example files 
 
 *fonts*
 
-There are six fonts.
+There are eight fonts.
 A print class is available to print out most passed data types.
-The fonts 1-4 are a byte high(at text size 1) scale-able fonts.
-Font 5-6 are specials large fonts but are numbers only and cannot be scaled(just one size).  
-Font 5-6 will print just numbers + semi-colons ,  if you print a float using print command
-it will place a space and use a circle for a decimal point.
+The fonts 1-6 are a byte high(at text size 1) scale-able fonts.
+Font 7-8 are specials large fonts but are numbers only and cannot be scaled(just one size).  
+Font 7-8 will print just numbers + semi-colons ,  if you print a float using print method
+it will place a space and use a circle for a decimal point, you can also print negative numbers with this method.  
 
 Font data table: 
 
 | Font num | Font enum name | Font size xbyy |  ASCII range | Size in bytes |
 | ------ | ------ | ------ | ------ |  ------ | 
-| 1 | UC1609Font_Default  | 5x8 |  ASCII 0 - 0xFF, Full Extended | 1275 |
-| 2 | UC1609Font_Thick   | 7x8 | ASCII  0x20 - 0x5A , no lowercase letters , | 406 | 
-| 3 | UC1609Font_Seven_Seg | 4x8 | ASCII  0x20 - 0x7A | 360 |
-| 4 | UC1609Font_Wide | 8x8 | ASCII 0x20 - 0x5A,  no lowercase letters,| 464 |
-| 5 | UC1609Font_Bignum | 16x32 | ASCII 0x30-0x3A , Numbers + : only | 704 |
-| 6 | UC1609Font_Mednum | 16x16 | ASCII 0x30-0x3A , Numbers + : only | 352 |
+| 1 | UC1609Font_Default | 5x8 | ASCII 0 - 0xFF, Full Extended  | 1275 |
+| 2 | UC1609Font_Thick   | 7x8 |  ASCII  0x20 - 0x5A, no lowercase letters | 406 | 
+| 3 | UC1609Font_SevenSeg  | 4x8 | ASCII  0x20 - 0x7A | 360 |
+| 4 | UC1609Font_Wide | 8x8 |  ASCII 0x20 - 0x5A, no lowercase letters| 464 |
+| 5 | UC1609Font_Tiny | 3x8 | ASCII  0x20 - 0x7E | 285 |
+| 6 | UC1609Font_Homespun  | 7x8 | ASCII  0x20 - 0x7E |  658 |
+| 7 | UC1609Font_Bignum | 16x32 | ASCII 0x30-0x3A ,Numbers + : . - only | 704 |
+| 8 | UC1609Font_Mednum | 16x16 | ASCII 0x30-0x3A , Numbers + : . - only | 352 |
+
 
 By default only Font 1 is commented in and ready to go to save memory.
-So to use a non-default Font (2-6), two steps.
+So to use a non-default Font (2-8), two steps.
 
 1. Comment in the respective define at top of library header file ERM19264_UC1609_graphics_font.h in the USER FONT OPTION ONE section
 2. Call SetFontNum function and pass it name of respective font.  eg SetFontNum(UC1609Font_Wide)
@@ -130,7 +130,7 @@ So to use a non-default Font (2-6), two steps.
 
 The default ASCII font (font one) is an [extended ASCII font](https://www.extended-ascii.com/) 0-255 characters.
 If you do not need characters 127-255 and wish to save memory space:
-In library header file ERM19264_UC1609_graphics_font.h  in the USER FONT OPTION TWO section
+In library header file ERM19264_UC1609_graphics_font.cpp  in the USER FONT OPTION TWO section
 Simply comment this define out. 
 
 1. UC_FONT_MOD_TWO (save 640 bytes) extended ASCII 127-255
@@ -168,7 +168,7 @@ here. Defaults where found to be fine during all testing of this library.
 | LCD bias |  9 | BIAS_RATIO_SET | BR 1:0 |
 | Temp coefficient | -0.00%/ C |  TEMP_COMP_SET | TC 1:0  |
 | Frame rate | 95 fps |  FRAMERATE_SET |  LC 4:3 |
-| Power control | 1.4mA + internal V LCD |  PC_SET | PC 2:0 |
+| Power control | 1.4mA + Internal VLCD (7x charge pump) |  PC_SET | PC 2:0 |
 | V bias Bot(contrast) | 0x49h default|  Set by user with LCDbegin | PM 7:0 |
 
 *Functions*
@@ -182,9 +182,10 @@ Files
 | ------ | ------ |
 | ERM19264_UC1609.h | library header file  |
 | ERM19264_UC1609.cpp |  library  source file  |
-| ERM19264_graphics.h | Custom graphics header file |
-| ERM19264_graphics.cpp | Custom graphics source file |
-| ERM19264_graphics_font.h | Custom graphics  font  file |
+| ERM19264_graphics.h |  graphics header file |
+| ERM19264_graphics.cpp |  graphics source file |
+| ERM19264_graphics_font.h |  font  file header file |
+| ERM19264_graphics_font.cpp |  font  file source file  |
 
 | Examples files ino  | Desc | Buffer mode |
 | ------ | ------ | ------ |

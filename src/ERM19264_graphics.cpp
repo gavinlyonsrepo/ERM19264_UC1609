@@ -10,6 +10,7 @@
 
 #include "ERM19264_graphics.h"
 #include "ERM19264_graphics_font.h"
+
 #ifdef __AVR__
  #include <avr/pgmspace.h>
 #else
@@ -358,23 +359,23 @@ if (drawBitmapAddr== true)
 }
 
 #if ARDUINO >= 100
-size_t ERM19264_graphics::write(uint8_t c) {
+size_t ERM19264_graphics::write(uint8_t character) {
 #else
-void ERM19264_graphics::write(uint8_t c) {
+void ERM19264_graphics::write(uint8_t character) {
 #endif
 
 if (_FontNumber < UC1609Font_Bignum )
 	{
-		if (c == '\n') 
+		if (character == '\n') 
 		{
 			cursor_y += textsize*_CurrentFontheight;
 			cursor_x  = 0;
-		} else if (c == '\r') 
+		} else if (character == '\r') 
 		{
 			// Skip 
 		} else 
 		{
-			drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor, textsize);
+			drawChar(cursor_x, cursor_y, character, textcolor, textbgcolor, textsize);
 			cursor_x += textsize*(_CurrentFontWidth+1);
 			if (wrap && (cursor_x > (_width - textsize*(_CurrentFontWidth+1)))) 
 			{
@@ -385,37 +386,40 @@ if (_FontNumber < UC1609Font_Bignum )
 		
 	}else if (_FontNumber == UC1609Font_Bignum  || _FontNumber ==  UC1609Font_Mednum )
 	{
-		uint8_t radius = 3; // decimal point circle
-		if (_FontNumber == UC1609Font_Mednum ) radius = 2;
-		
-		if (c == '\n') 
+		uint8_t decPointRadius = 3;
+		uint8_t SkipSpace = 0;
+		if (_FontNumber == UC1609Font_Mednum) decPointRadius = 2;
 		{
-			cursor_y += _CurrentFontheight;
-			cursor_x  = 0;
-		} else if (c == '\r') 
-		{
-			// Skip
-		} else if (c == '.')
-		{
-			// draw a circle for decimal point skip a space.
-			
-			fillCircle(cursor_x+(_CurrentFontWidth/2), cursor_y + (_CurrentFontheight-6), radius, textcolor);
-			cursor_x += (_CurrentFontWidth+1);
-			if (wrap && (cursor_x  > (_width - (_CurrentFontWidth+1)))) 
+			switch (character)
 			{
-				cursor_y += _CurrentFontheight;
-				cursor_x = 0;
-			}
-		}else 
-		{
-			drawCharNumFont(cursor_x, cursor_y, c, textcolor, textbgcolor);
-			cursor_x += (_CurrentFontWidth+1);
-			if (wrap && (cursor_x > (_width - (_CurrentFontWidth+1)))) 
+				case '\n': 
+					cursor_y += _CurrentFontheight;
+					cursor_x  = 0;
+				break;
+				case '\r': break;
+				case '.':  // draw a circle for decimal & point skip a space.
+					fillCircle(cursor_x+(_CurrentFontWidth/2), cursor_y + (_CurrentFontheight-6), decPointRadius, textcolor);
+					SkipSpace = 1;
+				 break;
+				case '-':  // draw a rect for negative number line and skip a space
+					fillRect(cursor_x+2, cursor_y + (_CurrentFontheight/2)-2 ,_CurrentFontWidth-4 , decPointRadius+1,  textcolor);              
+					SkipSpace = 1;
+				break;
+				default:
+					drawCharNumFont(cursor_x, cursor_y, character, textcolor, textbgcolor);
+					SkipSpace = 1;
+				break;
+			} // end of switch
+			if (SkipSpace == 1)
 			{
-				cursor_y += _CurrentFontheight;
-				cursor_x = 0;
+				cursor_x += (_CurrentFontWidth+1);
+				if (wrap && (cursor_x  > (_width - (_CurrentFontWidth+1)))) 
+				{
+					cursor_y += _CurrentFontheight;
+					cursor_x = 0;
+				}
 			}
-		}
+        }
 
 	}
 
@@ -424,7 +428,7 @@ if (_FontNumber < UC1609Font_Bignum )
 #endif
 }
 
-// Draw a character
+// Draw a character, font 1-6
 void ERM19264_graphics::drawChar(int16_t x, int16_t y, unsigned char c,
 								uint8_t color, uint8_t bg, uint8_t size) {
 
@@ -444,16 +448,22 @@ void ERM19264_graphics::drawChar(int16_t x, int16_t y, unsigned char c,
 		{
 			 switch (_FontNumber) {
 #ifdef UC1609_Font_One
-				case UC1609Font_Default: line = pgm_read_byte(UC_Font_One + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
+				case UC1609Font_Default: line = pgm_read_byte(pFontDefaultptr + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
 #endif 
 #ifdef UC1609_Font_Two
-				case UC1609Font_Thick: line = pgm_read_byte(UC_Font_Two + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
+				case UC1609Font_Thick: line = pgm_read_byte(pFontThickptr + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
 #endif
 #ifdef UC1609_Font_Three
-				case UC1609Font_Seven_Seg: line = pgm_read_byte(UC_Font_Three + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
+				case UC1609Font_Seven_Seg: line = pgm_read_byte(pFontSevenSegptr+ ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
 #endif
 #ifdef UC1609_Font_Four
-				case UC1609Font_Wide: line = pgm_read_byte(UC_Font_Four + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
+				case UC1609Font_Wide: line = pgm_read_byte(pFontWideptr  + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
+#endif
+#ifdef UC1609_Font_Five
+				case UC1609Font_Tiny: line = pgm_read_byte(pFontTinyptr + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
+#endif
+#ifdef UC1609_Font_Six
+				case UC1609Font_Homespun: line = pgm_read_byte(pFontHomeSpunptr + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
 #endif
 				default: // wrong font number
 						return;
@@ -520,52 +530,60 @@ int16_t ERM19264_graphics::height(void) const {
 }
 
 // Desc :  Set the font number
-// Param1: fontnumber 1-5
-// 1=default 2=thick 3=seven segment 4=wide 5=bignums 6 = mednums
+// Param1: fontnumber enum LCD_FONT_TYPE_e , 1-8.
+// 1=default 2=thick 3=seven segment 4=wide 5=tiny 6=homespun 7=bignums 8=mednums 
 
 void ERM19264_graphics::setFontNum(LCD_FONT_TYPE_e FontNumber) 
 {
-	_FontNumber = FontNumber;
+
+		_FontNumber = FontNumber;
 		
-	LCD_Font_width_e setfontwidth;
-	LCD_Font_offset_e setoffset;
-	LCD_Font_height_e setfontheight;
-	
-	switch (_FontNumber) {
+	switch (_FontNumber) 
+	{
 		case UC1609Font_Default:  // Norm default 5 by 8
-			_CurrentFontWidth = (setfontwidth = FONT_W_5);
-			_CurrentFontoffset =  (setoffset = FONT_O_EXTEND);
-			_CurrentFontheight = (setfontheight=FONT_H_8);
+			_CurrentFontWidth = UC1609FontWidth_5;
+			_CurrentFontoffset =  UC1609FontOffset_Extend;
+			_CurrentFontheight = UC1609FontHeight_8;
 		break; 
 		case UC1609Font_Thick: // Thick 7 by 8 (NO LOWERCASE LETTERS)
-			_CurrentFontWidth = (setfontwidth = FONT_W_7);
-			_CurrentFontoffset =  (setoffset = FONT_O_SP);
-			_CurrentFontheight = (setfontheight=FONT_H_8);
+			_CurrentFontWidth = UC1609FontWidth_7;
+			_CurrentFontoffset = UC1609FontOffset_Space;
+			_CurrentFontheight = UC1609FontHeight_8;
 		break; 
 		case UC1609Font_Seven_Seg:  // Seven segment 4 by 8
-			_CurrentFontWidth = (setfontwidth = FONT_W_4);
-			_CurrentFontoffset =  (setoffset = FONT_O_SP);
-			_CurrentFontheight = (setfontheight=FONT_H_8);
+			_CurrentFontWidth = UC1609FontWidth_4;
+			_CurrentFontoffset = UC1609FontOffset_Space;
+			_CurrentFontheight = UC1609FontHeight_8;
 		break;
 		case UC1609Font_Wide : // Wide  8 by 8 (NO LOWERCASE LETTERS)
-			_CurrentFontWidth = (setfontwidth = FONT_W_8);
-			_CurrentFontoffset =  (setoffset = FONT_O_SP);
-			_CurrentFontheight = (setfontheight=FONT_H_8);
+			_CurrentFontWidth = UC1609FontWidth_8;
+			_CurrentFontoffset = UC1609FontOffset_Space;
+			_CurrentFontheight = UC1609FontHeight_8;
 		break; 
+		case UC1609Font_Tiny:  // tiny 3 by 8
+			_CurrentFontWidth = UC1609FontWidth_3;
+			_CurrentFontoffset =  UC1609FontOffset_Space;
+			_CurrentFontheight = UC1609FontHeight_8;
+		break;
+		case UC1609Font_Homespun: // homespun 7 by 8 
+			_CurrentFontWidth = UC1609FontWidth_7;
+			_CurrentFontoffset = UC1609FontOffset_Space;
+			_CurrentFontheight = UC1609FontHeight_8;
+		break;
 		case UC1609Font_Bignum : // big nums 16 by 32 (NUMBERS + : only)
-			_CurrentFontWidth = (setfontwidth = FONT_W_16);
-			_CurrentFontoffset =  (setoffset = FONT_O_NUM);
-			_CurrentFontheight = (setfontheight=FONT_H_32);
+			_CurrentFontWidth = UC1609FontWidth_16;
+			_CurrentFontoffset = UC1609FontOffset_Number;
+			_CurrentFontheight = UC1609FontHeight_32;
 		break; 
 		case UC1609Font_Mednum: // med nums 16 by 16 (NUMBERS + : only)
-			_CurrentFontWidth = (setfontwidth = FONT_W_16);
-			_CurrentFontoffset =  (setoffset = FONT_O_NUM);
-			_CurrentFontheight = (setfontheight=FONT_H_16);
-		break; 
+			_CurrentFontWidth = UC1609FontWidth_16;
+			_CurrentFontoffset =  UC1609FontOffset_Number;
+			_CurrentFontheight = UC1609FontHeight_16;
+		break;
 		default: // if wrong font num passed in,  set to default
-			_CurrentFontWidth = (setfontwidth = FONT_W_5);
-			_CurrentFontoffset =  (setoffset = FONT_O_EXTEND);
-			_CurrentFontheight = (setfontheight=FONT_H_8);
+			_CurrentFontWidth = UC1609FontWidth_5;
+			_CurrentFontoffset =  UC1609FontOffset_Extend;
+			_CurrentFontheight = UC1609FontHeight_8;
 			_FontNumber = UC1609Font_Default;
 		break;
 	}
@@ -577,7 +595,7 @@ void ERM19264_graphics::setFontNum(LCD_FONT_TYPE_e FontNumber)
 // Param 3: The ASCII character
 // Param 4: color 
 // Param 5: background color
-// Notes for font 5 & font 6 (bignums  + mednums)  only
+// Notes for font 7 & font 8 (bignums  + mednums)  only
 void ERM19264_graphics::drawCharNumFont(uint8_t x, uint8_t y, uint8_t c, uint8_t color , uint8_t bg) 
 {
 
@@ -587,13 +605,13 @@ void ERM19264_graphics::drawCharNumFont(uint8_t x, uint8_t y, uint8_t c, uint8_t
 	for (i = 0; i < (_CurrentFontheight*2); i++) 
 	{
 		if (_FontNumber == UC1609Font_Bignum){
-		#ifdef UC1609_Font_Five
-			ctemp = pgm_read_byte(&UC_Font_Five[c - _CurrentFontoffset][i]);
+		#ifdef UC1609_Font_Seven
+			ctemp = pgm_read_byte(&pFontBigNumptr[c - _CurrentFontoffset][i]);
 		#endif
 		}
 		else if (_FontNumber == UC1609Font_Mednum){
-		#ifdef UC1609_Font_Six
-			ctemp = pgm_read_byte(&UC_Font_Six[c - _CurrentFontoffset][i]);
+		#ifdef UC1609_Font_Eight
+			ctemp = pgm_read_byte(&pFontMedNumptr[c - _CurrentFontoffset][i]);
 		#endif
 		}else{ 
 			c+=1; // get rid of unused variable compiler warning
@@ -616,7 +634,7 @@ void ERM19264_graphics::drawCharNumFont(uint8_t x, uint8_t y, uint8_t c, uint8_t
 				x++;
 				break;
 			}
-	}
+		}
 	}
 }
 
@@ -625,14 +643,12 @@ void ERM19264_graphics::drawCharNumFont(uint8_t x, uint8_t y, uint8_t c, uint8_t
 // Param 3: pointer to string 
 // Param 4: color 
 // Param 5: background color
-// Notes for font 5 & font 6 (bignums  + mednums)  only
+// Notes for font 7 & font 8 (bignums  + mednums)  only
 void ERM19264_graphics::drawTextNumFont(uint8_t x, uint8_t y, char *pText, uint8_t color, uint8_t bg) 
 {
 
-	if (_FontNumber < UC1609Font_Bignum)
-	{
+	if (_FontNumber < UC1609Font_Bignum) 
 		return;
-	}
 
 	while (*pText != '\0') 
 	{
@@ -641,9 +657,7 @@ void ERM19264_graphics::drawTextNumFont(uint8_t x, uint8_t y, char *pText, uint8
 			x = 0;
 			y += _CurrentFontheight ;
 			if (y > (_height - _CurrentFontheight)) 
-			{
-					y = x = 0;
-			}
+				y = x = 0;
 		}
 
 		drawCharNumFont(x, y, *pText, color, bg);
@@ -652,3 +666,28 @@ void ERM19264_graphics::drawTextNumFont(uint8_t x, uint8_t y, char *pText, uint8
 	}
 }
 
+// Desc: Writes text string (*ptext) on the LCD 
+// Param 1 , 2 : coordinates (x, y).
+// Param 3: pointer to string 
+// Param 4: color 
+// Param 5: background color
+// Notes for font 1- 6 only
+void ERM19264_graphics::drawText(uint8_t x, uint8_t y, char *pText, uint8_t color, uint8_t bg, uint8_t size) {
+	if (_FontNumber >= UC1609Font_Bignum){return;}
+	uint8_t cursor_x, cursor_y;
+	cursor_x = x, cursor_y = y;
+	
+	while (*pText != '\0') 
+	{
+		if (wrap && ((cursor_x + size * _CurrentFontWidth) > _width)) 
+		{
+			cursor_x = 0;
+			cursor_y = cursor_y + size * 7 + 3;
+			if (cursor_y > _height) cursor_y = _height;
+		}
+		drawChar(cursor_x, cursor_y, *pText, color, bg, size);
+		cursor_x = cursor_x + size * (_CurrentFontWidth + 1);
+		if (cursor_x > _width) cursor_x = _width;
+		pText++;
+	}
+}

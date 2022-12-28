@@ -101,7 +101,7 @@ void display_Left(MultiBuffer* targetbuffer, long currentFramerate, int count)
   mylcd.print(fps);
 
   mylcd.setCursor(0, 50);
-  mylcd.print("V 1.4.0");
+  mylcd.print("V 1.5.0");
   mylcd.drawFastVLine(92, 0, 63, FOREGROUND);
   mylcd.LCDupdate();
 }

@@ -8,9 +8,9 @@
 // (2) In the <ERM19264_UC1609.h> USER BUFFER OPTION SECTION, at top of file
 // option MULTI_BUFFER must be selected and only this option. This is default. 
 // (3) This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino example.
-// (4) Test 6 In order to use extended ASCII font > (127 '}')  #define UC_FONT_MOD_TWO in the file <ERM19264_UC1609_graphics_font.h>
+// (4) Test 6 In order to use extended ASCII font > (127 '}')  #define UC_FONT_MOD_TWO in the file <ERM19264_UC1609_graphics_font>
 // must be commented in. It is by default.
-// (5) In order for tests 9-13 to work fully: the respective font
+// (5) In order for tests 9-15 to work fully: the respective font
 // must be enabled, see USER FONT OPTION ONE in file <ERM19264_graphics_font.h>.
 // ******************************
 
@@ -19,15 +19,19 @@
 // Test 2 font size 2 string
 // Test 3 font size 1 string inverted
 // Test 4 draw a single character font size 4
+// Test 4b drawtext method
 // Test 5 print ASCII font 0-127
 // Test 6 print ASCII font 128-255, see notes 4 at top of file
-// Test 7 print float
-// Test 8 print integer
+// Test 7 print function integer
+// Test 8 print function float + numerical types (HEX BIN etc)
 // Test 9 "thick" font 2
 // Test 10 "seven segment" font 3
 // Test 11 "wide " font 4
-// Test 12 "bignum" font 5
-// Test 13 "mednums" font 6
+// Test 12 "tiny" font 5
+// Test 13 "homespun" font 6
+// Test 14 "bignum" font 7
+// Test 15 "mednums" font 8
+
 
 #include <ERM19264_UC1609.h>
 
@@ -45,7 +49,6 @@
 #define CS 8  // GPIO pin number pick any you want
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
-
 ERM19264_UC1609  mylcd(CD, RST, CS); // instantiate object
 
 // define a buffer to cover whole screen 
@@ -76,7 +79,8 @@ void loop()
 
 void DisplayText(MultiBuffer* targetBuffer)
 {
-
+  char myString[9] = {'1', '0', ':', '1', '6', ':', '2', '9'};
+  
   mylcd.setTextWrap(true);
   mylcd.setFontNum(UC1609Font_Default);
   mylcd.ActiveBuffer =  targetBuffer;
@@ -102,6 +106,12 @@ void DisplayText(MultiBuffer* targetBuffer)
   // Test 4
   mylcd.drawChar(150, 25 , 'H', FOREGROUND, BACKGROUND, 4);
 
+  TestReset();
+
+  // Test 4b  Drawtext funtion.() bignum func not going work over size)
+  mylcd.drawText(0,0,  myString, FOREGROUND, BACKGROUND,1);
+  mylcd.drawText(0,32, myString, FOREGROUND, BACKGROUND,2);
+  
   TestReset();
 
   // Test 5
@@ -151,7 +161,22 @@ void DisplayText(MultiBuffer* targetBuffer)
 
   // Test 8
   mylcd.setCursor(5, 30);
-  mylcd.print(33.91);
+  mylcd.print(33.91674, 2); // will print 33.92
+
+  mylcd.setCursor(5, 40);
+  mylcd.print(-211);
+
+  TestReset();
+
+  // Test 8b 
+  mylcd.setCursor(0, 0);
+  mylcd.print(47 , DEC);
+  mylcd.setCursor(0, 16);
+  mylcd.print(47 , HEX); 
+  mylcd.setCursor(0, 32);
+  mylcd.print(47, BIN);
+  mylcd.setCursor(0, 48);
+  mylcd.print(47 , OCT);
 
   TestReset();
 
@@ -172,7 +197,7 @@ void DisplayFonts(MultiBuffer* targetBuffer)
   // Test 9
   mylcd.setCursor(0, 0);
   mylcd.print(F("Thick Font:"));
-  mylcd.setFontNum(UC1609Font_Thick );
+  mylcd.setFontNum(UC1609Font_Thick);
   mylcd.setCursor(0, 15);
   mylcd.print(F("THICK FONT 82362*!"));
   mylcd.drawChar(150, 25 , 'T', FOREGROUND, BACKGROUND, 4);
@@ -213,7 +238,39 @@ void DisplayFonts(MultiBuffer* targetBuffer)
 
   TestReset();
 
+
   // Test 12
+  mylcd.setCursor(0, 0);
+  mylcd.setFontNum(UC1609Font_Default );
+  mylcd.setTextSize(1);
+  mylcd.print(F("Tiny Font:"));
+  mylcd.setFontNum(UC1609Font_Tiny);
+  mylcd.setCursor(0, 15);
+  mylcd.print(F("tiny FONT 9837*!"));
+  mylcd.drawChar(150, 25 , 't', FOREGROUND, BACKGROUND, 3);
+  mylcd.setCursor(0, 40);
+  mylcd.setTextSize(2);
+  mylcd.print(3.144445, 2);
+
+  TestReset();
+
+
+  // Test 13
+  mylcd.setCursor(0, 0);
+  mylcd.setFontNum(UC1609Font_Default );
+  mylcd.setTextSize(1);
+  mylcd.print(F("homespun Font:"));
+  mylcd.setFontNum(UC1609Font_Homespun);
+  mylcd.setCursor(0, 15);
+  mylcd.print(F("Homespun 321*!"));
+  mylcd.drawChar(150, 25 , 'h', FOREGROUND, BACKGROUND, 3);
+  mylcd.setCursor(0, 40);
+  mylcd.setTextSize(2);
+  mylcd.print(7.15);
+
+  TestReset();
+
+  // Test 14
   mylcd.setCursor(0, 0);
   mylcd.setFontNum(UC1609Font_Default );
   mylcd.setTextSize(1);
@@ -221,16 +278,18 @@ void DisplayFonts(MultiBuffer* targetBuffer)
   mylcd.setFontNum(UC1609Font_Bignum );
   mylcd.setCursor(0, 15);
   mylcd.setTextColor(FOREGROUND, BACKGROUND);
-  mylcd.print(26.05); // Test 12a print a Float
+  mylcd.print(26.05); // Test 14a print a Float
+  mylcd.setCursor(110, 15);
+  mylcd.print(-28); // Test 14a print a negative number
 
   TestReset();
 
-  mylcd.drawTextNumFont(0, 32, myString , BACKGROUND, FOREGROUND); // Test 12b drawTextNumFont , 13:26:18 inverted
-  mylcd.drawCharNumFont(0, 0, '8', FOREGROUND, BACKGROUND); // Test 12c drawCharNumFont
-  mylcd.drawCharNumFont(160, 0, '4', BACKGROUND, FOREGROUND); // Test 12d drawCharNumFont inverted
+  mylcd.drawTextNumFont(0, 32, myString , BACKGROUND, FOREGROUND); // Test 14b drawTextNumFont , 13:26:18 inverted
+  mylcd.drawCharNumFont(0, 0, '8', FOREGROUND, BACKGROUND); // Test 14c drawCharNumFont
+  mylcd.drawCharNumFont(160, 0, '4', BACKGROUND, FOREGROUND); // Test 14d drawCharNumFont inverted
 
   TestReset();
-  while (countUp < MYCOUNT_UPTIME) // Show a count 12e
+  while (countUp < MYCOUNT_UPTIME) // Show a count 14e
   {
     mylcd.setCursor(0, 0);
     mylcd.print(countUp++);
@@ -238,7 +297,7 @@ void DisplayFonts(MultiBuffer* targetBuffer)
   }
   TestReset();
 
-  //test 13
+  //test 15
   mylcd.setCursor(0, 0);
   mylcd.setFontNum(UC1609Font_Default );
   mylcd.setTextSize(1);
@@ -246,17 +305,19 @@ void DisplayFonts(MultiBuffer* targetBuffer)
   mylcd.setFontNum(UC1609Font_Mednum);
   mylcd.setCursor(0, 15);
   mylcd.setTextColor(FOREGROUND, BACKGROUND);
-  mylcd.print(26.43); // Test 13a print a Float
+  mylcd.print(26.43); // Test 15a print a Float
+  mylcd.setCursor(110, 15);
+  mylcd.print(-95); // Test 14a print a negative number
 
   TestReset();
 
-  mylcd.drawTextNumFont(0, 32, myString , BACKGROUND, FOREGROUND); // Test 13b drawTextNumFont , 13:26:18 inverted
-  mylcd.drawCharNumFont(0, 0, '8', FOREGROUND, BACKGROUND); // Test 13c drawCharNumFont
-  mylcd.drawCharNumFont(160, 0, '4', BACKGROUND, FOREGROUND); // Test 13d drawCharNumFont inverted
+  mylcd.drawTextNumFont(0, 32, myString , BACKGROUND, FOREGROUND); // Test 15b drawTextNumFont , 13:26:18 inverted
+  mylcd.drawCharNumFont(0, 0, '8', FOREGROUND, BACKGROUND); // Test 15c drawCharNumFont
+  mylcd.drawCharNumFont(160, 0, '4', BACKGROUND, FOREGROUND); // Test 15d drawCharNumFont inverted
 
   TestReset();
   countUp = 0;
-  while (countUp < MYCOUNT_UPTIME) // Show a count 12e
+  while (countUp < MYCOUNT_UPTIME) // Show a count 15e
   {
     mylcd.setCursor(0, 0);
     mylcd.print(countUp++);

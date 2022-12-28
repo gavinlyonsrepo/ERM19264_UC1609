@@ -46,6 +46,7 @@ fillTriangle	KEYWORD2
 drawRoundRect	KEYWORD2
 fillRoundRect	KEYWORD2
 drawChar	KEYWORD2
+drawText	KEYWORD2
 setCursor	KEYWORD2
 setTextColor	KEYWORD2
 setTextColor	KEYWORD2
@@ -69,5 +70,7 @@ UC1609Font_Default	LITERAL1
 UC1609Font_Thick	LITERAL1
 UC1609Font_Seven_Seg	LITERAL1
 UC1609Font_Wide	LITERAL1
+UC1609Font_Tiny	LITERAL1
+UC1609Font_Homespun	LITERAL1
 UC1609Font_Bignum	LITERAL1
 UC1609Font_Mednum	LITERAL1

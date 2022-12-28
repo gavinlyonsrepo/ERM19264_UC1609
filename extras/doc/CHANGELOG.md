@@ -6,7 +6,7 @@
 * version 1.1.0 April 2021
 	* Minor update 
 	* Typos in Keyword.txt and,  Example file -MISC  removed.
-	* Delay <UC1609_RESET_DELAY2> reduced, as ERM19264SBS (white on blue)version of LCD on  Software SPI would not initialise, intermittently.
+	* Delay "UC1609_RESET_DELAY2" reduced, as ERM19264SBS (white on blue)version of LCD on  Software SPI would not initialise, intermittently.
 
 * version 1.2.0 May 2021
 	* Extended ASCII not displaying correctly with No buffer mode on ESP32 issue, solved.
@@ -25,3 +25,10 @@
 	* A new function added for initialising a multibuffer struct , LCDinitBufferStruct(),
 	backward compatible with old manual method.  
 
+* Version 1.5.0 December 2022
+	* Added DrawText method.
+	* Added font file X.cpp.
+	* Added Fonts "tiny" & "homespun".
+	* Added negative sign for Fonts 7&8 when using "print" method.
+	* Changed "UC1609_POWER_CONTROL" from 0x2F to 0x28. This sets it to the excepted datasheet default  , 1.4mA.  
+  

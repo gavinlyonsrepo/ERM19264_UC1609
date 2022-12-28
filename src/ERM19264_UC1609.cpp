@@ -479,7 +479,7 @@ void ERM19264_UC1609::LCDNoBufferChar(unsigned char character)
    UC_NB_FONTPADDING;
     for (uint8_t  column = 0 ; column <  UC_NB_FONTWIDTH ; column++)
     {
-        send_data((pgm_read_byte(UC_Font_One + (character*UC_NB_FONTWIDTH) + column)));
+        send_data((pgm_read_byte(pFontDefaultptr + (character*UC_NB_FONTWIDTH) + column)));
     }
     UC_NB_FONTPADDING;
     UC1609_CS_SetHigh;

@@ -48,8 +48,8 @@
 // UC1909 Write registers
 #define UC1609_SYSTEM_RESET 0xE2 
 
-#define UC1609_POWER_CONTROL 0x2F 
-#define UC1609_PC_SET 0x06 // PC[2:0] 110 Internal V LCD (7x charge pump) + 10b: 1.4mA
+#define UC1609_POWER_CONTROL 0x28 // 00101000
+#define UC1609_PC_SET 0x06 // PC[2:0] 110, Internal V LCD (7x charge pump) + 10b: 1.4mA
 
 #define UC1609_ADDRESS_CONTROL 0x88 // set RAM address control
 #define UC1609_ADDRESS_SET 0x02 // Set AC [2:0] Program registers  for RAM address control.
