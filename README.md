@@ -102,7 +102,7 @@ If user does not want to use multi screen mode they can simply just define ONE s
 
 Figure :: The class structure with a single screen object. 
 
-![ ERM19264 class image ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/screen.png)
+![ ERM19264 class image ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/screenmode.png)
 
 ### Fonts
 
