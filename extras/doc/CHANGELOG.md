@@ -35,7 +35,7 @@
 * Version 1.6.0 May 2023
 	*  Added Doxygen style comments to create automated API (Application programming interface)
 	* Multi-screenmode :: Replaced  "MultiBuffer" struct with a" ERM19264_UC1609_Screen" class to improve code base  and simplify User interface.
-	Unfortunately this will break backwards compatibly with old sketches written pre 1.6.0. To Fix simply replace 1 & 2 with 3 , see example files for more details.
+	Unfortunately this will break backwards compatibly with old sketches written pre 1.6.0. To Fix simply replace a & b with c , see example files for more details.
 		1. MultiBuffer myStruct;
 		2. mylcd.LCDinitBufferStruct(&myStruct, screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);
 		with
