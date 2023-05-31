@@ -1,23 +1,23 @@
-
-// Example file name : ERM19264_UC1609_GRAPHICS.ino
-// Description:
-// Test file for ERM19264_UC1609 library, showing use of graphic functions from included graphics library.
-// URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
-// *****************************
-// NOTES :
-// (1) GPIO is for arduino UNO for other tested MCU see readme.
-// (2) In the <ERM19264_UC1609.h> USER BUFFER OPTION SECTION, at top of file
-// option MULTI_BUFFER must be selected
-// and only this option. It is on by default.
-// (3) This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino example.
-// ******************************
-
+/*!
+  @file ERM19264_UC1609_GRAPHICS.ino
+  @brief Example file for ERM19264_UC1609 library, showing use of graphic functions from included graphics library.
+  @note  URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
+  @author Gavin Lyons
+  @details
+    -# (1) GPIO is for arduino UNO for other tested MCU see readme.
+    -# (2) This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino example.
+   @test
+		-# Test graphics 
+*/
 
 #include <ERM19264_UC1609.h> // Include the library
 
+// LCD Setup
+#define VbiasPOT 0x49 // Contrast 0x00 to 0xFF , 49h default , User adjust
 #define MYLCDHEIGHT 64
 #define MYLCDWIDTH  192
-#define VbiasPOT 0x49 // Contrast 0x00 to 0xFF , 49h default , User adjust
+// define a buffer to cover whole screen 
+uint8_t  screenBuffer[MYLCDWIDTH * (MYLCDHEIGHT/8)]; // 1536 bytes
 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
@@ -26,10 +26,10 @@
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
+// instantiate an LCD object
 ERM19264_UC1609  mylcd(CD, RST, CS);
-
-// define a buffer to cover whole screen 
-uint8_t  screenBuffer[MYLCDWIDTH * (MYLCDHEIGHT/8)]; // 1536 bytes
+// Instantiate  a screen object, in this case to cover whole screen
+ERM19264_UC1609_Screen fullScreen(screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0); 
 
 // ************* SETUP ***************
 void setup()
@@ -38,31 +38,25 @@ void setup()
   mylcd.LCDFillScreen(0xE5, 0); // Fill the screen with a a pattern , "just for splashscreen effect"
   delay(1500);
   mylcd.LCDFillScreen(0x00, 0); // Clear the screen
+  mylcd.ActiveBuffer =  &fullScreen;   // Assign address of screen object to be the "active buffer" pointer 
+  mylcd.LCDclearBuffer(); // Clear the buffer
 }
 
 
 // *********** MAIN LOOP ******************
 void loop()
 {
-
-  // Define a full screen buffer
-  MultiBuffer myStruct; // Declare a multi buffer struct
-  mylcd.LCDinitBufferStruct(&myStruct, screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);  // Intialise that struct (&struct,buffer,w,h,x,y)
-  DisplayGraphics(&myStruct); // Call a function to display graphics pass it the &struct
-
+  DisplayGraphics(); 
 }
 // *********** END OF MAIN ***********
 
 // Function to display Graphics.
-void  DisplayGraphics(MultiBuffer* targetStruct)
+void  DisplayGraphics()
 {
-  //Q1 |Q2
+  // Q1 |Q2
   //-----
   //Q3 | Q4
-  //
   bool colour = 1;
-  mylcd.ActiveBuffer =  targetStruct;   // Set the active buffer to the multistruct object
-  mylcd.LCDclearBuffer(); // Clear the buffer
   while (1)
   {
     colour = !colour;

@@ -4,7 +4,7 @@
 	* first release
 
 * version 1.1.0 April 2021
-	* Minor update 
+	* Minor update
 	* Typos in Keyword.txt and,  Example file -MISC  removed.
 	* Delay "UC1609_RESET_DELAY2" reduced, as ERM19264SBS (white on blue)version of LCD on  Software SPI would not initialise, intermittently.
 
@@ -19,16 +19,26 @@
 
 * Version 1.4.0 Feb 2022
 	* drawBitmap() function is now set up for both horizontal and vertical addressed bitmap data,
-	as per pull request  #2 from Myaflick on github.  Vertical is default. The addressing mode is changed by setDrawBitmapAddr(), new function.  
+	as per pull request  #2 from Myaflick on github.  Vertical is default. The addressing mode is changed by setDrawBitmapAddr(), new function.
 	* Enum added for font name labels instead of raw numbers, This will cause font compiler warnings for sketch's written on versions before 1.4.0 , The sketch's will still compile and work,
-	Simply replace font numbers  with the relevant enum text labels to get rid of warnings. 
+	Simply replace font numbers  with the relevant enum text labels to get rid of warnings.
 	* A new function added for initialising a multibuffer struct , LCDinitBufferStruct(),
-	backward compatible with old manual method.  
+	backward compatible with old manual method.
 
 * Version 1.5.0 December 2022
 	* Added DrawText method.
 	* Added font file X.cpp.
 	* Added Fonts "tiny" & "homespun".
 	* Added negative sign for Fonts 7&8 when using "print" method.
-	* Changed "UC1609_POWER_CONTROL" from 0x2F to 0x28. This sets it to the excepted datasheet default  , 1.4mA.  
-  
+	* Changed "UC1609_POWER_CONTROL" from 0x2F to 0x28. This sets it to the excepted datasheet default  , 1.4mA.
+
+* Version 1.6.0 May 2023
+	*  Added Doxygen style comments to create automated API (Application programming interface)
+	* Multi-screenmode :: Replaced  "MultiBuffer" struct with a" ERM19264_UC1609_Screen" class to improve code base  and simplify User interface.
+	Unfortunately this will break backwards compatibly with old sketches written pre 1.6.0. To Fix simply replace 1 & 2 with 3 , see example files for more details.
+		1. MultiBuffer myStruct;
+		2. mylcd.LCDinitBufferStruct(&myStruct, screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);
+		with
+		3. ERM19264_UC1609_Screen fullScreen(screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);
+
+	* Removed no buffer mode & single buffer mode. No buffer mode can be done by the basic 	Text only version  (ERM19264_UC1609_TEXT) & Single buffer can be done by Multi-screen mode.  

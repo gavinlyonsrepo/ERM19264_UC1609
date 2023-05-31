@@ -1,89 +1,84 @@
-// Example file name : ERM19264_UC1609_TEXTino
-// Description:
-// Test file for ERM19264_UC1609 library, showing use of Text and Fonts.
-// URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
-// *****************************
-// NOTES :
-// (1) GPIO is for arduino UNO for other tested MCU see readme.
-// (2) In the <ERM19264_UC1609.h> USER BUFFER OPTION SECTION, at top of file
-// option MULTI_BUFFER must be selected and only this option. This is default. 
-// (3) This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino example.
-// (4) Test 6 In order to use extended ASCII font > (127 '}')  #define UC_FONT_MOD_TWO in the file <ERM19264_UC1609_graphics_font>
-// must be commented in. It is by default.
-// (5) In order for tests 9-15 to work fully: the respective font
-// must be enabled, see USER FONT OPTION ONE in file <ERM19264_graphics_font.h>.
-// ******************************
+/*!
+  @file ERM19264_UC1609_TEXT.ino
+  @brief Example file for ERM19264_UC1609 library, showing use of Text and Fonts.
+  @author Gavin Lyons
+  @details
+    -# GPIO is for arduino UNO for other tested MCU see readme.
+    -# This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino example.
+    -# Test 6 In order to use extended ASCII font > (127 '}')  #define UC_FONT_MOD_TWO in the file <ERM19264_UC1609_graphics_font>
+      must be commented in. It is by default.
+     -# In order for tests 9-15 to work fully: the respective font
+      must be enabled, see USER FONT OPTION ONE in file <ERM19264_graphics_font.h>.
+      If font NOT enabled NOTHING will appear during test on LCD screen.
+    -# URL = <https://github.com/gavinlyonsrepo/ERM19264_UC1609>
 
-// A series of tests to display the text mode
-// Test 1 font size 3 string
-// Test 2 font size 2 string
-// Test 3 font size 1 string inverted
-// Test 4 draw a single character font size 4
-// Test 4b drawtext method
-// Test 5 print ASCII font 0-127
-// Test 6 print ASCII font 128-255, see notes 4 at top of file
-// Test 7 print function integer
-// Test 8 print function float + numerical types (HEX BIN etc)
-// Test 9 "thick" font 2
-// Test 10 "seven segment" font 3
-// Test 11 "wide " font 4
-// Test 12 "tiny" font 5
-// Test 13 "homespun" font 6
-// Test 14 "bignum" font 7
-// Test 15 "mednums" font 8
+  @test
+    -# Test 1 font size 3 string
+    -# Test2 font size 2 string
+    -# Test3 font size 1 string inverted
+    -# Test4 draw a single character font size 4
+    -# Test4b drawtext method
+    -# Test5 print ASCII font 0-127
+    -# Test6 print ASCII font 128-255, see notes 4 at top of file
+    -# Test7 print function integer
+    -# Test8 print function float + numerical types (HEX BIN etc)
+    -# Test9 "thick" font 2
+    -# Test10 "seven segment" font 3
+    -# Test11 "wide " font 4
+    -# Test12 "tiny" font 5
+    -# Test13 "homespun" font 6
+    -# Test14 "bignum" font 7
+    -# Test15 "mednums" font 8
+*/
 
+#include "ERM19264_UC1609.h"
 
-#include <ERM19264_UC1609.h>
-
-#define MYLCDHEIGHT 64
-#define MYLCDWIDTH  192
-#define VbiasPOT 0x49 // contrast 00 to FF , default 0x49 , user adjust
-
-#define DISPLAY_DELAY_ONE 5000
-#define DISPLAY_DELAY_TWO 0
-#define MYCOUNT_UPTIME 1000
-
+// LCD setup 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
 #define RST 9 // GPIO pin number pick any you want
 #define CS 8  // GPIO pin number pick any you want
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
-ERM19264_UC1609  mylcd(CD, RST, CS); // instantiate object
 
-// define a buffer to cover whole screen 
-uint8_t  screenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))+1]; // 192 X (64/8) + 1 = 1537
+#define LCDCONTRAST 0x49 
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
+// define a buffer to cover whole screen   1536 bytes
+uint8_t  screenBuffer[MYLCDWIDTH * (MYLCDHEIGHT/8)]; 
+// instantiate an LCD object
+ERM19264_UC1609  mylcd(CD, RST, CS); 
+// Instantiate  a screen object, in this case to cover whole screen
+ERM19264_UC1609_Screen fullScreen(screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0); 
+
+//Define Some test timing delay 
+#define DISPLAY_DELAY_ONE 5000
+#define DISPLAY_DELAY_TWO 0
+#define MYCOUNT_UPTIME 1000
 
 // ************* SETUP ***************
 void setup()
 {
-  mylcd.LCDbegin(VbiasPOT); // initialize the LCD
+  mylcd.LCDbegin(LCDCONTRAST); // initialize the LCD
   mylcd.LCDFillScreen(0x00, 0); // Clear the screen
+  mylcd.ActiveBuffer = &fullScreen; // Set the active buffer pointer to the address of full screen object
 }
 
 // ************** MAIN LOOP ***********
 void loop()
 {
-
-  MultiBuffer myStruct; // Declare a multi buffer struct
-  mylcd.LCDinitBufferStruct(&myStruct, screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);  // Intialise that struct (&struct,buffer,w,h,x,y)
-
-  while (1)
-  {
-    DisplayText(&myStruct);   // Tests 1-8
-    DisplayFonts(&myStruct);  // Tests 9-end
-  }
+    DisplayText();   // Tests 1-8
+    DisplayFonts();  // Tests 9-15
 }
 // ************** END OF MAIN ***********
 
 
-void DisplayText(MultiBuffer* targetBuffer)
+void DisplayText()
 {
   char myString[9] = {'1', '0', ':', '1', '6', ':', '2', '9'};
   
   mylcd.setTextWrap(true);
   mylcd.setFontNum(UC1609Font_Default);
-  mylcd.ActiveBuffer =  targetBuffer;
   mylcd.LCDclearBuffer(); // Clear the buffer
 
   // Test 1
@@ -183,7 +178,7 @@ void DisplayText(MultiBuffer* targetBuffer)
 } // end function
 
 
-void DisplayFonts(MultiBuffer* targetBuffer)
+void DisplayFonts()
 {
   char myString[9] = {'1', '3', ':', '2', '6', ':', '1', '8'};
   uint16_t  countUp = 0;
@@ -191,7 +186,6 @@ void DisplayFonts(MultiBuffer* targetBuffer)
   mylcd.setTextWrap(true);
   mylcd.setFontNum(UC1609Font_Default );
   mylcd.setTextColor(FOREGROUND);
-  mylcd.ActiveBuffer =  targetBuffer;
   mylcd.LCDclearBuffer(); // Clear the buffer
 
   // Test 9

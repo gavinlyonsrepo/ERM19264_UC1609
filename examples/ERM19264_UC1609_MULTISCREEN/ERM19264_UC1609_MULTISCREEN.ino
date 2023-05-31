@@ -1,17 +1,23 @@
+/*!
+	@file ERM19264_UC1609_MULTISCREEN.ino
+	@brief Example file for ERM19264_UC1609 library, showing use of mulitple screens(two) sharing one buffers.  
+	@author Gavin Lyons
+	@note
+		-# GPIO is for arduino UNO for other tested MCU see readme.
+		-# This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino  example.
+     <https://github.com/gavinlyonsrepo/ERM19264_UC1609>
+	@test
+		-# Shared buffer, Multiple screens (2 off) spilt into left and right , sharing one buffer
+		-# FPS test frame per second 
+*/
 
-// Example file name : ERM19264_UC1609_MULTIBUFFER.ino
-// Description:
-// Test file for ERM19264_UC1609 library, showing use of mulitple buffers.  In this case: two, divided vertically.
-// The user can also divide horizontally and create as many buffers as they want.
-// URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
-// *****************************
-// NOTES :
-// (1) GPIO is for arduino UNO for other tested MCU see readme.
-// (2) In the <ERM19264_UC1609.h> USER BUFFER OPTION SECTION, at top of file
-// option MULTI_BUFFER must be selected
-// and only this option. It is on by default.
-// (3) This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino example.
-// ******************************
+// two shared screens sharing one buffer
+//  ______________________
+// | Left side | Right side|
+// |               |           |
+// |               |           |
+// |_______|______________|
+//
 
 #include <ERM19264_UC1609.h>
 
@@ -26,12 +32,19 @@
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
+// Define a half screen sized buffer
+uint8_t  halfScreenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))/2]; // 1536/2 = 768 bytes
+
 ERM19264_UC1609  mylcd(CD, RST, CS); // instate object , CD, RST, CS
 
-// Define a half screen sized buffer
-uint8_t  screenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))/2]; // 1536/2 = 768 bytes
+// Instantiate  a screen object, in this case to the left side of screen
+// (buffer, width, height, x_offset, y-offset)
+ERM19264_UC1609_Screen leftSideScreen(halfScreenBuffer, MYLCDWIDTH/2, MYLCDHEIGHT, 0, 0); 
+// Instantiate  a screen object, in this case the right side of screen
+// (buffer, width, height, x_offset, y-offset)
+ERM19264_UC1609_Screen rightSideScreen(halfScreenBuffer, MYLCDWIDTH/2, MYLCDHEIGHT, MYLCDWIDTH/2, 0); 
 
-// vars  the test control
+// varaibles to control test timing. 
 static long previousMillis  = 0;
 uint16_t count  = 0;
 uint16_t seconds  = 0;
@@ -50,18 +63,11 @@ void loop() {
   mylcd.setTextColor(FOREGROUND);
   mylcd.setTextSize(1);
 
-  MultiBuffer left_side;  // Declare a multi buffer struct for left side of screen
-  // Intialise that struct (&struct, buffer, w, h, x_offset, y-offset)
-  mylcd.LCDinitBufferStruct(&left_side, screenBuffer, MYLCDWIDTH/2, MYLCDHEIGHT, 0, 0);  
-  
-  MultiBuffer right_side;  // Declare a multi buffer struct for right side of screen
-  // Intialise that struct (&struct, buffer, w, h, x_offset, y-offset)
-  mylcd.LCDinitBufferStruct(&right_side, screenBuffer, MYLCDWIDTH/2, MYLCDHEIGHT, MYLCDWIDTH/2, 0); 
   
   while(1)
   {
-    display_Left(&left_side, framerate, count);
-    display_Right(&right_side);
+    display_Left(framerate, count);
+    display_Right();
     framerate++;
     count++;
   }
@@ -69,12 +75,12 @@ void loop() {
 // *********** END OF MAIN ***********
 
 // Function to display left hand side buffer
-void display_Left(MultiBuffer* targetbuffer, long currentFramerate, int count)
+void display_Left(long currentFramerate, int count)
 {
-  mylcd.ActiveBuffer = targetbuffer; // set target buffer object
+  mylcd.ActiveBuffer = &leftSideScreen; // set active buffer to left side
   mylcd.LCDclearBuffer();
   mylcd.setCursor(0, 0);
-  mylcd.print(F("Left Buffer:"));
+  mylcd.print(F("Left Screen:"));
 
   mylcd.setCursor(0, 10);
   mylcd.print(F("96 * 64/8 = 768"));
@@ -101,18 +107,18 @@ void display_Left(MultiBuffer* targetbuffer, long currentFramerate, int count)
   mylcd.print(fps);
 
   mylcd.setCursor(0, 50);
-  mylcd.print("V 1.5.0");
+  mylcd.print("V 1.6.0");
   mylcd.drawFastVLine(92, 0, 63, FOREGROUND);
   mylcd.LCDupdate();
 }
 
 // Function to display right hand side buffer
-void display_Right(MultiBuffer* targetbuffer)
+void display_Right()
 {
-  mylcd.ActiveBuffer = targetbuffer; // set target buffer object
+  mylcd.ActiveBuffer = &rightSideScreen; // set active buffer to right side
   mylcd.LCDclearBuffer();
   mylcd.setCursor(0, 0);
-  mylcd.print(F("Right buffer:"));
+  mylcd.print(F("Right Screen:"));
 
   mylcd.fillRect(0, 10, 20, 20, colour);
   mylcd.fillCircle(40, 20, 10, FOREGROUND);

@@ -1,14 +1,12 @@
-/*
-* Project Name: ERM19264_UC1609
-* File: ERM19264_graphics_font.h
-* Description: ERM19264 LCD driven by UC1609C controller, font data file 8 fonts.
-* Author: Gavin Lyons.
-* URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
+/*!
+* @file ERM19264_graphics_font.h
+* @brief  ERM19264_UC1609 , ERM19264 LCD driven by UC1609C controller, font data file 8 fonts.
+* @author Gavin Lyons.
+* @details <https://github.com/gavinlyonsrepo/ERM19264_UC1609>
 */
 
 #ifndef ERM19264_FONT_S_H
 #define ERM19264_FONT_S_H
-
 
 #if (ARDUINO >=100)
   #include "Arduino.h"
@@ -25,22 +23,35 @@
 #endif
 #endif
  
-// **********************************************
-// ****** USER FONT OPTION ONE *************
-// ****** FONT DEFINE SECTION *************** 
-// Comment in the fonts YOU want, One is default. 
+/*!
+	@brief USER FONT OPTION ONE , FONT DEFINE SECTION 
+	@note Comment in the fonts YOU want, UC1609_Font_One is default. 
+		-#  UC1609_Font_One  default  (FUll ASCII with mods)
+		-#  UC1609_Font_Two  thick (NO LOWERCASE)
+		-#  UC1609_Font_Three seven segment 
+		-#  UC1609_Font_Four wide (NO LOWERCASE)
+		-#  UC1609_Font_Five  tiny
+		-#  UC1609_Font_Six HomeSpun
+		-#  UC1609_Font_Seven big numbers (NUMBERS ONLY + : . ,one size )
+		-#  UC1609_Font_Eight Medium numbers (NUMBERS ONLY + : . ,one size)
+*/
 
-#define UC1609_Font_One  // (1) default  (FUll ASCII with mods)
-//#define UC1609_Font_Two  // (2) thick (NO LOWERCASE)
-//#define UC1609_Font_Three // (3) seven segment 
-//#define UC1609_Font_Four // (4) wide (NO LOWERCASE)
-//#define UC1609_Font_Five // (5) tiny
-//#define UC1609_Font_Six // (6) HomeSpun
-//#define UC1609_Font_Seven // (7) big numbers (NUMBERS ONLY )
-//#define UC1609_Font_Eight // (8) Med numbers (NUMBERS ONLY )
+#define UC1609_Font_One         /**< (1) default  (FUll ASCII with mods) */ 
+//#define UC1609_Font_Two       /**< (2) thick (NO LOWERCASE) */
+//#define UC1609_Font_Three    /**<  (3) seven segment  */
+//#define UC1609_Font_Four      /**<  (4) wide (NO LOWERCASE) */
+//#define UC1609_Font_Five      /**< (5) tiny */
+//#define UC1609_Font_Six       /**< (6) HomeSpun */
+//#define UC1609_Font_Seven  /**<  (7) big numbers (NUMBERS ONLY+ : . ,one size ) */
+//#define UC1609_Font_Eight   /**<  (8) Med numbers (NUMBERS ONLY + : . ,one size )*/
 
-// ****** END OF FONT DEFINE SECTION ******  
-// **********************************************
+/*! 
+ * @brief USER FONT OPTION TWO
+	@details This is defined to include full extended ASCII set 127-255, To save memory and 			reduce program size (635 bytes saving) comment define out. 
+	@note  UC_Font_One only.
+*/
+#define UC_FONT_MOD_TWO /**< USER OPTION 2 */
+
  
 // Font data is in the cpp file accessed thru extern pointers.
 

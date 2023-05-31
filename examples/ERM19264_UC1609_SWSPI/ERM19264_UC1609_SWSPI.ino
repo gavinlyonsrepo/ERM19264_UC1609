@@ -1,16 +1,17 @@
-
-// Example file name : ERM19264_UC1609_SWSPI.ino
-// Description:
-// Test file for ERM19264_UC1609 library, showing use of software SPI  mode
-// only difference for user is the constructor used when you instantiate the object and pin definations
-// URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
-// *****************************
-// NOTES :
-// (1) GPIO is for arduino UNO for other tested MCU see readme.
-// (2) In the <ERM19264_UC1609.h> USER BUFFER OPTION SECTION, at top of file
-// option MULTI_BUFFER must be selected and only this option.
-// (3) This is for software  SPI for hardware SPI see all other examples.
-// ******************************
+/*!
+	@file  ERM19264_UC1609_SWSPI.ino
+	@brief  Example file for ERM19264_UC1609 library, showing use of software SPI  mode
+	only difference for user is the constructor used when you instantiate the object and pin definations
+	@author Gavin Lyons
+	@details
+    <https://github.com/gavinlyonsrepo/ERM19264_UC1609>
+	@note
+		-# (1) GPIO is for arduino UNO for other tested MCU see readme.
+		-# (2) This is for software  SPI for hardware SPI see all other examples.
+	
+	@test
+		-# Software SPI
+*/
 
 #include <ERM19264_UC1609.h>
 
@@ -22,14 +23,18 @@
 #define CD 10 // GPIO pin number pick any you want 
 #define RST 9 // GPIO pin number pick any you want
 #define CS 8  // GPIO pin number pick any you want
-#define SCLK 13 // GPIO pin number pick any you want
+#define SCLK 12 // GPIO pin number pick any you want
 #define DIN  11 // GPIO pin number pick any you want
 
-ERM19264_UC1609  mylcd(CD, RST, CS, SCLK, DIN ); // instantiate object pick any GPIO you want
-
 // define a buffer to cover whole screen 
-uint8_t  screenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))+1]; // 1536 +1 bytes
+uint8_t  fullScreenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))]; // 1536 bytes
 
+// instantiate object pick any GPIO you want
+ERM19264_UC1609  mylcd(CD, RST, CS, SCLK, DIN ); 
+// Instantiate  a screen object, in this case to cover whole screen
+ERM19264_UC1609_Screen fullScreen(fullScreenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0); 
+
+// Varibles to control test timing  
 long startTime ;                    // start time for stop watch
 long elapsedTime ;                  // elapsed time for stop watch
 
@@ -44,23 +49,18 @@ void setup() {
 
 // ************** MAIN LOOP ***********
 void loop() {
-
-  MultiBuffer myStruct; // Declare a multi buffer struct
-  // Intialise that struct (&struct, buffer, w, h, x-offset, y-offset)
-  mylcd.LCDinitBufferStruct(&myStruct, screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0); 
-
-  // Call a function to display text
-  DisplayText(&myStruct);
+ // Call a function to display text
+  DisplayText();
 }
 
 // ************** END OF MAIN ***********
 
-void DisplayText(MultiBuffer* targetBuffer)
+void DisplayText()
 {
   int count = 0;
   mylcd.setTextColor(FOREGROUND);
   mylcd.setTextSize(1);
-  mylcd.ActiveBuffer =  targetBuffer;
+  mylcd.ActiveBuffer =  &fullScreen;
   mylcd.LCDclearBuffer(); // Clear the buffer
   while (1)
   {

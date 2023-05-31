@@ -1,6 +1,6 @@
 SPI speed results test ERM19264_UC1609_SWSPI.ino. v1.0.0
 
-(1) UNO
+(1) UNO  v3
 
 SW SPI 1000 counts 180 seconds UNO
 HW SPI 1000 counts 14 seconds  UNO
@@ -24,3 +24,7 @@ Framerate 200 , 240MHZ HW SPI.
 SPI SW 72 MHZ 33 seconds to 1000 
 SPI HW 72 MHZ 5 seconds to 1000 clock divider set to  8 72/8 
 Framerate 102. 
+
+(6) UNO  v4 R4 minimia 
+SPI SW 72 MHZ 68 seconds to 1000 
+Framerate 40

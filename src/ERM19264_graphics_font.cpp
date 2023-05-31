@@ -1,21 +1,14 @@
-/*
-* Project Name: ERM19264_UC1609
-* File: ERM19264_graphics_font.cpp
-* Description: ERM19264 LCD driven by UC1609C controller, font data file 8 fonts.
-* Author: Gavin Lyons.
-* URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
+/*!
+* @file ERM19264_graphics_font.cpp
+* @brief  ERM19264_UC1609 , ERM19264 LCD driven by UC1609C controller, font data file 8 fonts.
+* @author Gavin Lyons.
+* @details <https://github.com/gavinlyonsrepo/ERM19264_UC1609>
 */
 
 #include "ERM19264_graphics_font.h"
 
 #ifdef UC1609_Font_One
 
-// ************ USER OPTION TWO**************
-// This is defined to include full extended ASCII set 127-255
-// To save memory and reduce program size (635 bytes saving) comment out
-// Note Font_one only.
-#define UC_FONT_MOD_TWO
-//*****************************************
 
 // Default Standard extended ASCII 5x8 font. 
 static const unsigned char UC_Font_One[] PROGMEM = {

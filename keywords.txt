@@ -4,7 +4,7 @@
 
 # Datatypes (such as objects)
 ERM19264_UC1609	KEYWORD1
-MultiBuffer	KEYWORD1
+ERM19264_UC1609_Screen	KEYWORD1
 ActiveBuffer	KEYWORD1
 
 #Methods / functions
@@ -13,11 +13,7 @@ drawPixel	KEYWORD2
 LCDupdate	KEYWORD2
 LCDclearBuffer	KEYWORD2
 LCDBuffer	KEYWORD2
-
-LCDNoBufferGotoXY	KEYWORD2
-LCDNoBufferChar	KEYWORD2
-LCDNoBufferString	KEYWORD2
-LCDinitBufferStruct	KEYWORD2
+LCDGotoXY	KEYWORD2
 
 LCDbegin	KEYWORD2
 LCDinit	KEYWORD2
@@ -26,7 +22,7 @@ LCDFillScreen	KEYWORD2
 LCDFillPage	KEYWORD2
 LCDrotate	KEYWORD2
 invertDisplay	KEYWORD2
-LCD_allpixelsOn	KEYWORD2
+LCDallpixelsOn	KEYWORD2
 LCDscroll	KEYWORD2
 LCDReset	KEYWORD2
 LCDBitmap	KEYWORD2

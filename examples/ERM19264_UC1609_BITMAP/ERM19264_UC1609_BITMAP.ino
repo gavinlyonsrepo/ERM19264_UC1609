@@ -1,57 +1,33 @@
+/*!
+	@file  ERM19264_UC1609_BITMAP.ino
+	@brief Example file for ERM19264_UC1609 library, showing how to display bitmaps.
+	@author Gavin Lyons
 
-// Example file name : ERM19264_UC1609_BITMAP.ino
-// Description:
-// Test file for ERM19264_UC1609 library, showing how to display bitmaps.
-// URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
-// *****************************
-// NOTES :
-// (1) GPIO is for arduino UNO for other tested MCU see readme.
+  @details
+      test no | Desc | bitmap in PROGMEM | data addressing | note
+       ---- |  ---- |  ---- | ----  | ---- 
+      1|  LCDBitmap() |Yes| Vertical | buffer not used, writes directly to screen. 
+      2|  Screen init test |No| Vertical | Can be used when initialising screen at start up 
+      3|  LCDBuffer() |No|  Vertical | used internally mostly. 
+      4A| drawBitmap() |Yes| Vertical | setDrawBitmapAddr(true) 
+      4B| drawBitmap() |Yes| Horizontal  | setDrawBitmapAddr(false) 
+		
+	@note 
+		-# GPIO is for arduino UNO for other tested MCU see extras folder at URL
+		-# This is for hardware SPI 
+		-# <https://github.com/gavinlyonsrepo/ERM19264_UC1609>
 
-// (2) In the <ERM19264_UC1609.h> USER BUFFER OPTION SECTION, setting will change depending on which test you use,
-// test 2 3 4 5 6 are commented out currently.
-//
-// -> test (1) LcdBitmap method test : ANY one of 3 buffer settings on , bitmap must be in PROGMEM &  Vertical addressed, 
-//  buffer not used, writes directly to screen.
-//
-// -> test (2) LcdBuffer method test : MULTI_BUFFER or SINGLE_BUFFER setting on , bitmap must NOT be in PROGMEM & Vertical addressed
-//   used internally mostly.
-//
-// -> test (3) multibuffer init  test : MULTI_BUFFER setting on, buffer must NOT be in PROGMEM & Vertical addressed, 
-//    can be used when initialising multibuffer
-//
-// -> test (4) singlebuffer init test : SINGLE_BUFFER  setting on, buffer must NOT be in PROGMEM & Vertical addressed, 
- //   can be used when initialising buffer
-//
-// -> test (5) drawBitmap method test 1/2 : MULTI_BUFFER or SINGLE_BUFFER setting on,
-//    buffer must BE NOT in PROGMEM , bitmap must be in PROGMEM
-//    Bitmap Data Vertical addressed, call setDrawBitmapAddr(true) to set this mode. Default.
-//
-// -> test (6) drawBitmap method test 2/2 : MULTI_BUFFER or SINGLE_BUFFER setting on,
-//    buffer must BE NOT in PROGMEM , bitmap must be in PROGMEM
-//    Bitmap Data Horziontal addressed call setDrawBitmapAddr(false) to set this mode
-//
-// (3) This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino example.
-// 
-// *********************************************************************
+	@test
+		-# Test 1 LCDBitmap method
+		-# Test 2 Bitmap splashscreen technique
+		-# Test 3 LCDBuffer Method
+		-# Test 4a drawBitmap() method, Vertical addressing
+		-# Test 4b drawBitmap() method, Horizontal  addressing
+*/
 
-// ****************************************************
-//  **************** USER OPTION SELECTION ************
-// Pick ONE test and ONE test only
-#define test1
-//#define test2
-//#define test3
-//#define test4
-//#define test5
-//#define test6
-//*****************************************************
-//*****************************************************
+#include "ERM19264_UC1609.h"
 
-#include <ERM19264_UC1609.h>
-
-#define LCDCONTRAST 0x49 //Constrast 00 to FE , 0x49 is datasheet default. User adjust.
-#define MYLCDHEIGHT 64
-#define MYLCDWIDTH  192
-
+// LCD setup 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
 #define RST 9 // GPIO pin number pick any you want
@@ -59,15 +35,13 @@
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
-ERM19264_UC1609  mylcd(CD , RST, CS);
+#define LCDCONTRAST 0x49 
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
 
-// 192x64px 192 * 64/8 = 1536+1 fullscreen bitmap. data Vertical addressed
-#if defined(test2) || defined(test3) || defined(test4) || defined(test5) || defined(test6)
-uint8_t fullscreenBuffer[MYLCDWIDTH * (MYLCDHEIGHT / 8) + 1] = {
-#endif
-#ifdef test1
-  const PROGMEM  uint8_t fullscreenBitmap[MYLCDWIDTH * (MYLCDHEIGHT / 8) + 1] = {
-#endif
+// Define A buffer and fill it with bitmap
+// 192x64px 192 * 64/8 = 1536+1 fullscreen bitmap. data Vertical addressed used in Test2
+uint8_t fullScreenBuffer[MYLCDWIDTH * (MYLCDHEIGHT / 8) + 1] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x80, 0xc0, 0xe0, 0x60, 0x30, 0x30, 0x38, 0x18, 0x18, 0x18, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c,
     0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c, 0x0c,
@@ -163,121 +137,74 @@ uint8_t fullscreenBuffer[MYLCDWIDTH * (MYLCDHEIGHT / 8) + 1] = {
     0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06,
     0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06,
     0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x03, 0x03, 0x03, 0x03, 0x01, 0x01, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-  };
-
-
-#ifdef test2
-  // Mobile icon  16x8px Vertical addressed  not in progmem Test 2
-  const uint8_t  SignalIcon[16] = {
-        0x03, 0x05, 0x09, 0xff, 0x09, 0x05, 0xf3, 0x00, 0xf8, 0x00, 0xfc, 0x00, 0xfe, 0x00, 0xff, 0x00
-    };
-#endif
-
-#ifdef test5
- // Mobile icon  16x8px Vertical addressed Test 5
-  const PROGMEM  uint8_t  SignalIconVa[16] = {
-        0x03, 0x05, 0x09, 0xff, 0x09, 0x05, 0xf3, 0x00, 0xf8, 0x00, 0xfc, 0x00, 0xfe, 0x00, 0xff, 0x00
-    };
-#endif
-
-#ifdef test6
-    // Mobile icon  16x8px horizontal addressed test 6
-    const  PROGMEM uint8_t  SignalIconHa[16] = {
-        0xfe, 0x02, 0x92, 0x0a, 0x54, 0x2a, 0x38, 0xaa, 0x12, 0xaa, 0x12, 0xaa, 0x12, 0xaa, 0x12, 0xaa
-    };
-#endif
-
-  void setup()
-  {
-    mylcd.LCDbegin(LCDCONTRAST);     // initialize the LCD
-    mylcd.LCDFillScreen(0x00, 0); // Clears screen
-    delay(1000);
-  }
-
-  void loop()
-  {
-
-    while (1)
-    {
-
-      // test (1)
-#ifdef test1
-      mylcd.LCDBitmap(0, 0 , MYLCDWIDTH, MYLCDHEIGHT, fullscreenBitmap);
-      while (1) {
-        delay(5000);
-      };
-#endif
-
-
-      // test (2)
-#ifdef test2
-      mylcd.LCDBuffer(50, 10, 16, 8, (uint8_t*)SignalIcon);
-      mylcd.LCDBuffer(112, 10, 16, 8, (uint8_t*)SignalIcon);
-      while (1) {
-        delay(5000);
-      };
-#endif
-
-      //   test (3)
-#ifdef test3
-
-      MultiBuffer MyStruct;
-      mylcd.LCDinitBufferStruct(&MyStruct, fullscreenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);  // Intialise that struct (&struct,buffer,w,h,x,y)
-      mylcd.ActiveBuffer = &MyStruct;
-      mylcd.LCDupdate();
-      while (1) {
-        delay(5000);
-      };
-#endif
-
-
-      // test(4)
-#ifdef test4
-      mylcd.buffer = (uint8_t*) &fullscreenBuffer;
-      mylcd.LCDupdate();
-      while (1) {
-        delay(5000);
-      };
-#endif
-
-      // test (5)
-#ifdef test5
-
-      MultiBuffer MyStruct;
-      mylcd.LCDinitBufferStruct(&MyStruct, fullscreenBuffer, 192, 64, 0, 0);  // Intialise that struct (&struct,buffer,w,h,x,y)
-      mylcd.ActiveBuffer = &MyStruct;
-      mylcd.LCDclearBuffer();   // Clear active buffer
-      
-      mylcd.setDrawBitmapAddr(true); // for Bitmap Data Vertical  addressed
-      mylcd.drawBitmap(0, 0, SignalIconVa, 16, 8, FOREGROUND, BACKGROUND);
-      mylcd.drawBitmap(30, 20, SignalIconVa, 16, 8, BACKGROUND, FOREGROUND);
-
-      mylcd.LCDupdate();
-      while (1) {
-        delay(5000);
-      };
-#endif
-
-      //   test  (6)
-#ifdef test6
-      MultiBuffer MyStruct;
-      mylcd.LCDinitBufferStruct(&MyStruct, fullscreenBuffer, 192, 64, 0, 0);  // Intialise that struct (&struct,buffer,w,h,x,y)
-      mylcd.ActiveBuffer = &MyStruct;
-      mylcd.LCDclearBuffer();   // Clear active buffer
-
-      mylcd.setDrawBitmapAddr(false); // for Bitmap Data Horziontal addressed
-      mylcd.drawBitmap(0, 0, SignalIconHa, 16, 8, FOREGROUND, BACKGROUND);
-      mylcd.drawBitmap(100, 20, SignalIconHa, 16, 8, BACKGROUND, FOREGROUND);
-      
-      mylcd.LCDupdate();
-      while (1) {
-        delay(5000);
-      };
-#endif
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 
 
+// Mobile icon  16x8px Vertical addressed  not in progmem Test 1
+const PROGMEM uint8_t Bat816[16]  =   // 'battery', 16x8px
+{
+  0x00, 0x00, 0x7e, 0x42, 0x81, 0xbd, 0xbd, 0x81, 0xbd, 0xbd, 0x81, 0xbd, 0xbd, 0x81, 0xff, 0x00
+};
 
-    }
-  }
+// Mobile icon  16x8px Vertical addressed  not in progmem Test 3
+const uint8_t SignalIcon[16] = {
+  0x03, 0x05, 0x09, 0xff, 0x09, 0x05, 0xf3, 0x00, 0xf8, 0x00, 0xfc, 0x00, 0xfe, 0x00, 0xff, 0x00
+};
+
+// Mobile icon  16x8px Vertical addressed Test 4a
+const PROGMEM uint8_t SignalIconVa[16] = {
+  0x03, 0x05, 0x09, 0xff, 0x09, 0x05, 0xf3, 0x00, 0xf8, 0x00, 0xfc, 0x00, 0xfe, 0x00, 0xff, 0x00
+};
+
+// Mobile icon  16x8px horizontal addressed test 4b
+const PROGMEM uint8_t SignalIconHa[16] = {
+  0xfe, 0x02, 0x92, 0x0a, 0x54, 0x2a, 0x38, 0xaa, 0x12, 0xaa, 0x12, 0xaa, 0x12, 0xaa, 0x12, 0xaa
+};
+
+// instantiate an LCD object
+ERM19264_UC1609  mylcd(CD, RST, CS); 
+// Instantiate  a screen object, in this case to cover whole screen
+ERM19264_UC1609_Screen fullScreen(fullScreenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0); 
+
+void setup() {
+  mylcd.LCDbegin(LCDCONTRAST);   // initialize the LCD
+  mylcd.LCDFillScreen(0x00, 0);  // Clears screen
+  delay(50);
+}
+
+void loop() {
+    // test (1)
+    mylcd.LCDBitmap(0, 0, 16, 8, Bat816); // does not write to buffer ,direct to screen
+    delay(5000);
+    mylcd.LCDFillScreen(0x00, 0);  // Clears screen
+
+    // test (2)
+    mylcd.ActiveBuffer = &fullScreen; // Set the active buffer pointer to the address of full screen object
+    mylcd.LCDupdate();
+    delay(5000);
+    mylcd.LCDclearBuffer();  // Clear active buffer
+    mylcd.LCDupdate();
+
+    // test (3)
+    mylcd.LCDBuffer(50, 10, 16, 8, (uint8_t*)SignalIcon);
+    mylcd.LCDBuffer(112, 10, 16, 8, (uint8_t*)SignalIcon);
+    delay(5000);
+
+    //test 4A
+    mylcd.LCDclearBuffer();  // Clear active buffer
+    mylcd.setDrawBitmapAddr(true);  // for Bitmap Data Vertical  addressed
+    mylcd.drawBitmap(0, 10, SignalIconVa, 16, 8, FOREGROUND, BACKGROUND);
+    mylcd.drawBitmap(0, 30, SignalIconVa, 16, 8, BACKGROUND, FOREGROUND);
+    mylcd.LCDupdate();
+    delay(5000);
+
+    // test 4B
+    mylcd.LCDclearBuffer();  // Clear active buffer
+    mylcd.setDrawBitmapAddr(false);  // for Bitmap Data Horziontal addressed
+    mylcd.drawBitmap(100, 10, SignalIconHa, 16, 8, FOREGROUND, BACKGROUND);
+    mylcd.drawBitmap(100, 30, SignalIconHa, 16, 8, BACKGROUND, FOREGROUND);
+    mylcd.LCDupdate();
+
+    while (1) {delay(5000);};
+}
