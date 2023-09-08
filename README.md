@@ -36,7 +36,7 @@
 7. Bitmaps supported.
 8. Hardware & software SPI options
 9. Light weight basic text version [here at link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_TEXT). 
-
+10. Software may also work with ERM19264 LCD controlled by ST7525 controller but untested at current time.  
 * Author: Gavin Lyons
 * URL : [Github URL link](https://github.com/gavinlyonsrepo/ERM19264_UC1609)
 
