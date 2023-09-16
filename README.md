@@ -18,8 +18,10 @@
 	* [Fonts](#fonts)
 	* [Bitmaps](#bitmaps)
 	* [User adjustments](#user-adjustments)
-	* [Files tables](#files-tables)
-  * [Tested_MCU](#tested_MCU)
+	* [Example files](#example-files)
+  * [Tested MCU](#tested-mcu)
+  * [Notes and Issues](#notes-and-issues)
+	* [Note 1 LCD not initialising](#note-1-lcd-not-initialising)
 
 ## Overview
 
@@ -165,7 +167,7 @@ here. Defaults where found to be fine during all testing of this library.
 | Power control | 1.4mA + Internal VLCD (7x charge pump) |  PC_SET | PC 2:0 |
 | V bias Bot(contrast) | 0x49h default|  Set by user with LCDbegin | PM 7:0 |
 
-### Example  files 
+### Example files 
 
 | Examples files ino  | Description  | 
 | ------ | ------ | 
@@ -178,7 +180,7 @@ here. Defaults where found to be fine during all testing of this library.
 | SWSPI | Shows use of software SPI | 
 | HELLO | Hello world, basic use case | 
 
-## Tested
+## Tested MCU
 
 Tested on following MCUs both software and hardware SPI,
 The example files are setup for an UNO for the pin connections used 
@@ -189,3 +191,14 @@ by for other MCU testing see extras/doc folder GPIO_MCU_used.txt file.
 3. ESP32 
 4. STM32 "blue pill"
 5. UNO Minima R4
+
+## Notes and Issues
+
+### Note 1 LCD not initialising 
+
+Some users have reported the LCD not initialising correctly with this software.
+It was found that by adjusting the UC1609_ADDRESS_SET setting from 0x02 to 0x01.
+it resolved problem.  This setting is one line 41 of ERM19264_UC1609.h file.
+See [ github issue 4](https://github.com/gavinlyonsrepo/ERM19264_UC1609/issues/4) for details. I suspect the root cause is their are different versions of product on market.
+In a future version I will make this setting so user can adjust it in "LCDbegin" method parameters.
+
