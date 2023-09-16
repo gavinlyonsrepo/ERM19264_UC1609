@@ -198,7 +198,7 @@ by for other MCU testing see extras/doc folder GPIO_MCU_used.txt file.
 
 Some users have reported the LCD not initialising correctly with this software.
 It was found that by adjusting the UC1609_ADDRESS_SET setting from 0x02 to 0x01.
-it resolved problem.  This setting is one line 41 of ERM19264_UC1609.h file.
-See [ github issue 4](https://github.com/gavinlyonsrepo/ERM19264_UC1609/issues/4) for details. I suspect the root cause is their are different versions of product on market.
-In a future version I will make this setting so user can adjust it in "LCDbegin" method parameters.
+it resolved problem.  This setting is on line 41 of ERM19264_UC1609.h file.
+See [ github issue 4](https://github.com/gavinlyonsrepo/ERM19264_UC1609/issues/4) for details. I suspect the root cause is different versions of product on market.
+In a future version I will allow user to adjust this setting in "LCDbegin" method parameters.
 
