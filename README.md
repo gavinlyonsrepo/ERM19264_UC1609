@@ -38,7 +38,7 @@
 7. Bitmaps supported.
 8. Hardware & software SPI options
 9. Light weight basic text version [here at link](https://github.com/gavinlyonsrepo/ERM19264_UC1609_TEXT). 
-
+10. Software may also work with ERM19264 LCD controlled by ST7525 controller but untested at current time.  
 * Author: Gavin Lyons
 * URL : [Github URL link](https://github.com/gavinlyonsrepo/ERM19264_UC1609)
 
@@ -92,7 +92,7 @@ The API (application programming interface) documentation is at link hosted on g
 
 Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is recommended, far faster and more reliable but Software SPI allows for more flexible GPIO selection and easier to port to other MCU' s. When running Software SPI it may be necessary on very high frequency MCU's to change the UC1609_HIGHFREQ_DELAY define, It is a microsecond delay by default it is at 0. All the hardware SPI settings are defined in the header file and can be easily changed if necessary.  It should be able to share SPI bus with other SPI devices on different SPI settings.
 
-### Buffers
+### Buffer
 
 The library features a multi-screen shared buffer mode, In order to save data memory.
 
