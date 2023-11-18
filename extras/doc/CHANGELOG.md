@@ -33,12 +33,15 @@
 	* Changed "UC1609_POWER_CONTROL" from 0x2F to 0x28. This sets it to the excepted datasheet default  , 1.4mA.
 
 * Version 1.6.0 May 2023
-	*  Added Doxygen style comments to create automated API (Application programming interface)
-	* Multi-screenmode :: Replaced  "MultiBuffer" struct with a" ERM19264_UC1609_Screen" class to improve code base  and simplify User interface.
-	Unfortunately this will break backwards compatibly with old sketches written pre 1.6.0. To Fix simply replace a & b with c , see example files for more details.
+	* Added Doxygen style comments to create automated API (Application programming interface) documentation. 
+	* Multi-screenmode :: Replaced  "MultiBuffer" struct with a" ERM19264_UC1609_Screen" class to improve code base and simplify 	User interface. Unfortunately this will break backwards compatibly with old sketches written pre 1.6.0. To Fix simply replace lines 1 & 2 with 3 , see example files for more implementation.
 		1. MultiBuffer myStruct;
 		2. mylcd.LCDinitBufferStruct(&myStruct, screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);
 		with
 		3. ERM19264_UC1609_Screen fullScreen(screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);
 
-	* Removed no buffer mode & single buffer mode. No buffer mode can be done by the basic 	Text only version  (ERM19264_UC1609_TEXT) & Single buffer can be done by Multi-screen mode.  
+	* Removed no buffer mode & single buffer mode. No buffer mode can be done by the basic Text only version  (ERM19264_UC1609_TEXT) & Single buffer can be done by Multi-screen mode when set to single screen.  
+
+* Version 1.7.0 Nov 2023
+	* Minor update, Allowed User to set Ram Address control bits in "begin" method, due to user concerns raised in github issue, 
+	 Address control setting #4.  

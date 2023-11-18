@@ -66,23 +66,30 @@ ERM19264_UC1609::ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs, int8_t sclk, 
 /*!
 	@brief begin Method initialise LCD  Sets pinmodes and SPI setup
 	@param VbiasPOT contrast default = 0x49 , range 0x00 to 0xFE
+	@param AddressSet AC [2:0] registers for RAM addr ctrl. default=2 range 0-7
  */
-void ERM19264_UC1609::LCDbegin (uint8_t VbiasPOT)
+void ERM19264_UC1609::LCDbegin (uint8_t VbiasPOT, uint8_t AddressSet)
 {
 	pinMode(_LCD_CD , OUTPUT);
 	pinMode(_LCD_RST, OUTPUT);
 	pinMode(_LCD_CS, OUTPUT);
 
 	_VbiasPOT  = VbiasPOT;
+	
+	if (AddressSet > 7 ) // Check User input. Address set cannot exceed 7.
+	{
+		AddressSet = UC1609_ADDRESS_SET;
+	}
+	_AddressCtrl = AddressSet;
 
 	if (isHardwareSPI())
 	{
-	 SPI.begin();
+		SPI.begin();
 	}else
 	{
 	 // Set software SPI specific pin outputs.
-	pinMode(_LCD_DIN, OUTPUT);
-	pinMode(_LCD_SCLK, OUTPUT);
+		pinMode(_LCD_DIN, OUTPUT);
+		pinMode(_LCD_SCLK, OUTPUT);
 	}
 
 	LCDinit();
@@ -104,7 +111,7 @@ void ERM19264_UC1609::LCDinit()
 	UC1609_CS_SetLow;
 
 	send_command(UC1609_TEMP_COMP_REG, UC1609_TEMP_COMP_SET);
-	send_command(UC1609_ADDRESS_CONTROL, UC1609_ADDRESS_SET);
+	send_command(UC1609_ADDRESS_CONTROL, _AddressCtrl);
 	send_command(UC1609_FRAMERATE_REG, UC1609_FRAMERATE_SET);
 	send_command(UC1609_BIAS_RATIO, UC1609_BIAS_RATIO_SET);
 	send_command(UC1609_POWER_CONTROL,  UC1609_PC_SET);
@@ -461,5 +468,17 @@ void ERM19264_UC1609::drawPixel(int16_t x, int16_t y, uint8_t colour)
 			case COLORINVERSE: this->ActiveBuffer->screenBuffer[offset] ^= (1 << (y & 7)); break;
 		}
 }
+
+/*!
+	@brief Getter for _VbiasPOT contrast member
+	@return value of_VbiasPOT
+*/
+uint8_t ERM19264_UC1609::LCDGetConstrast(void){return _VbiasPOT;}
+
+/*!
+	@brief Getter for _AddressCtrl Display RAM address control member
+	@return value of _AddressCtrl
+*/
+uint8_t ERM19264_UC1609::LCDGetAddressCtrl(void){return _AddressCtrl;}
 
 // === EOF ===

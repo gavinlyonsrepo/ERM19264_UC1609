@@ -17,7 +17,8 @@
 
 #define MYLCDHEIGHT 64
 #define MYLCDWIDTH  192
-#define VbiasPOT 0x49 // contrast range 0x00 to 0xFF, 0x49 is datasheet default, user adjust.
+#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
@@ -41,7 +42,7 @@ long elapsedTime ;                  // elapsed time for stop watch
 // ************* SETUP ***************
 void setup() {
   delay(50);
-  mylcd.LCDbegin(VbiasPOT); // initialize the LCD
+  mylcd.LCDbegin(LCDCONTRAST, LCDRAMADDRCTRL); // initialize the LCD
   mylcd.LCDFillScreen(0x00, 0); // Clear the screen
   startTime = millis();
 

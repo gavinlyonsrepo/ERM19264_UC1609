@@ -1,6 +1,6 @@
 /*!
   @file ERM19264_UC1609_HELLO.ino
-  @brief Example file for ERM19264_UC1609 library, showing use of hello world
+  @brief Example file for ERM19264_UC1609 library, showing display of hello world on LCD
   @note  URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
   @author Gavin Lyons
   @details
@@ -19,7 +19,8 @@
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
 // LCD setup defines 
-#define LCDCONTRAST 0x49 
+#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
 #define MYLCDHEIGHT 64
 #define MYLCDWIDTH  192
 
@@ -32,7 +33,7 @@ ERM19264_UC1609_Screen fullScreen(screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);
 
 void setup() 
 {
-  mylcd.LCDbegin(LCDCONTRAST); // initialize the OLED
+  mylcd.LCDbegin(LCDCONTRAST,LCDRAMADDRCTRL); // initialize the OLED
   mylcd.LCDFillScreen(0x00, 0); // clear screen 
   mylcd.setTextColor(FOREGROUND); // set text color
   mylcd.setFontNum(UC1609Font_Default); // set font type

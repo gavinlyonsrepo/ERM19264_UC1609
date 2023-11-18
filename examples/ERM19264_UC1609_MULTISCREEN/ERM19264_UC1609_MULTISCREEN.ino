@@ -1,6 +1,6 @@
 /*!
 	@file ERM19264_UC1609_MULTISCREEN.ino
-	@brief Example file for ERM19264_UC1609 library, showing use of mulitple screens(two) sharing one buffers.  
+	@brief Example file for ERM19264_UC1609 library, showing use of mulitple screens(two) sharing one buffer.  
 	@author Gavin Lyons
 	@note
 		-# GPIO is for arduino UNO for other tested MCU see readme.
@@ -14,16 +14,17 @@
 // two shared screens sharing one buffer
 //  ______________________
 // | Left side | Right side|
-// |               |           |
-// |               |           |
-// |_______|______________|
+// |           |           |
+// |          |            |
+// |__________|____________|
 //
 
 #include <ERM19264_UC1609.h>
 
 #define MYLCDHEIGHT 64
 #define MYLCDWIDTH  192
-#define VbiasPOT 0x49 //Constrast 00 to FE , 0x49 is default. USER adjust.
+#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
@@ -35,7 +36,7 @@
 // Define a half screen sized buffer
 uint8_t  halfScreenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))/2]; // 1536/2 = 768 bytes
 
-ERM19264_UC1609  mylcd(CD, RST, CS); // instate object , CD, RST, CS
+ERM19264_UC1609  mylcd(CD, RST, CS); // create LCD object 
 
 // Instantiate  a screen object, in this case to the left side of screen
 // (buffer, width, height, x_offset, y-offset)
@@ -44,7 +45,7 @@ ERM19264_UC1609_Screen leftSideScreen(halfScreenBuffer, MYLCDWIDTH/2, MYLCDHEIGH
 // (buffer, width, height, x_offset, y-offset)
 ERM19264_UC1609_Screen rightSideScreen(halfScreenBuffer, MYLCDWIDTH/2, MYLCDHEIGHT, MYLCDWIDTH/2, 0); 
 
-// varaibles to control test timing. 
+// vars to control test timing. 
 static long previousMillis  = 0;
 uint16_t count  = 0;
 uint16_t seconds  = 0;
@@ -52,7 +53,7 @@ bool colour = false;
 
 // ************* SETUP ***************
 void setup() {
-  mylcd.LCDbegin(VbiasPOT); // initialize the LCD
+  mylcd.LCDbegin(LCDCONTRAST, LCDRAMADDRCTRL); // initialize the LCD
   mylcd.LCDFillScreen(0x00, 0);
 }
 
@@ -107,7 +108,7 @@ void display_Left(long currentFramerate, int count)
   mylcd.print(fps);
 
   mylcd.setCursor(0, 50);
-  mylcd.print("V 1.6.0");
+  mylcd.print("V 1.7.0");
   mylcd.drawFastVLine(92, 0, 63, FOREGROUND);
   mylcd.LCDupdate();
 }

@@ -18,7 +18,8 @@
 
 #define MYLCDHEIGHT 64
 #define MYLCDWIDTH  192
-#define VbiasPOT 0x49 //Constrast 00 to FE , 0x49 is default. USER adjust.
+#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
@@ -45,7 +46,7 @@ ERM19264_UC1609_Screen botRightSideScreen(fourthScreenBuffer, MYLCDWIDTH/2, MYLC
 
 // ************* SETUP ***************
 void setup() {
-  mylcd.LCDbegin(VbiasPOT); // initialize the LCD
+  mylcd.LCDbegin(LCDCONTRAST, LCDRAMADDRCTRL); // initialize the LCD
   mylcd.LCDFillScreen(0x00, 0);
   mylcd.setTextColor(FOREGROUND);
   mylcd.setTextSize(1);

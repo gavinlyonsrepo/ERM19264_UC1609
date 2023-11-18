@@ -136,7 +136,7 @@ class ERM19264_UC1609 : public ERM19264_graphics {
      void LCDclearBuffer(void);
      void LCDBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t* data);
 
-    void LCDbegin(uint8_t VbiasPot = UC1609_DEFAULT_GN_PM );
+    void LCDbegin(uint8_t VbiasPot = UC1609_DEFAULT_GN_PM , uint8_t AddressSet =UC1609_ADDRESS_SET);
     void LCDinit(void);
     void LCDEnable(uint8_t on);
     void LCDFillScreen(uint8_t pixel, uint8_t mircodelay);
@@ -150,6 +150,8 @@ class ERM19264_UC1609 : public ERM19264_graphics {
     void LCDBitmap(int16_t x, int16_t y, uint8_t w, uint8_t h, const uint8_t* data);
     void LCDPowerDown(void);
     
+    uint8_t LCDGetConstrast(void);
+    uint8_t LCDGetAddressCtrl(void);
     ERM19264_UC1609_Screen* ActiveBuffer = nullptr; /**< Active buffer pointer , a pointer to which screen object shared buffer will be written to */
 
   private:
@@ -165,6 +167,7 @@ class ERM19264_UC1609 : public ERM19264_graphics {
     int8_t _LCD_SCLK; /**< GPIO Clock Line Software SPI only*/
     int8_t _LCD_DIN;  /**< GPIO MOSI Line Software SPI only*/
     uint8_t _VbiasPOT; /**< Contrast default 0x49 datasheet 00-FE */
+    uint8_t _AddressCtrl; /**< Set AC [2:0] Program registers  for RAM address control. 0x00 to 0x07*/
     
     
 };

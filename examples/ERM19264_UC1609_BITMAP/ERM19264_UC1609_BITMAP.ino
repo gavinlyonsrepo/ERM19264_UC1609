@@ -35,7 +35,8 @@
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
-#define LCDCONTRAST 0x49 
+#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
 #define MYLCDHEIGHT 64
 #define MYLCDWIDTH  192
 
@@ -164,11 +165,12 @@ const PROGMEM uint8_t SignalIconHa[16] = {
 
 // instantiate an LCD object
 ERM19264_UC1609  mylcd(CD, RST, CS); 
+
 // Instantiate  a screen object, in this case to cover whole screen
 ERM19264_UC1609_Screen fullScreen(fullScreenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0); 
 
 void setup() {
-  mylcd.LCDbegin(LCDCONTRAST);   // initialize the LCD
+  mylcd.LCDbegin(LCDCONTRAST, LCDRAMADDRCTRL);   // initialize the LCD
   mylcd.LCDFillScreen(0x00, 0);  // Clears screen
   delay(50);
 }
@@ -206,5 +208,5 @@ void loop() {
     mylcd.drawBitmap(100, 30, SignalIconHa, 16, 8, BACKGROUND, FOREGROUND);
     mylcd.LCDupdate();
 
-    while (1) {delay(5000);};
+    while (1) {delay(5000);}; // wait here forever. 
 }

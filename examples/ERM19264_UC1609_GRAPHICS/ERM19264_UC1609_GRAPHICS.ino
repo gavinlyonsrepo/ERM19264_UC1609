@@ -1,6 +1,6 @@
 /*!
   @file ERM19264_UC1609_GRAPHICS.ino
-  @brief Example file for ERM19264_UC1609 library, showing use of graphic functions from included graphics library.
+  @brief Example file for ERM19264_UC1609 library, showing use of graphic functions from included graphics class.
   @note  URL: https://github.com/gavinlyonsrepo/ERM19264_UC1609
   @author Gavin Lyons
   @details
@@ -13,7 +13,8 @@
 #include <ERM19264_UC1609.h> // Include the library
 
 // LCD Setup
-#define VbiasPOT 0x49 // Contrast 0x00 to 0xFF , 49h default , User adjust
+#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
 #define MYLCDHEIGHT 64
 #define MYLCDWIDTH  192
 // define a buffer to cover whole screen 
@@ -34,8 +35,8 @@ ERM19264_UC1609_Screen fullScreen(screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);
 // ************* SETUP ***************
 void setup()
 {
-  mylcd.LCDbegin(VbiasPOT); // initialize the LCD
-  mylcd.LCDFillScreen(0xE5, 0); // Fill the screen with a a pattern , "just for splashscreen effect"
+  mylcd.LCDbegin(LCDCONTRAST, LCDRAMADDRCTRL); // initialize the LCD
+  mylcd.LCDFillScreen(0xE5, 0); // Fill the screen with a  pattern , just for splashscreen effect.
   delay(1500);
   mylcd.LCDFillScreen(0x00, 0); // Clear the screen
   mylcd.ActiveBuffer =  &fullScreen;   // Assign address of screen object to be the "active buffer" pointer 

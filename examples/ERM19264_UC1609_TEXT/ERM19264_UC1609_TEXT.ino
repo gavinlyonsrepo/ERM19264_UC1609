@@ -5,7 +5,7 @@
   @details
     -# GPIO is for arduino UNO for other tested MCU see readme.
     -# This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino example.
-    -# Test 6 In order to use extended ASCII font > (127 '}')  #define UC_FONT_MOD_TWO in the file <ERM19264_UC1609_graphics_font>
+    -# Test 6 In order to use extended ASCII font > 127   #define UC_FONT_MOD_TWO in the file <ERM19264_UC1609_graphics_font>
       must be commented in. It is by default.
      -# In order for tests 9-15 to work fully: the respective font
       must be enabled, see USER FONT OPTION ONE in file <ERM19264_graphics_font.h>.
@@ -41,7 +41,8 @@
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
-#define LCDCONTRAST 0x49 
+#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
 #define MYLCDHEIGHT 64
 #define MYLCDWIDTH  192
 // define a buffer to cover whole screen   1536 bytes
@@ -59,7 +60,7 @@ ERM19264_UC1609_Screen fullScreen(screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);
 // ************* SETUP ***************
 void setup()
 {
-  mylcd.LCDbegin(LCDCONTRAST); // initialize the LCD
+  mylcd.LCDbegin(LCDCONTRAST, LCDRAMADDRCTRL); // initialize the LCD
   mylcd.LCDFillScreen(0x00, 0); // Clear the screen
   mylcd.ActiveBuffer = &fullScreen; // Set the active buffer pointer to the address of full screen object
 }
