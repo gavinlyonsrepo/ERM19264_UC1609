@@ -88,24 +88,18 @@ The API (application programming interface) documentation is at link hosted on g
 
 ### SPI
 
-Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files. Hardware SPI is recommended, far faster and more reliable but Software SPI allows for more flexible GPIO selection and easier to port to other MCU' s. When running Software SPI it may be necessary on very high frequency MCU's to change the SW SPI GPIO delay(LCDHighFreqDelaySet)  It is a microsecond delay by default it is at 0. All the hardware SPI settings are defined in the header file and can be easily changed if necessary.  It should be able to share SPI bus with other SPI devices on different SPI settings.
+Hardware and software SPI. Two different class constructors. User can pick the relevant constructor, see examples files.  When running Software SPI it may be necessary on very high frequency MCU's to change the SW SPI GPIO delay(LCDHighFreqDelaySet)  It is a microsecond delay by default it is at 0. All the hardware SPI settings are defined in the header file and can be easily changed if necessary.  It should be able to share SPI bus with other SPI devices on different SPI settings.
 
 ### Buffer
 
 The library features a multi-screen shared buffer mode, In order to save data memory for devices with 
-low data memory. 
-
-For example if user defines a buffer to cover the whole screen it takes 1536  bytes of data memory. Instead a user (for example) can create a buffer that covers half the screen for just 768  bytes then define two screens objects each pointing to the same buffer.
-The user uses the ERM19264_UC1609_Screen Class objects to define each screen
-and the ActiveBuffer pointer to switch the buffer between each screen. Multiple screens of same size can be created so LCD screen can be divided into thirds or quarters saving even more memory. The disadvantage of this is the UI/code is slightly more complicated and user can only write to one screen at a time. 
-
-If user does not want to use multi screen mode they can simply just define ONE screen to cover entire LCD screen. See example files and API for more detail.
+low data memory. For example if user defines a buffer to cover the whole screen it takes 1536 bytes of data memory. Instead a user (for example) can create a buffer that covers half the screen for just 768 bytes then define two screens objects each pointing to the same buffer.
+The user uses the 'ERM19264_UC1609_Screen' Class objects to define each screen
+and the 'ActiveBuffer' pointer to switch the buffer between each screen. Multiple screens of same size can be created so LCD screen can be divided into thirds or quarters saving even more memory. The disadvantage of this is the code is slightly more complicated and user can only write to one screen at a time. If user does not want to use multi screen mode they can simply just define ONE screen to cover entire LCD screen. See example files and API for more detail.
 
 Figure :: The class structure with three screen object's and active buffer presently pointing to number one. 
 
 ![ ERM19264 class image ](https://github.com/gavinlyonsrepo/ERM19264_UC1609/blob/main/extras/image/screenmode.png)
-
-### Fonts
 
 ### Fonts
 
