@@ -1,8 +1,8 @@
 /*!
-	@file ERM19264_UC1609.h
-	@brief ERM19264 LCD driven by UC1609C controller, header file.
-	@author Gavin Lyons.
-	@details Project Name: ERM19264_UC1609 <https://github.com/gavinlyonsrepo/ERM19264_UC1609>
+    @file ERM19264_UC1609.h
+    @brief ERM19264 LCD driven by UC1609C controller, header file.
+    @author Gavin Lyons.
+    @details Project Name: ERM19264_UC1609 <https://github.com/gavinlyonsrepo/ERM19264_UC1609>
 */
 
 #ifndef ERM19264_UC1609_H
@@ -18,14 +18,14 @@
 #include <SPI.h>
 
 /*!
-	@brief Display Pixel colours  definition
-	@details
-		(1): white on blue,  FG = white, BG = blue
-		ERM19264SBS-4 LCD Display White on Blue
-		(2): black on white, FG = black, BG = white
-		ERM19264FS-4 LCD Display Black on White
-		(3):white on black,  FG = white, BG = black
-		ERM19264DNS-4LCD Display White on Black
+    @brief Display Pixel colours  definition
+    @details
+        (1): white on blue,  FG = white, BG = blue
+        ERM19264SBS-4 LCD Display White on Blue
+        (2): black on white, FG = black, BG = white
+        ERM19264FS-4 LCD Display Black on White
+        (3):white on black,  FG = white, BG = black
+        ERM19264DNS-4LCD Display White on Black
 */
 #define FOREGROUND  0  /**< See Display Pixel colours  definition */
 #define BACKGROUND 1    /**< See Display Pixel colours  definition */
@@ -63,10 +63,10 @@
 #define UC1609_SCROLL 0x40 /**< scrolls , Set the scroll line number. 0-64 */
 
 // Rotate
-#define UC1609_ROTATION_FLIP_TWO 0x06
-#define UC1609_ROTATION_NORMAL 0x04
-#define UC1609_ROTATION_FLIP_ONE 0x02
-#define UC1609_ROTATION_FLIP_THREE 0x00
+#define UC1609_ROTATION_FLIP_TWO 0x06/**< mirror image Rotation LCD command*/
+#define UC1609_ROTATION_NORMAL 0x04  /**< Normal Rotation LCD command*/
+#define UC1609_ROTATION_FLIP_ONE 0x02  /**< 180 degree  Rotation LCD command*/
+#define UC1609_ROTATION_FLIP_THREE 0x00 /**< mirror image Rotation LCD command*/
 
 // Delays
 #define UC1609_RESET_DELAY 3 /**<  ms Rest Delay ,datasheet >3uS */
@@ -96,38 +96,34 @@
 //There is a pre-defined macro SPI_HAS_TRANSACTION in SPI library for checking 
  //whether the firmware of the Arduino board supports SPI.beginTransaction().
 #ifdef SPI_HAS_TRANSACTION
-	#define UC_SPI_TRANSACTION_START SPI.beginTransaction(SPISettings(UC_SPI_FREQ, UC_SPI_DIRECTION, UC_SPI_UC1609_MODE)); 
-	#define UC_SPI_TRANSACTION_END SPI.endTransaction();                
+    #define UC_SPI_TRANSACTION_START SPI.beginTransaction(SPISettings(UC_SPI_FREQ, UC_SPI_DIRECTION, UC_SPI_UC1609_MODE)); 
+    #define UC_SPI_TRANSACTION_END SPI.endTransaction();                
 #else // SPI transactions likewise not present in MCU or lib
-	#define UC_SPI_TRANSACTION_START SPI.setClockDivider(UC_SPI_CLOCK_DIV); // 72/8 = 9Mhz
-	#define UC_SPI_TRANSACTION_END  // Blank
+    #define UC_SPI_TRANSACTION_START SPI.setClockDivider(UC_SPI_CLOCK_DIV); // 72/8 = 9Mhz
+    #define UC_SPI_TRANSACTION_END  // Blank
 #endif
 
-// Display  Size
-const uint8_t UC1609_WIDTH = 192; /**< Width of screen in pixels */
-const uint8_t UC1609_HEIGHT = 64;  /**< Height of screen in pixels */
-
-/*! @brief class to hold screen data to define buffer , multiple screens can be made for the shared buffer. Buffer must be same size and offsets to if saving Data memory is goal 
+/*! @brief class to hold screen data , multiple screens can be made for the shared buffer. Buffer must be same size and offsets to if saving Data memory is goal 
   */
 class  ERM19264_UC1609_Screen
 {
-	public :
-		ERM19264_UC1609_Screen(uint8_t* mybuffer, uint8_t w,  uint8_t h, int16_t  x, int16_t y) ;
-		~ERM19264_UC1609_Screen(){};
-		
-		uint8_t* screenBuffer; /**<  pointer to shared buffer screen data */
-		uint8_t width;   /**< buffer x size in pixels  */
-		uint8_t height; /**< buffer y size in pixels */
-		int16_t xoffset; /**< x offset in pixels */
-		int16_t yoffset; /**< y offset in pixels */
-	private:
+    public :
+        ERM19264_UC1609_Screen(uint8_t* mybuffer, uint8_t w,  uint8_t h, int16_t  x, int16_t y) ;
+        ~ERM19264_UC1609_Screen(){};
+        
+        uint8_t* screenBuffer; /**<  pointer to shared buffer screen data */
+        uint8_t width;   /**< buffer x size in pixels  */
+        uint8_t height; /**< buffer y size in pixels */
+        int16_t xoffset; /**< x offset in pixels */
+        int16_t yoffset; /**< y offset in pixels */
+    private:
 };
 
 /*! @brief class to drive the ERM19264_UC1609 LCD */
 class ERM19264_UC1609 : public ERM19264_graphics {
   public:
-    ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs, int8_t sclk, int8_t din);
-    ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs);
+    ERM19264_UC1609(int16_t lcdwidth , int16_t lcdheight, int8_t cd, int8_t rst, int8_t cs, int8_t sclk, int8_t din);
+    ERM19264_UC1609(int16_t lcdwidth , int16_t lcdheight, int8_t cd, int8_t rst, int8_t cs);
 
     ~ERM19264_UC1609(){};
 
@@ -143,17 +139,20 @@ class ERM19264_UC1609 : public ERM19264_graphics {
     void LCDFillPage(uint8_t pixels);
     void  LCDGotoXY(uint8_t column , uint8_t page);
     void LCDrotate(uint8_t rotatevalue);
-    void invertDisplay(uint8_t on);
+    void LCDInvertDisplay(uint8_t on);
     void LCDallpixelsOn(uint8_t bits);
     void LCDscroll(uint8_t bits);
     void LCDReset(void);
-    void LCDBitmap(int16_t x, int16_t y, uint8_t w, uint8_t h, const uint8_t* data);
+    LCD_Return_Codes_e LCDBitmap(int16_t x, int16_t y, uint8_t w, uint8_t h, const uint8_t* data);
     void LCDPowerDown(void);
     
+    uint16_t LCDLibVerNumGet(void);
+    uint16_t LCDHighFreqDelayGet(void);
+    void LCDHighFreqDelaySet(uint16_t);
     uint8_t LCDGetConstrast(void);
     uint8_t LCDGetAddressCtrl(void);
     ERM19264_UC1609_Screen* ActiveBuffer = nullptr; /**< Active buffer pointer , a pointer to which screen object shared buffer will be written to */
-
+ 
   private:
 
     void send_data(uint8_t data); 
@@ -161,15 +160,20 @@ class ERM19264_UC1609 : public ERM19264_graphics {
     bool isHardwareSPI(void);
     void CustomshiftOut(uint8_t bitOrder, uint8_t val);
 
-    int8_t _LCD_CS;    /**< GPIO Chip select  line */
-    int8_t _LCD_CD;   /**< GPIO Data or command line */
-    int8_t _LCD_RST;  /**< GPIO Reset line */
-    int8_t _LCD_SCLK; /**< GPIO Clock Line Software SPI only*/
-    int8_t _LCD_DIN;  /**< GPIO MOSI Line Software SPI only*/
-    uint8_t _VbiasPOT; /**< Contrast default 0x49 datasheet 00-FE */
-    uint8_t _AddressCtrl; /**< Set AC [2:0] Program registers  for RAM address control. 0x00 to 0x07*/
+	int8_t _LCD_CS;    /**< GPIO Chip select  line */
+	int8_t _LCD_CD;   /**< GPIO Data or command line */
+	int8_t _LCD_RST;  /**< GPIO Reset line */
+	int8_t _LCD_SCLK; /**< GPIO Clock Line Software SPI only*/
+	int8_t _LCD_DIN;  /**< GPIO MOSI Line Software SPI only*/
     
-    
+    uint8_t _VbiasPOT= 0x49; /**< Contrast default 0x49 datasheet 00-FE */
+    uint8_t _AddressCtrl= 0x02; /**< Set AC [2:0] Program registers  for RAM address control. 0x00 to 0x07*/
+    uint16_t _HighFreqDelay = UC1609_HIGHFREQ_DELAY; /**< uS GPIO Communications delay, SW SPI ONLY */
+     const uint16_t _LibVersionNum = 180; /**< Library version number 180 = 1.8.0*/
+     
+     uint8_t _widthScreen = 192; /**< Width of screen in pixels */
+     uint8_t _heightScreen = 64;  /**< Height of screen in pixels */
+   
 };
 
 #endif

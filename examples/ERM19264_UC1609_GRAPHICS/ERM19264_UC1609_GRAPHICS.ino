@@ -7,19 +7,12 @@
     -# (1) GPIO is for arduino UNO for other tested MCU see readme.
     -# (2) This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino example.
    @test
-		-# Test graphics 
+		-# Test graphics 201
 */
 
 #include <ERM19264_UC1609.h> // Include the library
 
-// LCD Setup
-#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
-#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
-#define MYLCDHEIGHT 64
-#define MYLCDWIDTH  192
-// define a buffer to cover whole screen 
-uint8_t  screenBuffer[MYLCDWIDTH * (MYLCDHEIGHT/8)]; // 1536 bytes
-
+// LCD setup 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
 #define RST 9 // GPIO pin number pick any you want
@@ -27,10 +20,19 @@ uint8_t  screenBuffer[MYLCDWIDTH * (MYLCDHEIGHT/8)]; // 1536 bytes
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
+#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
+#define FULLSCREEN (MYLCDWIDTH * (MYLCDHEIGHT/8)) // 1536 bytes
+
+// define a buffer to cover whole screen 
+uint8_t  screenBuffer[FULLSCREEN]; 
 // instantiate an LCD object
-ERM19264_UC1609  mylcd(CD, RST, CS);
+ERM19264_UC1609  mylcd(MYLCDWIDTH , MYLCDHEIGHT , CD, RST, CS); 
 // Instantiate  a screen object, in this case to cover whole screen
 ERM19264_UC1609_Screen fullScreen(screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0); 
+
 
 // ************* SETUP ***************
 void setup()
@@ -48,6 +50,8 @@ void setup()
 void loop()
 {
   DisplayGraphics(); 
+  mylcd.LCDPowerDown();
+  while(1){delay(100);}; //wait here forever
 }
 // *********** END OF MAIN ***********
 
@@ -58,10 +62,19 @@ void  DisplayGraphics()
   //-----
   //Q3 | Q4
   bool colour = 1;
-  while (1)
+  uint8_t count = 0;
+  mylcd.setFontNum(UC1609Font_Default);
+  mylcd.setTextColor(FOREGROUND, BACKGROUND);
+  mylcd.setTextSize(1);
+  
+  
+  while (count < 50)
   {
     colour = !colour;
-
+    count++;
+    //print count 
+    mylcd.setCursor(0, 0);
+    mylcd.print(count);
     // Draw the X
     mylcd.drawLine(96,  0, 96, 64, FOREGROUND);
     mylcd.drawFastVLine(94, 0, 64, FOREGROUND);

@@ -28,22 +28,29 @@ ERM19264_UC1609_Screen::ERM19264_UC1609_Screen(uint8_t* mybuffer, uint8_t w,  ui
 
 /*!
 	@brief init the LCD  class object
+	@param lcdwidth width of LCD in pixels
+	@param lcdheight height of LCD in pixels
 	@param cd GPIO data or command
 	@param rst GPIO reset
 	@param cs GPIO Chip select
 	@note Hardware SPI version , sub class of ERM19264_graphics
  */
-ERM19264_UC1609::ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs) :ERM19264_graphics(UC1609_WIDTH, UC1609_HEIGHT)
+ERM19264_UC1609::ERM19264_UC1609(int16_t lcdwidth , int16_t lcdheight ,int8_t cd, int8_t rst, int8_t cs) :ERM19264_graphics(lcdwidth, lcdheight)
 {
 	_LCD_CD = cd;
 	_LCD_RST= rst;
 	_LCD_CS = cs;
 	_LCD_DIN = -1;   // -1 for din and sclk specify using hardware SPI
 	_LCD_SCLK = -1;
+	
+	_widthScreen = lcdwidth ; 
+	_heightScreen = lcdheight ;
 }
 
 /*!
 	@brief init the LCD  class object
+	@param lcdwidth width of LCD in pixels
+	@param lcdheight height of LCD in pixels
 	@param cd GPIO data or command
 	@param rst GPIO reset
 	@param cs GPIO Chip select
@@ -51,7 +58,7 @@ ERM19264_UC1609::ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs) :ERM19264_gra
 	@param din GPIO MOSI
 	@note Software  SPI version , sub class of ERM19264_graphics
  */
-ERM19264_UC1609::ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs, int8_t sclk, int8_t din) : ERM19264_graphics(UC1609_WIDTH, UC1609_HEIGHT)
+ERM19264_UC1609::ERM19264_UC1609(int16_t lcdwidth , int16_t lcdheight ,int8_t cd, int8_t rst, int8_t cs, int8_t sclk, int8_t din) : ERM19264_graphics(lcdwidth, lcdheight )
 
 {
 	_LCD_CD = cd;
@@ -59,6 +66,9 @@ ERM19264_UC1609::ERM19264_UC1609(int8_t cd, int8_t rst, int8_t cs, int8_t sclk, 
 	_LCD_CS = cs;
 	_LCD_DIN = din;
 	_LCD_SCLK = sclk;
+	
+	_widthScreen = lcdwidth ; 
+	_heightScreen = lcdheight ;
 }
 
 // === Methods ===
@@ -160,6 +170,7 @@ void ERM19264_UC1609::LCDPowerDown(void)
 {
 	LCDReset ();
 	LCDEnable(0);
+	if(isHardwareSPI()) {SPI.end();}
 }
 
 
@@ -219,7 +230,7 @@ void ERM19264_UC1609::LCDrotate(uint8_t rotatevalue)
 	 @brief invert the display
 	 @param bits 1 invert , 0 normal
 */
-void ERM19264_UC1609::invertDisplay (uint8_t bits)
+void ERM19264_UC1609::LCDInvertDisplay (uint8_t bits)
 {
 	if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
 	UC1609_CS_SetLow;
@@ -251,7 +262,7 @@ void ERM19264_UC1609::LCDFillScreen(uint8_t dataPattern=0, uint8_t delay=0)
 {
 	 if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
 	 UC1609_CS_SetLow;
-	uint16_t numofbytes = UC1609_WIDTH * (UC1609_HEIGHT/8); // width * height
+	uint16_t numofbytes = _widthScreen * (_heightScreen/8); // width * height
 	for (uint16_t i = 0; i < numofbytes; i++)
 	{
 			send_data(dataPattern);
@@ -269,7 +280,7 @@ void ERM19264_UC1609::LCDFillPage(uint8_t dataPattern=0)
 {
 	 if (isHardwareSPI()) {UC_SPI_TRANSACTION_START}
 	 UC1609_CS_SetLow;
-	uint16_t numofbytes = ((UC1609_WIDTH * (UC1609_HEIGHT/8))/8); // (width * height/8)/8 = 192 bytes
+	uint16_t numofbytes = ((_widthScreen * (_heightScreen/8))/8); // (width * height/8)/8 = 192 bytes
 	for (uint16_t i = 0; i < numofbytes; i++)
 	{
 		send_data(dataPattern);
@@ -299,9 +310,20 @@ void ERM19264_UC1609::LCDGotoXY(uint8_t column , uint8_t page)
 	 @param w width 0-192
 	 @param h height 0-64
 	 @param data  pointer to the bitmap must be in PROGMEM
+	 @return LCD_Return_Codes_e enum.
 */
-void ERM19264_UC1609::LCDBitmap(int16_t x, int16_t y, uint8_t w, uint8_t h, const uint8_t* data)
+LCD_Return_Codes_e ERM19264_UC1609::LCDBitmap(int16_t x, int16_t y, uint8_t w, uint8_t h, const uint8_t* data)
 {
+// User error checks
+// 1. bitmap is null
+if (data == nullptr){return LCD_BitmapNullptr ;}
+// 2. Start point Completely out of bounds
+if (x > _width || y > _height){return LCD_BitmapScreenBounds;}
+// 3. bitmap weight and height
+if (w > _width || h > _height){return LCD_BitmapLargerThanScreen ;}
+// 4A.check vertical bitmap h must be divisible
+if((h % 8 != 0)){return LCD_BitmapVerticalSize;}
+
 #if defined(ESP8266)
 	// ESP8266 needs a periodic yield() call to avoid watchdog reset.
 	yield();
@@ -316,14 +338,14 @@ void ERM19264_UC1609::LCDBitmap(int16_t x, int16_t y, uint8_t w, uint8_t h, cons
 
 	for (ty = 0; ty < h; ty = ty + 8)
 	{
-		if (y + ty < 0 || y + ty >= UC1609_HEIGHT) {continue;}
+		if (y + ty < 0 || y + ty >= _heightScreen) {continue;}
 		send_command(UC1609_SET_COLADD_LSB, (column & 0x0F));
 		send_command(UC1609_SET_COLADD_MSB, (column & 0xF0) >> 4);
 		send_command(UC1609_SET_PAGEADD, page++);
 
 		for (tx = 0; tx < w; tx++)
 		{
-			if (x + tx < 0 || x + tx >= UC1609_WIDTH) {continue;}
+			if (x + tx < 0 || x + tx >= _widthScreen) {continue;}
 			offset = (w * (ty >> 3)) + tx;
 			send_data(pgm_read_byte(&data[offset]));
 		}
@@ -333,6 +355,7 @@ void ERM19264_UC1609::LCDBitmap(int16_t x, int16_t y, uint8_t w, uint8_t h, cons
 		yield();
 	#endif
 	 if (isHardwareSPI()) {UC_SPI_TRANSACTION_END}
+	 return LCD_Success;
 }
 
 /*!
@@ -347,7 +370,7 @@ bool ERM19264_UC1609::isHardwareSPI() {
 	 @brief used in software SPI mode to shift out data
 	 @param bitOrder LSB or MSB set to MSBFIRST for UC1609C
 	 @param value the byte to go out 
-	 @note if using high freq MCU the delay define can be changed UC1609_HIGHFREQ_DELAY
+	 @details if using high freq MCU the delay define can be changed by LCDHighFreqDelaySet function . Default is at UC1609_HIGHFREQ_DELAY
 */
 void ERM19264_UC1609::CustomshiftOut(uint8_t bitOrder, uint8_t value)
 {
@@ -359,9 +382,9 @@ void ERM19264_UC1609::CustomshiftOut(uint8_t bitOrder, uint8_t value)
 			!!(value & (1 << (7 - i))) ?  UC1609_SDA_SetHigh :  UC1609_SDA_SetLow;
 
 		UC1609_SCLK_SetHigh ;
-		delayMicroseconds(UC1609_HIGHFREQ_DELAY);
+		delayMicroseconds(_HighFreqDelay);
 		UC1609_SCLK_SetLow;
-		delayMicroseconds(UC1609_HIGHFREQ_DELAY);
+		delayMicroseconds(_HighFreqDelay);
 	}
 }
 
@@ -389,7 +412,6 @@ void ERM19264_UC1609::send_data(uint8_t byte)
 void ERM19264_UC1609::LCDupdate()
 {
 	LCDBuffer( this->ActiveBuffer->xoffset, this->ActiveBuffer->yoffset, this->ActiveBuffer->width, this->ActiveBuffer->height, (uint8_t*) this->ActiveBuffer->screenBuffer);
-	return;
 }
 
 /*!
@@ -398,10 +420,7 @@ void ERM19264_UC1609::LCDupdate()
 */
 void ERM19264_UC1609::LCDclearBuffer()
 {
-
 	 memset( this->ActiveBuffer->screenBuffer, 0x00, (this->ActiveBuffer->width * (this->ActiveBuffer->height/ 8))  );
-	 return;
-
 }
 
 /*!
@@ -428,7 +447,7 @@ void ERM19264_UC1609::LCDBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, uint
 
 	for (ty = 0; ty < h; ty = ty + 8)
 	{
-	if (y + ty < 0 || y + ty >= UC1609_HEIGHT) {continue;}
+	if (y + ty < 0 || y + ty >= _heightScreen) {continue;}
 
 	send_command(UC1609_SET_COLADD_LSB, (column & 0x0F));
 	send_command(UC1609_SET_COLADD_MSB, (column & 0XF0) >> 4);
@@ -436,7 +455,7 @@ void ERM19264_UC1609::LCDBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, uint
 
 	for (tx = 0; tx < w; tx++)
 	{
-			if (x + tx < 0 || x + tx >= UC1609_WIDTH) {continue;}
+			if (x + tx < 0 || x + tx >= _widthScreen) {continue;}
 			offset = (w * (ty /8)) + tx;
 			send_data(data[offset++]);
 	}
@@ -457,16 +476,39 @@ UC1609_CS_SetHigh;
 */
 void ERM19264_UC1609::drawPixel(int16_t x, int16_t y, uint8_t colour)
 {
+	// Check Boundary.
 	if ((x < 0) || (x >= this->ActiveBuffer->width) || (y < 0) || (y >= this->ActiveBuffer->height)) {
-	return;
+	return ;
 	}
-		uint16_t offset = (this->ActiveBuffer->width * (y/8)) + x;
-		switch (colour)
-		{
-			case FOREGROUND: this->ActiveBuffer->screenBuffer[offset] |= (1 << (y & 7)); break;
-			case BACKGROUND: this->ActiveBuffer->screenBuffer[offset] &= ~(1 << (y & 7)); break;
-			case COLORINVERSE: this->ActiveBuffer->screenBuffer[offset] ^= (1 << (y & 7)); break;
-		}
+	
+	// Check rotation 
+	int16_t temp;
+	uint8_t RotateMode = getRotation();
+	switch (RotateMode) {
+	case 1:
+		temp = x;
+		x = WIDTH - 1 - y;
+		y = temp;
+	break;
+	case 2:
+		x = WIDTH - 1 - x;
+		y = HEIGHT - 1 - y;
+	break;
+	case 3:
+		temp = x;
+		x = y;
+		y = HEIGHT - 1 - temp;
+	break;
+	}
+	
+	// Draw the pixel
+	uint16_t offset = (this->ActiveBuffer->width * (y/8)) + x;
+	switch (colour)
+	{
+		case FOREGROUND: this->ActiveBuffer->screenBuffer[offset] |= (1 << (y & 7)); break;
+		case BACKGROUND: this->ActiveBuffer->screenBuffer[offset] &= ~(1 << (y & 7)); break;
+		case COLORINVERSE: this->ActiveBuffer->screenBuffer[offset] ^= (1 << (y & 7)); break;
+	}
 }
 
 /*!
@@ -480,5 +522,25 @@ uint8_t ERM19264_UC1609::LCDGetConstrast(void){return _VbiasPOT;}
 	@return value of _AddressCtrl
 */
 uint8_t ERM19264_UC1609::LCDGetAddressCtrl(void){return _AddressCtrl;}
+
+
+/*!
+	@brief Library version number getter
+	@return The lib version number eg 180 = 1.8.0
+*/
+uint16_t ERM19264_UC1609::LCDLibVerNumGet(void) {return _LibVersionNum;}
+
+/*!
+	@brief Freq delay used in SW SPI getter, uS delay used in SW SPI method
+	@return The  GPIO communications delay in uS
+*/
+uint16_t ERM19264_UC1609::LCDHighFreqDelayGet(void){return _HighFreqDelay;}
+
+/*!
+	@brief Freq delay used in SW SPI setter, uS delay used in SW SPI method
+	@param CommDelay The GPIO communications delay in uS
+*/
+void  ERM19264_UC1609::LCDHighFreqDelaySet(uint16_t CommDelay){_HighFreqDelay = CommDelay;}
+
 
 // === EOF ===

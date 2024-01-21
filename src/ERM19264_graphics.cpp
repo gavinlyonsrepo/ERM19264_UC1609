@@ -28,11 +28,13 @@ ERM19264_graphics::ERM19264_graphics(int16_t w, int16_t h):
 {
 	_width    = WIDTH;
 	_height   = HEIGHT;
-	cursor_y  = cursor_x    = 0;
-	textsize  = 1;
-	textcolor = textbgcolor = 0xFF;
-	wrap      = true;
-	drawBitmapAddr=true;
+	_cursorY  = 0;
+	_cursorX  = 0;
+	_textSize = 1;
+	_textColor =     0x00;
+	_textBgColor = 0x01;
+	_textWrap      = true;
+	drawBitmapAddr = true;
 }
 
 /*!
@@ -411,20 +413,35 @@ void ERM19264_graphics::fillTriangle ( int16_t x0, int16_t y0,
 	@param h height of the bitmap 
 	@param color foreground colour 
 	@param bg background colour.
+	@return LCD_Return_Codes_e enum.
 	@note Variable drawBitmapAddr controls data addressing
 		-# drawBitmapAddr  = true Vertical  data addressing
 		-# drawBitmapAddr  = false Horizontal data addressing
+		-# A vertical  Bitmap's h must be divisible by 8.for a  bitmap with h=128 & h=64.
+		-# Bitmap excepted size = 128 * (64/8) = 1024 bytes.
+		-# A horizontal Bitmap's w must be divisible by 8. For a bitmap with w=88 & h=48.
+		-# Bitmap excepted size = (88/8) * 48 = 528 bytes.
 */
-void ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
+LCD_Return_Codes_e ERM19264_graphics::drawBitmap(int16_t x, int16_t y,
 						const uint8_t *bitmap, int16_t w, int16_t h,
 						uint8_t color, uint8_t bg) {
 							
+// User error checks
+// 1. bitmap is null
+if (bitmap == nullptr){return LCD_BitmapNullptr ;}
+// 2. Completely out of bounds
+if (x > _width || y > _height){return LCD_BitmapScreenBounds;}
+// 3. bitmap weight and height
+if (w > _width || h > _height){return LCD_BitmapLargerThanScreen ;}
+
 if (drawBitmapAddr== true)
 {
-// Vertical byte bitmaps mode 
+	// 4A.check vertical bitmap  h must be divisible
+	if((h % 8 != 0)){return LCD_BitmapVerticalSize;}
+	// Vertical byte bitmaps mode 
 	uint8_t vline;
 	int16_t i, j, r = 0, yin = y;
-	
+
 	for (i=0; i<(w+1); i++ ) {
 		if (r == (h+7)/8 * w) break;
 		vline = pgm_read_byte(bitmap + r );
@@ -446,7 +463,9 @@ if (drawBitmapAddr== true)
 		}
 	}
 } else if (drawBitmapAddr == false) {
-// Horizontal byte bitmaps mode 
+	// 4B.check Horizontal w must be divisible by 8. 
+	if((w % 8 != 0)){return LCD_BitmapHorizontalSize;}
+	// Horizontal byte bitmaps mode 
 	int16_t byteWidth = (w + 7) / 8;
 	uint8_t byte = 0;
 	for (int16_t j = 0; j < h; j++, y++) 
@@ -462,6 +481,7 @@ if (drawBitmapAddr== true)
 	}
 
 } // end of elseif
+return LCD_Success;
 }
 
 /*!
@@ -473,65 +493,48 @@ size_t ERM19264_graphics::write(uint8_t character) {
 #else
 void ERM19264_graphics::write(uint8_t character) {
 #endif
-
-if (_FontNumber < UC1609Font_Bignum )
+	int DrawCharReturnCode;
+	if (_FontNumber < UC1609Font_Bignum)
 	{
-		if (character == '\n') 
+		switch (character)
 		{
-			cursor_y += textsize*_CurrentFontheight;
-			cursor_x  = 0;
-		} else if (character == '\r') 
-		{
-			// Skip 
-		} else 
-		{
-			drawChar(cursor_x, cursor_y, character, textcolor, textbgcolor, textsize);
-			cursor_x += textsize*(_CurrentFontWidth+1);
-			if (wrap && (cursor_x > (_width - textsize*(_CurrentFontWidth+1)))) 
+		case '\n':
+			_cursorY += _textSize*_CurrentFontheight;
+			_cursorX  = 0;
+		break;
+		case'\r':/* skip */ break;
+		default:
+			DrawCharReturnCode = drawChar(_cursorX, _cursorY, character, _textColor, _textBgColor, _textSize) ;
+			if (DrawCharReturnCode  != LCD_Success){return DrawCharReturnCode ;}
+			_cursorX += _textSize*(_CurrentFontWidth+1);
+			if (_textWrap && (_cursorX > (_width - _textSize*(_CurrentFontWidth+1))))
 			{
-				cursor_y += textsize*_CurrentFontheight;
-				cursor_x = 0;
+					_cursorY += _textSize*_CurrentFontheight;
+					_cursorX = 0;
 			}
+		break;
 		}
-		
-	}else if (_FontNumber == UC1609Font_Bignum  || _FontNumber ==  UC1609Font_Mednum )
+	}else // for font numbers 7-12
 	{
-		uint8_t decPointRadius = 3;
-		uint8_t SkipSpace = 0;
-		if (_FontNumber == UC1609Font_Mednum) decPointRadius = 2;
+		switch (character)
 		{
-			switch (character)
-			{
-				case '\n': 
-					cursor_y += _CurrentFontheight;
-					cursor_x  = 0;
-				break;
-				case '\r': break;
-				case '.':  // draw a circle for decimal & point skip a space.
-					fillCircle(cursor_x+(_CurrentFontWidth/2), cursor_y + (_CurrentFontheight-6), decPointRadius, textcolor);
-					SkipSpace = 1;
-				 break;
-				case '-':  // draw a rect for negative number line and skip a space
-					fillRect(cursor_x+2, cursor_y + (_CurrentFontheight/2)-2 ,_CurrentFontWidth-4 , decPointRadius+1,  textcolor);              
-					SkipSpace = 1;
-				break;
-				default:
-					drawCharNumFont(cursor_x, cursor_y, character, textcolor, textbgcolor);
-					SkipSpace = 1;
-				break;
-			} // end of switch
-			if (SkipSpace == 1)
-			{
-				cursor_x += (_CurrentFontWidth+1);
-				if (wrap && (cursor_x  > (_width - (_CurrentFontWidth+1)))) 
+			case '\n':
+				_cursorY += _CurrentFontheight;
+				_cursorX  = 0;
+			break;
+			case '\r': /* skip */  break;
+			default:
+				DrawCharReturnCode = drawChar(_cursorX, _cursorY, character, _textColor, _textBgColor) ;
+				if (DrawCharReturnCode  != LCD_Success) {return DrawCharReturnCode ;}
+				_cursorX += (_CurrentFontWidth);
+				if (_textWrap && (_cursorX  > (_width - (_CurrentFontWidth+1))))
 				{
-					cursor_y += _CurrentFontheight;
-					cursor_x = 0;
+					_cursorY += _CurrentFontheight;
+					_cursorX = 0;
 				}
-			}
-        }
-
-	}
+			break;
+		} // end of switch
+	} // end of else
 
 #if ARDUINO >= 100
 	return 1;
@@ -542,70 +545,80 @@ if (_FontNumber < UC1609Font_Bignum )
 	@brief  writes a char (c) on the LCD
 	@param  x X coordinate
 	@param  y Y coordinate
-	@param  c The ASCII character
+	@param  character The ASCII character
 	@param color  color
 	@param bg background color
 	@param size 1-x
+	@return LCD_Return_Codes_e enum.
 	@note for font #1-6 only
 */
-void ERM19264_graphics::drawChar(int16_t x, int16_t y, unsigned char c,
+LCD_Return_Codes_e ERM19264_graphics::drawChar(int16_t x, int16_t y, unsigned char character,
 								uint8_t color, uint8_t bg, uint8_t size) {
 
+	// 1. Check for wrong font
+	if (_FontNumber >= UC1609Font_Bignum){return LCD_WrongFont;}
+	// 2. Check for screen out of  bounds
 	if((x >= _width)            || // Clip right
-		 (y >= _height)           || // Clip bottom
-		 ((x + (_CurrentFontWidth+1) * size - 1) < 0) || // Clip left
-		 ((y + _CurrentFontheight * size - 1) < 0))   // Clip top
-		return;
+	(y >= _height)           || // Clip bottom
+	((x + (_CurrentFontWidth+1) * size - 1) < 0) || // Clip left
+	((y + _CurrentFontheight  * size - 1) < 0))   // Clip top
+	{
+		return LCD_CharScreenBounds;
+	}
+	// 3. Check for character out of font range bounds
+	if ( character < _CurrentFontoffset || character >= (_CurrentFontLength+ _CurrentFontoffset))
+	{return LCD_CharFontASCIIRange;}
 
-	for (int8_t i=0; i<(_CurrentFontWidth+1); i++ ) {
-		uint8_t line;
-		if (i == _CurrentFontWidth)
-		{ 
-			line = 0x0;
-		}
-		else 
-		{
-			 switch (_FontNumber) {
+  for (int8_t i=0; i<(_CurrentFontWidth+1); i++ ) {
+    uint8_t line;
+    if (i == _CurrentFontWidth)
+    { 
+      line = 0x0;
+    }
+    else 
+    {
+           	switch (_FontNumber) {
 #ifdef UC1609_Font_One
-				case UC1609Font_Default: line = pgm_read_byte(pFontDefaultptr + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
+				case UC1609Font_Default : line = pFontDefaultptr[((character - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
 #endif 
 #ifdef UC1609_Font_Two
-				case UC1609Font_Thick: line = pgm_read_byte(pFontThickptr + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
+				case UC1609Font_Thick : line = pFontThickptr[((character  - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
 #endif
 #ifdef UC1609_Font_Three
-				case UC1609Font_Seven_Seg: line = pgm_read_byte(pFontSevenSegptr+ ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
+				case UC1609Font_Seven_Seg : line = pFontSevenSegptr[((character  - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
 #endif
 #ifdef UC1609_Font_Four
-				case UC1609Font_Wide: line = pgm_read_byte(pFontWideptr  + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
+				case UC1609Font_Wide: line = pFontWideptr[((character  - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
 #endif
 #ifdef UC1609_Font_Five
-				case UC1609Font_Tiny: line = pgm_read_byte(pFontTinyptr + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
+				case UC1609Font_Tiny : line = pFontTinyptr[((character  - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
 #endif
 #ifdef UC1609_Font_Six
-				case UC1609Font_Homespun: line = pgm_read_byte(pFontHomeSpunptr + ((c - _CurrentFontoffset) * _CurrentFontWidth) + i);; break;
+				case UC1609Font_Homespun: line = pFontHomeSpunptr[((character  - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
 #endif
 				default: // wrong font number
-						return;
+					return LCD_WrongFont;
 				break;
 				}
-		}
-		for (int8_t j = 0; j<_CurrentFontheight; j++) {
-			if (line & 0x1) {
-				if (size == 1) // default size
-					drawPixel(x+i, y+j, color);
-				else {  // big size
-					fillRect(x+(i*size), y+(j*size), size, size, color);
-				} 
-			} else if (bg != color) {
-				if (size == 1) // default size
-					drawPixel(x+i, y+j, bg);
-				else {  // big size
-					fillRect(x+i*size, y+j*size, size, size, bg);
-				}
-			}
-			line >>= 1;
-		}
-	}
+    }
+    for (int8_t j = 0; j<_CurrentFontheight; j++) {
+      if (line & 0x1) {
+        if (size == 1) // default size
+          drawPixel(x+i, y+j, color);
+        else {  // big size
+          fillRect(x+(i*size), y+(j*size), size, size, color);
+        } 
+      } else if (bg != color) {
+        if (size == 1) // default size
+          drawPixel(x+i, y+j, bg);
+        else {  // big size
+          fillRect(x+i*size, y+j*size, size, size, bg);
+        }
+      }
+      line >>= 1;
+    }
+  }
+  return LCD_Success;
 }
 
 /*! 
@@ -614,8 +627,8 @@ void ERM19264_graphics::drawChar(int16_t x, int16_t y, unsigned char c,
 	@param y Y co-ord position
 */
 void ERM19264_graphics::setCursor(int16_t x, int16_t y) {
-	cursor_x = x;
-	cursor_y = y;
+	_cursorX = x;
+	_cursorY = y;
 }
 
 /*! 
@@ -623,7 +636,7 @@ void ERM19264_graphics::setCursor(int16_t x, int16_t y) {
 	@param s Size of text 1-X 
 */
 void ERM19264_graphics::setTextSize(uint8_t s) {
-	textsize = (s > 0) ? s : 1;
+	_textSize= (s > 0) ? s : 1;
 }
 
 /*! 
@@ -631,7 +644,7 @@ void ERM19264_graphics::setTextSize(uint8_t s) {
 	@param c Color fo text 
 */
 void ERM19264_graphics::setTextColor(uint8_t c) {
-	textcolor = textbgcolor = c;
+	_textColor = _textBgColor = c;
 }
 
 /*! 
@@ -640,16 +653,16 @@ void ERM19264_graphics::setTextColor(uint8_t c) {
 	@param b color of background of text 
 */
 void ERM19264_graphics::setTextColor(uint8_t c, uint8_t b) {
-	textcolor   = c;
-	textbgcolor = b; 
+	_textColor   = c;
+	_textBgColor = b; 
 }
 
 /*!
-	@brief turn on or off screen wrap of the text (fonts 1-6)
+	@brief turn on or off screen _textWrap of the text (fonts 1-6)
 	@param w TRUE on
 */
 void ERM19264_graphics::setTextWrap(boolean w) {
-	wrap = w;
+	_textWrap = w;
 }
 
 /*!
@@ -666,109 +679,175 @@ void ERM19264_graphics::setDrawBitmapAddr(boolean mode) {
 	@brief Gets the width of the display (per current rotation)
 	@return width member of display in pixels 
 */
-int16_t ERM19264_graphics::width(void) const {
-	return _width;
-}
+int16_t ERM19264_graphics::width(void) const {return _width;}
 
  /*!
 	@brief Gets the height of the display (per current rotation)
 	@return height member of display in pixels 
 */
-int16_t ERM19264_graphics::height(void) const {
-	return _height;
-}
+int16_t ERM19264_graphics::height(void) const {return _height;}
 
 /*!
-	@brief   Set the current font type
-	@param FontNumber 1-8 enum LCD_FONT_TYPE_e
-	@note 1=default 2=thick 3=seven segment 4=wide 5=tiny 6=homespun 7=bignums 8=mednums
+	@brief   Set the font type
+	@param FontNumber  enum LCD_FONT_TYPE_e
 */
-void ERM19264_graphics::setFontNum(LCD_FONT_TYPE_e FontNumber) 
-{
+void ERM19264_graphics::setFontNum(LCD_Font_Type_e FontNumber) {
 
-		_FontNumber = FontNumber;
-		
-	switch (_FontNumber) 
+	_FontNumber = FontNumber;
+
+	switch (_FontNumber)
 	{
 		case UC1609Font_Default:  // Norm default 5 by 8
-			_CurrentFontWidth = UC1609FontWidth_5;
-			_CurrentFontoffset =  UC1609FontOffset_Extend;
-			_CurrentFontheight = UC1609FontHeight_8;
-		break; 
+			_CurrentFontWidth = UC1609Font_width_5;
+			_CurrentFontoffset = UC1609Font_offset_none;
+			_CurrentFontheight = UC1609Font_height_8;
+			//_CurrentFontLength = UC1609FontLenAll; (use this for full font hack USER FONT OPTION 2)
+			 _CurrentFontLength = UC1609FontLenHalf; 
+		break;
 		case UC1609Font_Thick: // Thick 7 by 8 (NO LOWERCASE LETTERS)
-			_CurrentFontWidth = UC1609FontWidth_7;
-			_CurrentFontoffset = UC1609FontOffset_Space;
-			_CurrentFontheight = UC1609FontHeight_8;
-		break; 
+			_CurrentFontWidth = UC1609Font_width_7;
+			_CurrentFontoffset = UC1609Font_offset_space;
+			_CurrentFontheight = UC1609Font_height_8;
+			_CurrentFontLength = UC1609FontLenAlphaNumNoLCase;
+		break;
 		case UC1609Font_Seven_Seg:  // Seven segment 4 by 8
-			_CurrentFontWidth = UC1609FontWidth_4;
-			_CurrentFontoffset = UC1609FontOffset_Space;
-			_CurrentFontheight = UC1609FontHeight_8;
+			_CurrentFontWidth = UC1609Font_width_4;
+			_CurrentFontoffset = UC1609Font_offset_space;
+			_CurrentFontheight = UC1609Font_height_8;
+			_CurrentFontLength = UC1609FontLenAlphaNum;
 		break;
-		case UC1609Font_Wide : // Wide  8 by 8 (NO LOWERCASE LETTERS)
-			_CurrentFontWidth = UC1609FontWidth_8;
-			_CurrentFontoffset = UC1609FontOffset_Space;
-			_CurrentFontheight = UC1609FontHeight_8;
-		break; 
+		case UC1609Font_Wide: // Wide  8 by 8 (NO LOWERCASE LETTERS)
+			_CurrentFontWidth = UC1609Font_width_8;
+			_CurrentFontoffset =  UC1609Font_offset_space;
+			_CurrentFontheight = UC1609Font_height_8;
+			_CurrentFontLength = UC1609FontLenAlphaNumNoLCase;
+		break;
 		case UC1609Font_Tiny:  // tiny 3 by 8
-			_CurrentFontWidth = UC1609FontWidth_3;
-			_CurrentFontoffset =  UC1609FontOffset_Space;
-			_CurrentFontheight = UC1609FontHeight_8;
+			_CurrentFontWidth = UC1609Font_width_3;
+			_CurrentFontoffset =  UC1609Font_offset_space;
+			_CurrentFontheight = UC1609Font_height_8;
+			_CurrentFontLength = UC1609FontLenAlphaNum;
 		break;
-		case UC1609Font_Homespun: // homespun 7 by 8 
-			_CurrentFontWidth = UC1609FontWidth_7;
-			_CurrentFontoffset = UC1609FontOffset_Space;
-			_CurrentFontheight = UC1609FontHeight_8;
+		case UC1609Font_Homespun:  // homespun 7 by 8
+			_CurrentFontWidth = UC1609Font_width_7;
+			_CurrentFontoffset =  UC1609Font_offset_space;
+			_CurrentFontheight = UC1609Font_height_8;
+			_CurrentFontLength = UC1609FontLenAlphaNum;
 		break;
-		case UC1609Font_Bignum : // big nums 16 by 32 (NUMBERS + : only)
-			_CurrentFontWidth = UC1609FontWidth_16;
-			_CurrentFontoffset = UC1609FontOffset_Number;
-			_CurrentFontheight = UC1609FontHeight_32;
-		break; 
+		case UC1609Font_Bignum: // big nums 16 by 32 (NUMBERS + : only)
+			_CurrentFontWidth = UC1609Font_width_16;
+			_CurrentFontoffset = UC1609Font_offset_minus;
+			_CurrentFontheight = UC1609Font_height_32;
+			_CurrentFontLength = UC1609FontLenNumeric;
+		break;
 		case UC1609Font_Mednum: // med nums 16 by 16 (NUMBERS + : only)
-			_CurrentFontWidth = UC1609FontWidth_16;
-			_CurrentFontoffset =  UC1609FontOffset_Number;
-			_CurrentFontheight = UC1609FontHeight_16;
+			_CurrentFontWidth = UC1609Font_width_16;
+			_CurrentFontoffset = UC1609Font_offset_minus;
+			_CurrentFontheight = UC1609Font_height_16;
+			_CurrentFontLength = UC1609FontLenNumeric;
 		break;
-		default: // if wrong font num passed in,  set to default
-			_CurrentFontWidth = UC1609FontWidth_5;
-			_CurrentFontoffset =  UC1609FontOffset_Extend;
-			_CurrentFontheight = UC1609FontHeight_8;
+		case UC1609Font_ArialRound: // Arial round 16 by 24
+			_CurrentFontWidth = UC1609Font_width_16;
+			_CurrentFontoffset = UC1609Font_offset_space;
+			_CurrentFontheight = UC1609Font_height_24;
+			_CurrentFontLength = UC1609FontLenAlphaNum;
+		break;
+		case UC1609Font_ArialBold: // Arial bold  16 by 16
+			_CurrentFontWidth = UC1609Font_width_16;
+			_CurrentFontoffset = UC1609Font_offset_space;
+			_CurrentFontheight = UC1609Font_height_16;
+			_CurrentFontLength = UC1609FontLenAlphaNum;
+		break;
+		case UC1609Font_Mia: // mia  8 by 16
+			_CurrentFontWidth = UC1609Font_width_8;
+			_CurrentFontoffset = UC1609Font_offset_space;
+			_CurrentFontheight = UC1609Font_height_16;
+			_CurrentFontLength = UC1609FontLenAlphaNum;
+		break;
+		case UC1609Font_Dedica: // dedica  6 by 12
+			_CurrentFontWidth = UC1609Font_width_6;
+			_CurrentFontoffset = UC1609Font_offset_space;
+			_CurrentFontheight = UC1609Font_height_12;
+			_CurrentFontLength = UC1609FontLenAlphaNum;
+		break;
+		default:
+			_CurrentFontWidth = UC1609Font_width_5;
+			_CurrentFontoffset = UC1609Font_offset_none;
+			_CurrentFontheight = UC1609Font_height_8;
+			 _CurrentFontLength = UC1609FontLenHalf;
 			_FontNumber = UC1609Font_Default;
 		break;
 	}
-	
 }
 
 /*!
 	@brief writes a char (c) on the LCD
 	@param x X coordinate
 	@param y Y coordinate
-	@param c The ASCII character
+	@param character The ASCII character
 	@param color 
 	@param bg background color
-	@note for font 7,8 only
+	@return LCD_Return_Codes_e enum.
+	@note for font 7-12 only
 */
-void ERM19264_graphics::drawCharNumFont(uint8_t x, uint8_t y, uint8_t c, uint8_t color , uint8_t bg) 
+LCD_Return_Codes_e ERM19264_graphics::drawChar(uint8_t x, uint8_t y, uint8_t character, uint8_t color , uint8_t bg) 
 {
+	uint8_t FontSizeMod = 0;
+	// Check user input
+	// 1. Check for correct font and set FontSizeMod for fonts 7-12
+	switch (_FontNumber)
+	{
+		case UC1609Font_Bignum:
+		case UC1609Font_Mednum:
+		case UC1609Font_ArialRound:
+		case UC1609Font_ArialBold:
+			FontSizeMod  = 2;
+		break;
+		case UC1609Font_Mia:
+		case UC1609Font_Dedica:
+			FontSizeMod  = 1;
+		break;
+		default:
+			return LCD_WrongFont;
+		break;
+	}
+	// 2. Check for character out of font bounds
+	if ( character < _CurrentFontoffset || character >= (_CurrentFontLength + _CurrentFontoffset)){return LCD_CharFontASCIIRange;}
+	// 3. Check for screen out of  bounds
+	if((x >= _width)            || // Clip right
+	(y >= _height)           || // Clip bottom
+	((x + _CurrentFontWidth+1) < 0) || // Clip left
+	((y + _CurrentFontheight) < 0))   // Clip top
+	{return LCD_CharScreenBounds;}
 
 	uint8_t i, j;
 	uint8_t ctemp = 0, y0 = y; 
 
-	for (i = 0; i < (_CurrentFontheight*2); i++) 
+	for (i = 0; i < (_CurrentFontheight*FontSizeMod); i++)
 	{
-		if (_FontNumber == UC1609Font_Bignum){
-		#ifdef UC1609_Font_Seven
-			ctemp = pgm_read_byte(&pFontBigNumptr[c - _CurrentFontoffset][i]);
-		#endif
-		}
-		else if (_FontNumber == UC1609Font_Mednum){
-		#ifdef UC1609_Font_Eight
-			ctemp = pgm_read_byte(&pFontMedNumptr[c - _CurrentFontoffset][i]);
-		#endif
-		}else{ 
-			c+=1; // get rid of unused variable compiler warning
-			return;
+		switch (_FontNumber)
+		{
+#ifdef UC1609_Font_Seven
+			case UC1609Font_Bignum: ctemp = pFontBigNum16x32ptr[character - _CurrentFontoffset][i]; break;
+#endif
+#ifdef UC1609_Font_Eight
+			case UC1609Font_Mednum: ctemp = pFontMedNum16x16ptr[character - _CurrentFontoffset][i]; break;
+#endif
+#ifdef UC1609_Font_Nine
+			case UC1609Font_ArialRound: ctemp = pFontArial16x24ptr[character - _CurrentFontoffset][i]; break;
+#endif
+#ifdef UC1609_Font_Ten
+			case UC1609Font_ArialBold: ctemp = pFontArial16x16ptr[character - _CurrentFontoffset][i]; break;
+#endif
+#ifdef UC1609_Font_Eleven
+			case UC1609Font_Mia: ctemp = pFontMia8x16ptr[character - _CurrentFontoffset][i]; break;
+#endif
+#ifdef UC1609_Font_Twelve
+			case UC1609Font_Dedica: ctemp = pFontDedica8x12ptr[character - _CurrentFontoffset][i]; break;
+#endif
+			default :
+				return LCD_WrongFont;
+			break;
 		}
 		
 		for (j = 0; j < 8; j++) 
@@ -787,8 +866,9 @@ void ERM19264_graphics::drawCharNumFont(uint8_t x, uint8_t y, uint8_t c, uint8_t
 				x++;
 				break;
 			}
-		}
 	}
+	}
+	return LCD_Success;
 }
 
 /*!
@@ -798,14 +878,16 @@ void ERM19264_graphics::drawCharNumFont(uint8_t x, uint8_t y, uint8_t c, uint8_t
 	@param pText pointer to string of ASCII character's
 	@param color text color
 	@param bg background color
-	@note for font 7,8 only
+	@return LCD_Return_Codes_e enum.
+	@note for font 7-12 only
 */
-void ERM19264_graphics::drawTextNumFont(uint8_t x, uint8_t y, char *pText, uint8_t color, uint8_t bg) 
+LCD_Return_Codes_e ERM19264_graphics::drawText(uint8_t x, uint8_t y, char *pText, uint8_t color, uint8_t bg) 
 {
-
-	if (_FontNumber < UC1609Font_Bignum) 
-		return;
-
+	// Check correct font number
+	if (_FontNumber < UC1609Font_Bignum){return LCD_WrongFont;}
+	// Check for null pointer
+	if(pText == nullptr){return LCD_CharArrayNullptr ;}
+	LCD_Return_Codes_e DrawCharReturnCode;
 	while (*pText != '\0') 
 	{
 		if (x > (_width - _CurrentFontWidth )) 
@@ -813,13 +895,16 @@ void ERM19264_graphics::drawTextNumFont(uint8_t x, uint8_t y, char *pText, uint8
 			x = 0;
 			y += _CurrentFontheight ;
 			if (y > (_height - _CurrentFontheight)) 
-				y = x = 0;
+			{
+					y = x = 0;
+			}
 		}
-
-		drawCharNumFont(x, y, *pText, color, bg);
+		DrawCharReturnCode = drawChar(x, y, *pText, color, bg);
+		if (DrawCharReturnCode  != LCD_Success) {return DrawCharReturnCode ;}
 		x += _CurrentFontWidth ;
 		pText++;
 	}
+	return LCD_Success;
 }
 
 /*!
@@ -830,24 +915,63 @@ void ERM19264_graphics::drawTextNumFont(uint8_t x, uint8_t y, char *pText, uint8
 	@param color text color
 	@param bg background color
 	@param size 1-x
+	@return LCD_Return_Codes_e enum.
 	@note for font #1-6 only
 */
-void ERM19264_graphics::drawText(uint8_t x, uint8_t y, char *pText, uint8_t color, uint8_t bg, uint8_t size) {
-	if (_FontNumber >= UC1609Font_Bignum){return;}
-	uint8_t cursor_x, cursor_y;
-	cursor_x = x, cursor_y = y;
+LCD_Return_Codes_e ERM19264_graphics::drawText(uint8_t x, uint8_t y, char *pText, uint8_t color, uint8_t bg, uint8_t size) {
+	// check Correct font number
+	if(_FontNumber >= UC1609Font_Bignum){return LCD_WrongFont;}
+	// Check for null pointer
+	if(pText == nullptr){return LCD_CharArrayNullptr ;}
 	
-	while (*pText != '\0') 
+	LCD_Return_Codes_e DrawCharReturnCode;
+	uint8_t lcursorX;
+	uint8_t lcursorY;
+	lcursorX = x; 
+	lcursorY = y;
+
+	while (*pText != '\0')
 	{
-		if (wrap && ((cursor_x + size * _CurrentFontWidth) > _width)) 
+		if (_textWrap && ((lcursorX + size * _CurrentFontWidth) > _width))
 		{
-			cursor_x = 0;
-			cursor_y = cursor_y + size * 7 + 3;
-			if (cursor_y > _height) cursor_y = _height;
+			lcursorX = 0;
+			lcursorY = lcursorY + size * 7 + 3;
+			if (lcursorY > _height) lcursorY = _height;
 		}
-		drawChar(cursor_x, cursor_y, *pText, color, bg, size);
-		cursor_x = cursor_x + size * (_CurrentFontWidth + 1);
-		if (cursor_x > _width) cursor_x = _width;
+		DrawCharReturnCode = drawChar(lcursorX, lcursorY , *pText, color, bg, size);
+		if (DrawCharReturnCode  != LCD_Success) {return DrawCharReturnCode ;}
+		lcursorX = lcursorX + size * (_CurrentFontWidth + 1);
+		if (lcursorX > _width) lcursorX = _width;
 		pText++;
 	}
+	return LCD_Success;
+}
+
+/*!
+   @brief Gets the _rotation of the display
+   @return rotation enum value 0-3
+*/
+LCD_rotate_e ERM19264_graphics::getRotation(void){return LCD_rotate;}
+
+/*!
+   @brief Sets the rotation of the display
+   @param CurrentRotation rotation enum value 0-3
+   @details Note this is separate from LCD command method for rotation. This rotates the Software buffer.
+*/
+void ERM19264_graphics::setRotation(LCD_rotate_e CurrentRotation)
+{
+	switch (CurrentRotation)
+	{
+	case 0:
+	case 2:
+		_width = WIDTH;
+		_height = HEIGHT;
+		break;
+	case 1:
+	case 3:
+		_width = HEIGHT;
+		_height = WIDTH;
+		break;
+	}
+	LCD_rotate = CurrentRotation;
 }

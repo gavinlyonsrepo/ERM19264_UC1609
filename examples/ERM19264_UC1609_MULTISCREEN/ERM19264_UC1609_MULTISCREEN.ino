@@ -7,8 +7,8 @@
 		-# This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino  example.
      <https://github.com/gavinlyonsrepo/ERM19264_UC1609>
 	@test
-		-# Shared buffer, Multiple screens (2 off) spilt into left and right , sharing one buffer
-		-# FPS test frame per second 
+		-# 501 Shared buffer, Multiple screens (2 off) spilt into left and right , sharing one buffer
+		-# 502 FPS test frame per second 
 */
 
 // two shared screens sharing one buffer
@@ -20,12 +20,7 @@
 //
 
 #include <ERM19264_UC1609.h>
-
-#define MYLCDHEIGHT 64
-#define MYLCDWIDTH  192
-#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
-#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
-
+// LCD setup 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
 #define RST 9 // GPIO pin number pick any you want
@@ -33,16 +28,22 @@
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
-// Define a half screen sized buffer
-uint8_t  halfScreenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))/2]; // 1536/2 = 768 bytes
+#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
+#define HALFSCREEN ((MYLCDWIDTH * (MYLCDHEIGHT/8))/2) // 1536/2 bytes = 768 bytes
 
-ERM19264_UC1609  mylcd(CD, RST, CS); // create LCD object 
+// define a buffer to cover whole screen 
+uint8_t  halfScreenBuffer[HALFSCREEN]; 
+
+ERM19264_UC1609  mylcd(MYLCDWIDTH , MYLCDHEIGHT, CD, RST, CS); // create LCD object 
 
 // Instantiate  a screen object, in this case to the left side of screen
-// (buffer, width, height, x_offset, y-offset)
+// (buffer, width/2, height, x_offset, y-offset)
 ERM19264_UC1609_Screen leftSideScreen(halfScreenBuffer, MYLCDWIDTH/2, MYLCDHEIGHT, 0, 0); 
 // Instantiate  a screen object, in this case the right side of screen
-// (buffer, width, height, x_offset, y-offset)
+// (buffer, width/2, height, x_offset, y-offset/2)
 ERM19264_UC1609_Screen rightSideScreen(halfScreenBuffer, MYLCDWIDTH/2, MYLCDHEIGHT, MYLCDWIDTH/2, 0); 
 
 // vars to control test timing. 
@@ -108,7 +109,7 @@ void display_Left(long currentFramerate, int count)
   mylcd.print(fps);
 
   mylcd.setCursor(0, 50);
-  mylcd.print("V 1.7.0");
+  mylcd.print(mylcd.LCDLibVerNumGet());
   mylcd.drawFastVLine(92, 0, 63, FOREGROUND);
   mylcd.LCDupdate();
 }

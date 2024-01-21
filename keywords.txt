@@ -27,6 +27,11 @@ LCDscroll	KEYWORD2
 LCDReset	KEYWORD2
 LCDBitmap	KEYWORD2
 LCDPowerDown	KEYWORD2
+LCDLibVerNumGet	KEYWORD2
+LCDHighFreqDelayGet	KEYWORD2
+LCDHighFreqDelaySet	KEYWORD2);
+LCDGetConstrast	KEYWORD2
+LCDGetAddressCtrl	KEYWORD2
 
 drawLine	KEYWORD2
 drawFastVLine	KEYWORD2
@@ -53,6 +58,8 @@ drawCharNumFont	KEYWORD2
 drawTextNumFont	KEYWORD2
 drawBitmap	KEYWORD2
 setDrawBitmapAddr	KEYWORD2
+setRotation	KEYWORD2
+getRotation	KEYWORD2
 
 # Constants
 
@@ -70,3 +77,17 @@ UC1609Font_Tiny	LITERAL1
 UC1609Font_Homespun	LITERAL1
 UC1609Font_Bignum	LITERAL1
 UC1609Font_Mednum	LITERAL1
+UC1609Font_ArialRound	LITERAL1
+UC1609Font_ArialBold	LITERAL1
+UC1609Font_Mia	LITERAL1
+UC1609Font_Dedica	LITERAL1
+LCD_Success	LITERAL1
+LCD_WrongFont	LITERAL1
+LCD_CharScreenBounds	LITERAL1
+LCD_CharFontASCIIRange	LITERAL1
+LCD_CharArrayNullptr	LITERAL1
+LCD_BitmapNullptr	LITERAL1
+LCD_BitmapScreenBounds	LITERAL1
+LCD_BitmapLargerThanScreen	LITERAL1
+LCD_BitmapVerticalSize	LITERAL1
+LCD_BitmapHorizontalSize	LITERAL1

@@ -4,12 +4,13 @@
   @brief Example file for ERM19264_UC1609 library, showing use of various functions
 
   @test
-    -# (1) All Pixels on
-    -# (2) Invert screen
-    -# (3) Rotate screen
-    -# (4) Scroll Screen
-    -# (5) Enable and disable Screen 
-    -# (6) Power down (LCD OFF)
+    -# 301 All Pixels on
+    -# 302 Invert screen
+    -# 303 Rotate screen using LCD rotate command.
+    -# 304 Scroll Screen
+    -# 305 Enable and disable Screen 
+    -# 306 Rotate sreen using rotate buffer. 
+    -# 307 Power down (LCD OFF)
 
  
   @details
@@ -19,25 +20,27 @@
 */
 
 #include <ERM19264_UC1609.h>  // Include the library
-// LCD Setup
-#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
-#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
-#define MYLCDHEIGHT 64
-#define MYLCDWIDTH 192
-// define a buffer to cover whole screen
-uint8_t screenBuffer[MYLCDWIDTH * (MYLCDHEIGHT / 8)];  // 1536 bytes
 
+// LCD setup 
 // GPIO 5-wire SPI interface
-#define CD 10  // GPIO pin number pick any you want
-#define RST 9  // GPIO pin number pick any you want
-#define CS 8   // GPIO pin number pick any you want
+#define CD 10 // GPIO pin number pick any you want 
+#define RST 9 // GPIO pin number pick any you want
+#define CS 8  // GPIO pin number pick any you want
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
+#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
+#define FULLSCREEN (MYLCDWIDTH * (MYLCDHEIGHT/8)) // 1536 bytes
+
+// define a buffer to cover whole screen 
+uint8_t  screenBuffer[FULLSCREEN]; 
 // instantiate an LCD object
-ERM19264_UC1609 mylcd(CD, RST, CS);
+ERM19264_UC1609  mylcd(MYLCDWIDTH , MYLCDHEIGHT , CD, RST, CS); 
 // Instantiate  a screen object, in this case to cover whole screen
-ERM19264_UC1609_Screen fullScreen(screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);
+ERM19264_UC1609_Screen fullScreen(screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0); 
 
 // ************* SETUP ***************
 void setup() {
@@ -52,9 +55,10 @@ void loop() {
 
   // Set text parameters
   mylcd.setTextColor(FOREGROUND);
-  mylcd.setTextSize(2);
+  mylcd.setFontNum(UC1609Font_Homespun);
+  mylcd.setTextSize(1);
 
-  // Test 1 LCD all pixels on
+  // Test 301 LCD all pixels on
   mylcd.setCursor(20, 30);
   mylcd.print("All Pixels on");
   mylcd.LCDupdate();
@@ -66,30 +70,24 @@ void loop() {
   mylcd.LCDallpixelsOn(0);
   delay(2000);
 
-  // Test 2 inverse
+  // Test 302 inverse
   mylcd.setCursor(20, 30);
   mylcd.print("inverse test  ");
   mylcd.LCDupdate();
-  mylcd.invertDisplay(0);  // Normal
+  mylcd.LCDInvertDisplay(0);  // Normal
   delay(2000);
-  mylcd.invertDisplay(1);  // Inverted
+  mylcd.LCDInvertDisplay(1);  // Inverted
   delay(4000);
-  mylcd.invertDisplay(0);
+  mylcd.LCDInvertDisplay(0);
 
 
-  // Test3 LCD rotate
+  // Test 303 LCD rotate command
   mylcd.LCDclearBuffer();
   mylcd.setCursor(20, 30);
-  mylcd.print("rotate test");
+  mylcd.print("rotate cmd test");
   mylcd.LCDupdate();
   delay(2000);
   mylcd.LCDrotate(UC1609_ROTATION_FLIP_ONE);
-  mylcd.LCDupdate();
-  delay(5000);
-  mylcd.LCDrotate(UC1609_ROTATION_FLIP_TWO);
-  mylcd.LCDupdate();
-  delay(5000);
-  mylcd.LCDrotate(UC1609_ROTATION_FLIP_THREE);
   mylcd.LCDupdate();
   delay(5000);
   mylcd.LCDrotate(UC1609_ROTATION_NORMAL);
@@ -97,7 +95,7 @@ void loop() {
   delay(5000);
 
 
-  // Test4 LCD scroll
+  // Test 304 LCD scroll
   mylcd.LCDclearBuffer();
   //mylcd.LCDupdate();
   mylcd.setCursor(0, 40);
@@ -109,7 +107,7 @@ void loop() {
   }
   mylcd.LCDscroll(0);
 
-  //Test5 LCD enable and disable
+  //Test 305 LCD enable and disable
   mylcd.LCDclearBuffer();
   mylcd.setCursor(0, 30);
   mylcd.print("LCD Disable test");
@@ -120,7 +118,45 @@ void loop() {
   mylcd.LCDEnable(1);
   mylcd.LCDclearBuffer();
 
-  // Test 6 Powerdown
+  // Test 306 rotate buffer test
+  
+  mylcd.LCDclearBuffer();
+  mylcd.setCursor(5, 30);
+  mylcd.print("rotate Buffer test");
+  mylcd.LCDupdate();
+  delay(2000);
+  mylcd.LCDclearBuffer();
+
+  mylcd.setCursor(5, 5);
+  mylcd.setRotation(LCD_Degrees_0);
+  mylcd.print("rotate 0");
+  mylcd.LCDupdate();
+  delay(5000);
+  mylcd.LCDclearBuffer();
+
+  mylcd.setRotation(LCD_Degrees_90);
+  mylcd.setCursor(5, 5);
+  mylcd.print("rotate 90");
+  mylcd.LCDupdate();
+  delay(5000);
+  mylcd.LCDclearBuffer();
+
+  mylcd.setRotation(LCD_Degrees_180);
+  mylcd.setCursor(5, 5);
+  mylcd.print("rotate 180");
+  mylcd.LCDupdate();
+  delay(5000);
+  mylcd.LCDclearBuffer();
+
+  mylcd.setRotation(LCD_Degrees_270);
+  mylcd.setCursor(5, 5);
+  mylcd.print("rotate    270");
+  mylcd.LCDupdate();
+  delay(5000);
+  mylcd.setRotation(LCD_Degrees_0); //back to normal rotation
+  mylcd.LCDclearBuffer();
+
+  // Test 307 Powerdown
   mylcd.setCursor(5, 10);
   mylcd.print("End Tests");
   mylcd.setCursor(5, 35);
@@ -129,7 +165,7 @@ void loop() {
   delay(5000);
   mylcd.LCDPowerDown();
   
-  while (1) {delay(1);}  // tests over, loop here forever
+  while (1) {delay(10);}  // tests over, loop here forever
 }
 
 // *********** END OF MAIN ***********

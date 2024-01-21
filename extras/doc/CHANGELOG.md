@@ -45,3 +45,10 @@
 * Version 1.7.0 Nov 2023
 	* Minor update, Allowed User to set Ram Address control bits in "begin" method, due to user concerns raised in github issue, 
 	 Address control setting #4.  
+
+* Version 1.8.0
+	* LCD weight & height no longer constant, and must now be supplied in constructor.
+	* SW SPI GPIO delay can now be modified by a setter function
+	* Enhanced Error handling for fonts and bitmaps enum  LCD_Return_codes added
+	* Fonts 8-12 added
+	* Fonts 7-8 characters increased from 11 to 14.

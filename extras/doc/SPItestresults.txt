@@ -28,3 +28,9 @@ Framerate 102.
 (6) UNO  v4 R4 minimia 
 SPI SW 72 MHZ 68 seconds to 1000 
 Framerate 40
+
+SPI speed results test E v1.8.0
+
+(1) UNO  v4 R4 minimia 
+SW SPI 72 MHZ 69 seconds to 1000 
+HW SPI Framerate 38 8,000,000 MhZ 

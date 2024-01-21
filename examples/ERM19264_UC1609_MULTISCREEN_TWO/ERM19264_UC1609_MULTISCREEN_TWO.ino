@@ -7,7 +7,7 @@
 		-# This is for hardware SPI for software SPI see ERM19264_UC1609_SWSPI.ino  example.
      <https://github.com/gavinlyonsrepo/ERM19264_UC1609>
 	@test
-		-# Shared buffer two , Multiple screens (4 off) spilt into top left, top right, bottom left, bottom right, sharing one buffer
+		-# 503 Shared buffer two , Multiple screens (4 off) spilt into top left, top right, bottom left, bottom right, sharing one buffer
 */
 
 // Four shared screens sharing one buffer
@@ -16,11 +16,7 @@
 
 #include <ERM19264_UC1609.h>
 
-#define MYLCDHEIGHT 64
-#define MYLCDWIDTH  192
-#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
-#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
-
+// LCD setup 
 // GPIO 5-wire SPI interface
 #define CD 10 // GPIO pin number pick any you want 
 #define RST 9 // GPIO pin number pick any you want
@@ -28,10 +24,16 @@
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
-// Define a 1/4 screen sized buffer
-uint8_t  fourthScreenBuffer[(MYLCDWIDTH * (MYLCDHEIGHT/8))/4]; // 1536/4 = 384 bytes
+#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
+#define MYLCDHEIGHT 64
+#define MYLCDWIDTH  192
+#define QUARTERSCREEN ((MYLCDWIDTH * (MYLCDHEIGHT/8))/4) // 1536/4 bytes = 384 bytes
 
-ERM19264_UC1609  mylcd(CD, RST, CS); //  Instantiate LCD object , CD, RST, CS
+// Define a 1/4 screen sized buffer
+uint8_t  fourthScreenBuffer[QUARTERSCREEN]; 
+
+ERM19264_UC1609  mylcd(MYLCDWIDTH , MYLCDHEIGHT,CD, RST, CS); //  Instantiate LCD object , CD, RST, CS
 
 // (buffer, width, height, x_offset, y-offset)
 // Instantiate  a screen object, in this case to the top left side of screen Q1
