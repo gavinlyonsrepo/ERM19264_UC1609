@@ -9,7 +9,7 @@
     -# 303 Rotate screen using LCD rotate command.
     -# 304 Scroll Screen
     -# 305 Enable and disable Screen 
-    -# 306 Rotate sreen using rotate buffer. 
+    -# 306 Rotate screen using rotate buffer. 
     -# 307 Power down (LCD OFF)
 
  
@@ -29,7 +29,7 @@
 // GPIO pin number SCK(UNO 13) , HW SPI , SCK
 // GPIO pin number SDA(UNO 11) , HW SPI , MOSI
 
-#define LCDCONTRAST 0x49 // contrast: Range 0-0xFE, optional, default 0x49
+#define LCDCONTRAST 0x49  // contrast: Range 0-0xFE, optional, default 0x49
 #define LCDRAMADDRCTRL 0x02  // RAM address control: Range 0-0x07, optional, default 0x02
 #define MYLCDHEIGHT 64
 #define MYLCDWIDTH  192
@@ -55,7 +55,7 @@ void loop() {
 
   // Set text parameters
   mylcd.setTextColor(FOREGROUND);
-  mylcd.setFontNum(UC1609Font_Homespun);
+  mylcd.setFontNum(UC1609Font_Default);
   mylcd.setTextSize(1);
 
   // Test 301 LCD all pixels on
@@ -127,9 +127,11 @@ void loop() {
   delay(2000);
   mylcd.LCDclearBuffer();
 
-  mylcd.setCursor(5, 5);
   mylcd.setRotation(LCD_Degrees_0);
+  mylcd.setCursor(5, 5);
   mylcd.print("rotate 0");
+  mylcd.setCursor(5, 50);
+  mylcd.print("bottom");
   mylcd.LCDupdate();
   delay(5000);
   mylcd.LCDclearBuffer();
@@ -137,6 +139,8 @@ void loop() {
   mylcd.setRotation(LCD_Degrees_90);
   mylcd.setCursor(5, 5);
   mylcd.print("rotate 90");
+  mylcd.setCursor(5, 180);
+  mylcd.print("bottom");
   mylcd.LCDupdate();
   delay(5000);
   mylcd.LCDclearBuffer();
@@ -144,6 +148,8 @@ void loop() {
   mylcd.setRotation(LCD_Degrees_180);
   mylcd.setCursor(5, 5);
   mylcd.print("rotate 180");
+  mylcd.setCursor(5, 50);
+  mylcd.print("bottom");
   mylcd.LCDupdate();
   delay(5000);
   mylcd.LCDclearBuffer();
@@ -151,13 +157,15 @@ void loop() {
   mylcd.setRotation(LCD_Degrees_270);
   mylcd.setCursor(5, 5);
   mylcd.print("rotate    270");
+  mylcd.setCursor(5, 180);
+  mylcd.print("bottom");
   mylcd.LCDupdate();
   delay(5000);
   mylcd.setRotation(LCD_Degrees_0); //back to normal rotation
   mylcd.LCDclearBuffer();
 
   // Test 307 Powerdown
-  mylcd.setCursor(5, 10);
+  mylcd.setCursor(15, 25);
   mylcd.print("End Tests");
   mylcd.setCursor(5, 35);
   mylcd.print("Power down in 5");

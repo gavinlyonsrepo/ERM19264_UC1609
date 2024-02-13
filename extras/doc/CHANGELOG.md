@@ -14,9 +14,6 @@
 	* Added SPI_transactions so LCD can share the SPI bus with other SPI devices on different settings.
 	* Added LCDPowerDown function.
 
-* Version 1.3.0 June 2021
-	* Added five fonts.
-
 * Version 1.4.0 Feb 2022
 	* drawBitmap() function is now set up for both horizontal and vertical addressed bitmap data,
 	as per pull request  #2 from Myaflick on github.  Vertical is default. The addressing mode is changed by setDrawBitmapAddr(), new function.
@@ -52,3 +49,9 @@
 	* Enhanced Error handling for fonts and bitmaps, enum  *LCD_Return_codes* added.
 	* Fonts 9-12 added
 	* Fonts 7-8 characters increased from 11 to 14.
+
+* Version 1.8.1 Feb 2024
+	* Minor update.
+	* PROGMEM keyword added to font 12(which was added in 1.8.0)
+	* drawPixel method boundary scan adjusted, so 90 and 270 degree rotation is 
+		calibrated for whole screen not shared screen mode.

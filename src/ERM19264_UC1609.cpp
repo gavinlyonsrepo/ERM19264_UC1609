@@ -411,7 +411,7 @@ void ERM19264_UC1609::send_data(uint8_t byte)
 */
 void ERM19264_UC1609::LCDupdate()
 {
-	LCDBuffer( this->ActiveBuffer->xoffset, this->ActiveBuffer->yoffset, this->ActiveBuffer->width, this->ActiveBuffer->height, (uint8_t*) this->ActiveBuffer->screenBuffer);
+	LCDBuffer( this->ActiveBuffer->xoffset, this->ActiveBuffer->yoffset, this->ActiveBuffer->width, this->ActiveBuffer->height,  this->ActiveBuffer->screenBuffer);
 }
 
 /*!
@@ -476,11 +476,12 @@ UC1609_CS_SetHigh;
 */
 void ERM19264_UC1609::drawPixel(int16_t x, int16_t y, uint8_t colour)
 {
-	// Check Boundary.
-	if ((x < 0) || (x >= this->ActiveBuffer->width) || (y < 0) || (y >= this->ActiveBuffer->height)) {
-	return ;
-	}
-	
+	// Check Boundary multi-screen mode
+	//if ((x < 0) || (x >= this->ActiveBuffer->width) || (y < 0) || (y >= this->ActiveBuffer->height)) 
+	//	{return ;}
+	// Check Boundary entire screen
+	if ((x < 0) || (x >= _width) || (y < 0) || (y >= _height)) 
+		{return ;}
 	// Check rotation 
 	int16_t temp;
 	uint8_t RotateMode = getRotation();

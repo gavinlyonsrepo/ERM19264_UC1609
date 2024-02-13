@@ -59,7 +59,7 @@ ERM19264_UC1609_Screen fullScreen(screenBuffer, MYLCDWIDTH, MYLCDHEIGHT, 0, 0);
 //Define Some test timing delay
 #define DISPLAY_DELAY_ONE 5000
 #define DISPLAY_DELAY_TWO 0
-#define MYCOUNT_UPTIME 250
+#define MYCOUNT_UPTIME 150
 
 // ************* SETUP ***************
 void setup() {
@@ -429,7 +429,7 @@ void ErrorChecking(void) {
   Serial.println(mylcd.drawText(0, 40, myStringNull, FOREGROUND, BACKGROUND, 1));  // LCD_CharArrayNullptr = 5
   TestReset();
 
-  //Test 20-b fotns 7-12
+  //Test 20-b fonts 7-12
   //drawchar
   Serial.println("Test 20-B drawChar");
   mylcd.setFontNum(UC1609Font_Mednum);
