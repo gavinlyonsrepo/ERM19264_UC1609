@@ -169,7 +169,7 @@ class ERM19264_UC1609 : public ERM19264_graphics {
     uint8_t _VbiasPOT= 0x49; /**< Contrast default 0x49 datasheet 00-FE */
     uint8_t _AddressCtrl= 0x02; /**< Set AC [2:0] Program registers  for RAM address control. 0x00 to 0x07*/
     uint16_t _HighFreqDelay = UC1609_HIGHFREQ_DELAY; /**< uS GPIO Communications delay, SW SPI ONLY */
-     const uint16_t _LibVersionNum = 181; /**< Library version number 180 = 1.8.0*/
+     const uint16_t _LibVersionNum = 182; /**< Library version number 180 = 1.8.0*/
      
      uint8_t _widthScreen = 192; /**< Width of screen in pixels */
      uint8_t _heightScreen = 64;  /**< Height of screen in pixels */

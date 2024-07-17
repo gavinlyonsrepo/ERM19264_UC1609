@@ -579,22 +579,22 @@ LCD_Return_Codes_e ERM19264_graphics::drawChar(int16_t x, int16_t y, unsigned ch
     {
            	switch (_FontNumber) {
 #ifdef UC1609_Font_One
-				case UC1609Font_Default : line = pFontDefaultptr[((character - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
+				case UC1609Font_Default : line = pgm_read_byte(pFontDefaultptr + ((character - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
 #endif 
 #ifdef UC1609_Font_Two
-				case UC1609Font_Thick : line = pFontThickptr[((character  - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
+				case UC1609Font_Thick :line = pgm_read_byte(pFontThickptr+ ((character - _CurrentFontoffset) * _CurrentFontWidth) + i);  break;
 #endif
 #ifdef UC1609_Font_Three
-				case UC1609Font_Seven_Seg : line = pFontSevenSegptr[((character  - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
+				case UC1609Font_Seven_Seg : line = pgm_read_byte(pFontSevenSegptr + ((character - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
 #endif
 #ifdef UC1609_Font_Four
-				case UC1609Font_Wide: line = pFontWideptr[((character  - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
+				case UC1609Font_Wide:  line = pgm_read_byte(pFontWideptr + ((character - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
 #endif
 #ifdef UC1609_Font_Five
-				case UC1609Font_Tiny : line = pFontTinyptr[((character  - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
+				case UC1609Font_Tiny : line = pgm_read_byte(pFontTinyptr + ((character - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
 #endif
 #ifdef UC1609_Font_Six
-				case UC1609Font_Homespun: line = pFontHomeSpunptr[((character  - _CurrentFontoffset) * _CurrentFontWidth) + i]; break;
+				case UC1609Font_Homespun: line = pgm_read_byte(pFontHomeSpunptr + ((character - _CurrentFontoffset) * _CurrentFontWidth) + i); break;
 #endif
 				default: // wrong font number
 					return LCD_WrongFont;
@@ -828,22 +828,34 @@ LCD_Return_Codes_e ERM19264_graphics::drawChar(uint8_t x, uint8_t y, uint8_t cha
 		switch (_FontNumber)
 		{
 #ifdef UC1609_Font_Seven
-			case UC1609Font_Bignum: ctemp = pFontBigNum16x32ptr[character - _CurrentFontoffset][i]; break;
+			case UC1609Font_Bignum:
+				ctemp = pgm_read_byte(&pFontBigNum16x32ptr[character - _CurrentFontoffset][i]); 
+			break;
 #endif
 #ifdef UC1609_Font_Eight
-			case UC1609Font_Mednum: ctemp = pFontMedNum16x16ptr[character - _CurrentFontoffset][i]; break;
+			case UC1609Font_Mednum: 
+				ctemp = pgm_read_byte(&pFontMedNum16x16ptr[character - _CurrentFontoffset][i]);  
+			break;
 #endif
 #ifdef UC1609_Font_Nine
-			case UC1609Font_ArialRound: ctemp = pFontArial16x24ptr[character - _CurrentFontoffset][i]; break;
+			case UC1609Font_ArialRound: 
+				ctemp = pgm_read_byte(&pFontArial16x24ptr[character - _CurrentFontoffset][i]); 
+			break;
 #endif
 #ifdef UC1609_Font_Ten
-			case UC1609Font_ArialBold: ctemp = pFontArial16x16ptr[character - _CurrentFontoffset][i]; break;
+			case UC1609Font_ArialBold: 
+				ctemp = pgm_read_byte(&pFontArial16x16ptr[character - _CurrentFontoffset][i]); 	
+			break;
 #endif
 #ifdef UC1609_Font_Eleven
-			case UC1609Font_Mia: ctemp = pFontMia8x16ptr[character - _CurrentFontoffset][i]; break;
+			case UC1609Font_Mia: 
+				ctemp = pgm_read_byte(&pFontMia8x16ptr[character - _CurrentFontoffset][i]);
+			break;
 #endif
 #ifdef UC1609_Font_Twelve
-			case UC1609Font_Dedica: ctemp = pFontDedica8x12ptr[character - _CurrentFontoffset][i]; break;
+			case UC1609Font_Dedica: 
+				ctemp = pgm_read_byte(&pFontDedica8x12ptr[character - _CurrentFontoffset][i]); 
+			break;
 #endif
 			default :
 				return LCD_WrongFont;
