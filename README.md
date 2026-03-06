@@ -153,7 +153,7 @@ There is a few different ways of displaying bitmaps,
 | 4b | drawBitmap() |  Horizontal | setDrawBitmapAddr(false) |
 
 The drawBitmap function will return an enum with an error code if an error occurs see API  docs.
-See the bitmap example file for more details on each method. Bitmaps can be turned to data [here at link]( https://javl.github.io/image2cpp/) , Bitmaps  should be defined in the program memory and buffers in the data memory.
+See the bitmap example file for more details on each method. Bitmaps can be turned to data [here at link](https://github.com/gavinlyonsrepo/Guardian_LTSM) , Bitmaps  should be defined in the program memory and buffers in the data memory.
 
 ### User adjustments
 
